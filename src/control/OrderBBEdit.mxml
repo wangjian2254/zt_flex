@@ -431,7 +431,12 @@
 			public function refreshSave(e:ResultEvent):void{
 				if(e.result.success){
 					Alert.show("日报表保存成功。","提示");
-					getOrderBBByLSH(e.result.result);
+					
+					//保存成功后不再 重新加载 20130120
+					//getOrderBBByLSH(e.result.result);
+					//保存成功后，进入新增状态
+					orderbblist.removeAll();
+					this.lsh.text="";
 				}else{
 					if(e.result.result!=false&&e.result.result.hasOwnProperty("order")){
 						var rowIndex:int=0;

@@ -698,6 +698,8 @@ package uicontrol
 				for(var i:int=0;i<dataProvider.length;i++){
 					if(this.textInput.text==dataProvider[i][labelField]){
 						item=dataProvider[i];
+						selectedIndex=i;
+						selectedItem=item;
 						return item[valueField];
 					}
 				}

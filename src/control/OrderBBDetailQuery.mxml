@@ -46,7 +46,25 @@
 				user.setValue("");
 			}
 			
+			private function checkQueryParm():Boolean{
+				if(user.data&&user.selectedIndex==-1){
+					Alert.show("录入员 选择不正确。","警告");
+					return false;
+				}
+				
+				if(cbo.data&&cbo.selectedIndex==-1){
+					Alert.show("物料代码 选择不正确。","警告");
+					return false;
+				}
+				
+				return true;
+				
+			}
+			
 			public function orderRefresh():void{
+				if(!checkQueryParm()){
+					return;
+				}
 				var myDateFormatter:DateFormatter=new DateFormatter();
 				myDateFormatter.formatString="YYYYMMDD";
 				var op:AbstractOperation=RemoteUtil.getOperation("getOrderBBNoByDateQJ");
