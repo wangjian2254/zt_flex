@@ -144,7 +144,7 @@
 					
 				}
 			}
-			public function getExcel():void{
+			public function getExcel(flag:Boolean):void{
 				if(query.length>0){
 					var nohead:Object =new Object();
 					
@@ -249,10 +249,15 @@
 					
 					var myDateFormatter:DateFormatter=new DateFormatter();
 					myDateFormatter.formatString="YYYYMMDD";
-					var op:AbstractOperation=RemoteUtil.getOperation("getWriteExcel");
-					op.addEventListener(ResultEvent.RESULT,resultwriteExcel);
-					RemoteUtil.openLoading();
-					op.send(myDateFormatter.format(datelr.selectedDate),head,nohead,query);
+					if(flag){
+						var op:AbstractOperation=RemoteUtil.getOperation("getWriteExcel");
+						op.addEventListener(ResultEvent.RESULT,resultwriteExcel);
+						RemoteUtil.openLoading();
+						op.send(myDateFormatter.format(datelr.selectedDate),head,nohead,query);
+					}else{
+						
+					}
+					
 				}else{
 					Alert.show("没有数据，不能导出数据。","提示");
 				}
@@ -541,7 +546,9 @@
 					</uicontrol:FliterComboBox>
 					<s:Button label="查询" click="orderGenZongRefresh()">
 					</s:Button>
-					<s:Button label="导出数据" click="getExcel()">
+					<s:Button label="导出数据" click="getExcel(true)">
+					</s:Button>
+					<s:Button label="导出数据(作业单号)" click="getExcel(false)">
 					</s:Button>
 					<s:Button label="重置" click="queryreset()">
 					</s:Button>
