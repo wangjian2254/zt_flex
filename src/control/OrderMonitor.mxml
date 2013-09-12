@@ -21,8 +21,12 @@
 			import mx.events.ListEvent;
 			import mx.formatters.DateFormatter;
 			import mx.managers.PopUpManager;
+			import mx.messaging.ChannelSet;
+			import mx.messaging.channels.AMFChannel;
 			import mx.rpc.AbstractOperation;
+			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
+			import mx.rpc.remoting.RemoteObject;
 			import mx.utils.ObjectUtil;
 			import mx.utils.StringUtil;
 			
@@ -255,7 +259,7 @@
 						RemoteUtil.openLoading();
 						op.send(myDateFormatter.format(datelr.selectedDate),head,nohead,query);
 					}else{
-						
+						getExcelAndZY();
 					}
 					
 				}else{
@@ -264,9 +268,81 @@
 				
 			}
 			
+			
+			private var siteArr:ArrayCollection=null;
+			private var needAjax:Number=0;
+			private var resultAjax:Number=0;
+			public function getExcelAndZY():void{
+				needAjax=0;
+				resultAjax=0;
+				
+				siteArr=new ArrayCollection();
+				var item:Object;
+				for(var p:String in head['qianxu']){
+					if(p.substring(p.length-5,p.length)=='synum'){
+						item=new Object();
+						item['name']=p.substring(2,p.length-5);
+						siteArr.addItem(item);
+					}
+				}
+				for( p in head['houxu']){
+					if(p.substring(p.length-5,p.length)=='synum'){
+						item=new Object();
+						item['name']=p.substring(2,p.length-5);
+						siteArr.addItem(item);
+					}
+				}
+				needAjax=siteArr.length*query.length;
+				
+				bar.visible=true;
+				post_request();
+				for(var i:int=0;i<query.length;i++){
+					for(var j:int=0;j<siteArr.length;j++){
+						
+						
+						var op:AbstractOperation=RemoteUtil.getOperationByProgressBar("getZYOrderGenZongByOrderAndSite2");
+						op.addEventListener(ResultEvent.RESULT,resultZYOrder);
+						op.addEventListener(FaultEvent.FAULT,faultZYOrder);
+//						RemoteUtil.openLoading();
+						op.send(query.getItemAt(i)['orderlist_id'],Number(siteArr.getItemAt(j)['name']));
+					}
+					
+				}
+				
+			}
+			
+			public function faultZYOrder(e:FaultEvent):void{
+				
+				post_request();
+			}
+			
+			public function resultZYOrder(e:ResultEvent):void{
+				post_request();
+				if(e.result.success){
+//					genzongList.removeAll();
+//					genzongList.addAll(new ArrayCollection(e.result.result.result as Array));
+//					this.titlestr=e.result.result.title;
+				}
+			}
+			
+			public function post_request():void
+			{
+					resultAjax++;
+					bar.setProgress(resultAjax, needAjax);
+					var percent:Number = (resultAjax*100/needAjax);
+					bar.label = percent.toString() + "%";
+			}
+			
+			
 			public function queryreset():void{
 //				cbo.setValue("");
 				code.setValue("");
+				if(needAjax==0){
+					needAjax=100;
+				}
+				bar.visible=true;
+				post_request();
+
 			}
 			
 			public function orderGenZongRefresh():void{
@@ -466,6 +542,7 @@
 		<s:RadioButtonGroup id="ddquerytype" >
 			
 		</s:RadioButtonGroup>
+		
 	</fx:Declarations>
 	<s:HGroup top="8" right="8" bottom="8" left="8" gap="7">
 		<!--<s:BorderContainer width="400" height="100%"  borderVisible="false" color="0x333333" skinClass="skins.contentBoxSkin">	
@@ -583,4 +660,18 @@
 			
 		</s:BorderContainer>
 	</s:HGroup>
+	<mx:ProgressBar id="bar"
+					x="{(this.width-569)/2}" y="{(this.height-50)/2}"
+					labelPlacement="center"
+					chromeColor="#00ff00"
+					trackHeight="15"
+					minimum="0"
+					visible="false"
+					maximum="100"
+					label=" 0%"
+					direction="right"
+					mode="manual"
+					width="569" 
+					fontSize="14"
+					color="#0000ff" />
 </control:CBorderContainer>

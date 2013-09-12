@@ -43,6 +43,19 @@ package httpcontrol
 			return op;
 		}
 		
+		public static function getOperationByProgressBar(method:String):AbstractOperation{
+			var remoteObject:RemoteObject=new RemoteObject("service");
+			var channel:AMFChannel = new AMFChannel("pyamf-channel", "/zt/geteway/");
+			var channels:ChannelSet = new ChannelSet();
+			channels.addChannel(channel);
+			
+			remoteObject.showBusyCursor = true;
+			remoteObject.channelSet = channels;
+			var op:AbstractOperation= remoteObject.getOperation(method);
+			return op;
+		}
+		
+		
 //		public static function send(op:AbstractOperation,... args:Array):void{
 //			openLoading();
 //			op.send(args);
