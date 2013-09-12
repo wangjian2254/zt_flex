@@ -319,6 +319,8 @@
 			public function resultZYOrder(e:ResultEvent):void{
 				post_request();
 				if(e.result.success){
+					
+					new ArrayCollection(e.result.result.result as Array);
 //					genzongList.removeAll();
 //					genzongList.addAll(new ArrayCollection(e.result.result.result as Array));
 //					this.titlestr=e.result.result.title;
