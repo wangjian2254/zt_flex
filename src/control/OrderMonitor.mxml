@@ -259,7 +259,15 @@
 						RemoteUtil.openLoading();
 						op.send(myDateFormatter.format(datelr.selectedDate),head,nohead,query);
 					}else{
-						getExcelAndZY();
+						if(hasCommit){
+							op=RemoteUtil.getOperationByProgressBar("getWriteExcel2");
+							op.addEventListener(ResultEvent.RESULT,resultwriteExcel2);
+							op.addEventListener(FaultEvent.FAULT,faulttwriteExcel2);
+							op.send(myDateFormatter.format(datelr.selectedDate),head,nohead,query);
+							hasCommit=false;
+						}else{
+							getExcelAndZY();
+						}
 					}
 					
 				}else{
@@ -268,13 +276,32 @@
 				
 			}
 			
+			public function resultwriteExcel2(e:ResultEvent):void{
+				post_request();
+				if(e.result.success){
+					var url:String=e.result.result;  
+					var request:URLRequest=new URLRequest(url);  
+					navigateToURL(request);  
+				}else{
+					Alert.show("导出Excel失败，请重试。","提示");
+				}
+			}
+			public function faulttwriteExcel2(e:FaultEvent):void{
+				post_request();
+				Alert.show("导出Excel失败，请重试。","提示");
+			}
 			
 			private var siteArr:ArrayCollection=null;
 			private var needAjax:Number=0;
 			private var resultAjax:Number=0;
+			private var faultAjax:Number=0;
+			private var mapItem:Object=null;
+			private var hasCommit:Boolean=false;
 			public function getExcelAndZY():void{
 				needAjax=0;
 				resultAjax=0;
+				faultAjax=0;
+				mapItem=new Object();
 				
 				siteArr=new ArrayCollection();
 				var item:Object;
@@ -292,19 +319,34 @@
 						siteArr.addItem(item);
 					}
 				}
-				needAjax=siteArr.length*query.length;
+				needAjax=1;
 				
 				bar.visible=true;
-				post_request();
+				var issybool:Boolean=true;
+//				post_request();
 				for(var i:int=0;i<query.length;i++){
+					mapItem[query.getItemAt(i)['orderlist_id'].toString()]=query.getItemAt(i);
+					query.getItemAt(i)['maxlength']=0;
 					for(var j:int=0;j<siteArr.length;j++){
+						issybool=true;
+						if(issy.selected){
+							if(query.getItemAt(i).hasOwnProperty(['wz'+siteArr.getItemAt(j)['name']+'synum'])&&query.getItemAt(i)['wz'+siteArr.getItemAt(j)['name']+'synum']>0){
+								issybool=true;
+							}else{
+								issybool=false;
+							}
+							
+						}
+						if(issybool){
+							needAjax++;
+							var op:AbstractOperation=RemoteUtil.getOperationByProgressBar("getZYOrderGenZongByOrderAndSite2");
+							op.addEventListener(ResultEvent.RESULT,resultZYOrder);
+							op.addEventListener(FaultEvent.FAULT,faultZYOrder);
+							//						RemoteUtil.openLoading();
+							op.send(query.getItemAt(i)['orderlist_id'],Number(siteArr.getItemAt(j)['name']));
+						}
 						
 						
-						var op:AbstractOperation=RemoteUtil.getOperationByProgressBar("getZYOrderGenZongByOrderAndSite2");
-						op.addEventListener(ResultEvent.RESULT,resultZYOrder);
-						op.addEventListener(FaultEvent.FAULT,faultZYOrder);
-//						RemoteUtil.openLoading();
-						op.send(query.getItemAt(i)['orderlist_id'],Number(siteArr.getItemAt(j)['name']));
 					}
 					
 				}
@@ -314,16 +356,22 @@
 			public function faultZYOrder(e:FaultEvent):void{
 				
 				post_request();
+				faultAjax++;
 			}
 			
 			public function resultZYOrder(e:ResultEvent):void{
 				post_request();
 				if(e.result.success){
-					
-					new ArrayCollection(e.result.result.result as Array);
-//					genzongList.removeAll();
-//					genzongList.addAll(new ArrayCollection(e.result.result.result as Array));
-//					this.titlestr=e.result.result.title;
+					if(mapItem[e.result.result.orderlist_id.toString()].hasOwnProperty("maxlength")){
+						if(mapItem[e.result.result.orderlist_id.toString()]["maxlength"]<e.result.result.len){
+							mapItem[e.result.result.orderlist_id.toString()]["maxlength"]=e.result.result.len;
+						}
+					}else{
+						mapItem[e.result.result.orderlist_id.toString()]["maxlength"]=e.result.result.len;
+					}
+					if(e.result.result.len>0){
+						mapItem[e.result.result.orderlist_id.toString()]["wz"+e.result.result.site_id.toString()+"synum2"]=new ArrayCollection(e.result.result.result as Array);
+					}
 				}
 			}
 			
@@ -332,7 +380,15 @@
 					resultAjax++;
 					bar.setProgress(resultAjax, needAjax);
 					var percent:Number = (resultAjax*100/needAjax);
-					bar.label = percent.toString() + "%";
+					bar.label = percent.toString().split(".")[0] + "%";
+					if(needAjax==(resultAjax+1)&&needAjax>0){
+						hasCommit=true;
+						getExcel(false);
+					}
+					if(needAjax==resultAjax&&needAjax>0){
+						bar.visible=false;
+						bar.label="0%";
+					}
 			}
 			
 			
@@ -627,6 +683,8 @@
 					</s:Button>
 					<s:Button label="导出数据" click="getExcel(true)">
 					</s:Button>
+					<s:CheckBox label="剩余为'0'不导出" id="issy" selected="true" >
+					</s:CheckBox>
 					<s:Button label="导出数据(作业单号)" click="getExcel(false)">
 					</s:Button>
 					<s:Button label="重置" click="queryreset()">
@@ -662,6 +720,8 @@
 			
 		</s:BorderContainer>
 	</s:HGroup>
+	<s:BorderContainer width="100%" height="100%" borderVisible="false" visible="{bar.visible}" backgroundAlpha="0.5" backgroundColor="#000000">
+		
 	<mx:ProgressBar id="bar"
 					x="{(this.width-569)/2}" y="{(this.height-50)/2}"
 					labelPlacement="center"
@@ -676,4 +736,5 @@
 					width="569" 
 					fontSize="14"
 					color="#0000ff" />
+	</s:BorderContainer>
 </control:CBorderContainer>
