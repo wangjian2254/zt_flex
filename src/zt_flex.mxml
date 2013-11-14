@@ -133,6 +133,9 @@
 				if(btn.label=='订单追踪'){
 					menudata=myMenu3;
 				}
+				if(btn.label=='主计划管理'){
+					menudata=myMenu4;
+				}
 				
 				
 				if(myMenu!=null){
@@ -283,6 +286,17 @@
 				
 			</root>
 		</fx:XML>
+		<fx:XML format="e4x" id="myMenu4">
+			<root>
+				<menuitem label="主计划编制" mod='planedit'>
+				</menuitem>
+				<menuitem label="主计划汇总" mod='planshow'>
+				</menuitem>
+				<menuitem label="主计划修改记录" mod='planrecord'>
+				</menuitem>
+				
+			</root>
+		</fx:XML>
 	</fx:Declarations>
 	<fx:Style source="assets/style.css"/>
 	<s:Group id="header" width="100%" height="109">
@@ -319,6 +333,7 @@
 			<s:Button width="130" height="29" label="基础信息" styleName="menuBtn" mouseOver="showHandler(event)"/>
 			<s:Button width="130" height="29" label="日报表管理" styleName="menuBtn" mouseOver="showHandler(event)"/>
 			<s:Button width="130" height="29" label="订单追踪" styleName="menuBtn" mouseOver="showHandler(event)"/>
+			<s:Button width="130" height="29" label="主计划管理" styleName="menuBtn" mouseOver="showHandler(event)"/>
 		</s:Group>	
 		
 		<s:SkinnableContainer  height="28" top="77" left="0" right="0" skinClass="skins.locGroupSkin" id="locGroup" visible="true">
