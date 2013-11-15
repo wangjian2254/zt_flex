@@ -479,21 +479,7 @@
 			
 			[Bindable]
 			public var orderisopenlist:ArrayCollection=new ArrayCollection();
-			[Bindable]
-			[Embed("assets/img/toolbg.png")]
-			public var toolbgimg:Class;
-			[Bindable]
-			[Embed("assets/img/save.png")]
-			public var saveimg:Class;
-			[Bindable]
-			[Embed("assets/img/add.png")]
-			public var addimg:Class;
-			[Bindable]
-			[Embed("assets/img/del.png")]
-			public var delimg:Class;
-			[Bindable]
-			[Embed("assets/img/refresh.png")]
-			public var refreshimg:Class;
+			
 			[Bindable]
 			private var buttonArr:ArrayCollection=new ArrayCollection([{'label':'新增','ico':addimg},{'label':'保存','ico':saveimg},{'label':'删除','ico':delimg},{'label':'同步数据','ico':refreshimg},{'label':'同步订单编号和物料','ico':refreshimg}]);
 			
@@ -520,7 +506,7 @@
 					
 				</s:VerticalLayout>
 			</s:layout>
-				<s:BorderContainer left="0" top="0" height="45" width="100%" borderVisible="false" backgroundImage="{toolbgimg}">
+				<s:BorderContainer left="0" top="0" height="45" width="100%" borderVisible="false" backgroundImage="{CBorderContainer.toolbgimg}">
 					<s:layout>
 						<s:BasicLayout>
 							

@@ -196,21 +196,7 @@
 			
 			[Bindable]
 			public var peoplelist:ArrayCollection;
-			[Bindable]
-			[Embed("assets/img/toolbg.png")]
-			public var toolbgimg:Class;
-			[Bindable]
-			[Embed("assets/img/save.png")]
-			public var saveimg:Class;
-			[Bindable]
-			[Embed("assets/img/add.png")]
-			public var addimg:Class;
-			[Bindable]
-			[Embed("assets/img/del.png")]
-			public var delimg:Class;
-			[Bindable]
-			[Embed("assets/img/refresh.png")]
-			public var refreshimg:Class;
+			
 			[Bindable]
 			private var buttonArr:ArrayCollection=new ArrayCollection([{'label':'新增','ico':addimg},{'label':'修改','ico':saveimg},{'label':'同步数据','ico':refreshimg}]);
 			
@@ -274,7 +260,7 @@
 			</s:BorderContainer>
 		</s:BorderContainer>
 		<s:BorderContainer width="100%" height="100%"  borderVisible="false" color="0x333333" skinClass="skins.contentBoxSkin">	
-				<s:BorderContainer left="0" top="0" height="45" width="100%" borderVisible="false" backgroundImage="{toolbgimg}">
+				<s:BorderContainer left="0" top="0" height="45" width="100%" borderVisible="false" backgroundImage="{CBorderContainer.toolbgimg}">
 					<s:layout>
 						<s:BasicLayout>
 							

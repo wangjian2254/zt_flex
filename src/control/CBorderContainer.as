@@ -14,6 +14,27 @@ package control
 		private var _flag:String;
 		private var _icon:Class;
 		private var _closeEnable:Boolean=true;
+		
+		[Bindable]
+		[Embed("assets/img/toolbg.png")]
+		public static var toolbgimg:Class;
+		[Bindable]
+		[Embed("assets/img/save.png")]
+		public static var saveimg:Class;
+		[Bindable]
+		[Embed("assets/img/add.png")]
+		public static var addimg:Class;
+		[Bindable]
+		[Embed("assets/img/del.png")]
+		public static var delimg:Class;
+		[Bindable]
+		[Embed("assets/img/refresh.png")]
+		public  static var refreshimg:Class;
+		
+		[Bindable]
+		[Embed("assets/img/wx.png")]
+		public static var wximg:Class;
+		
 		public function CBorderContainer()
 		{
 			super();

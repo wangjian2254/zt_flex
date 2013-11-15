@@ -16,6 +16,7 @@
 			import control.OrderBBQuery;
 			import control.OrderMonitor;
 			import control.People;
+			import control.PlanEdit;
 			import control.Scx;
 			import control.Site;
 			import control.Welcome;
@@ -231,6 +232,11 @@
 						c.label=xml.attribute('label').toString();
 						c.flag=mod;
 						break;
+					case 'planedit':
+						c=new PlanEdit();
+						c.label=xml.attribute('label').toString();
+						c.flag=mod;
+						break;
 				}
 				if(c!=null){
 					cbar.addView(c);
@@ -264,7 +270,7 @@
 				</menuitem>
 				<menuitem label="位置管理" mod='site'>
 				</menuitem>
-				<menuitem label="订单管理管理" mod='order'>
+				<menuitem label="订单管理" mod='order'>
 				</menuitem>
 			</root>
 		</fx:XML>

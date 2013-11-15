@@ -60,18 +60,18 @@
 //				}
 //			}
 			
-			private var open:Timer=new Timer(1000,1);
-			private var close:Timer=new Timer(1000,1);
-			private function openevent(e:TimerEvent):void{
-				this.visible=true;
-			}
-			private function closeevent(e:TimerEvent):void{
-				this.visible=false;
-			}
+//			private var open:Timer=new Timer(1000,1);
+//			private var close:Timer=new Timer(1000,1);
+//			private function openevent(e:TimerEvent):void{
+//				this.visible=true;
+//			}
+//			private function closeevent(e:TimerEvent):void{
+//				this.visible=false;
+//			}
 			
 			private function init():void{
-				open.addEventListener(TimerEvent.TIMER,openevent);
-				close.addEventListener(TimerEvent.TIMER,closeevent);
+//				open.addEventListener(TimerEvent.TIMER,openevent);
+//				close.addEventListener(TimerEvent.TIMER,closeevent);
 				
 				var request:URLRequest = new URLRequest("assets/loading.gif");  
 				_myGIFPlayer.load(request);  
