@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<control:CBorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						  xmlns:s="library://ns.adobe.com/flex/spark" 
+						  xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:control="control.*" borderVisible="false" backgroundAlpha="0" width="900" height="300" xmlns:uicontrol="uicontrol.*" >
+	<control:layout>
+		<s:BasicLayout/>
+	</control:layout>
+	<fx:Script>
+		<![CDATA[
+			import events.CloseEvent;
+			
+			import httpcontrol.RemoteUtil;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumnGroup;
+			import mx.events.CollectionEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ItemClickEvent;
+			import mx.formatters.DateFormatter;
+			import mx.rpc.AbstractOperation;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			import mx.utils.StringUtil;
+			
+			import spark.components.CheckBox;
+			
+			import util.DateUtil;
+			import util.InfoUtil;
+			[Bindable]
+			public var showLabel:String;
+			
+			override public function init(e:FlexEvent):void{
+				//orderGenZongRefresh();
+
+			}
+			
+			override public function closeContainer(e:CloseEvent):void{
+				dispatchEvent(e);
+				
+			}
+			
+			
+			
+			//新增，保存，删除的处理函数
+			private function clickHander(e:ItemClickEvent):void{
+				
+				
+				if(e.label=="关闭选中订单"){
+					closeOrderList();
+				}
+				if(e.label=='同步数据'){
+					//					InfoUtil.orderbhRefresh();
+					orderGenZongRefresh();
+				}
+			}
+			
+			public function closeOrderList():void{
+				var orderid:Array=new Array();
+				for each(var item:Object in query){
+					if(item.closedate.length==8){
+						continue;
+					}
+					if(item.selected==true){
+						orderid.push(item.orderlist_id);
+					}
+				}
+				var op:AbstractOperation=RemoteUtil.getOperation("setOrderListClose");
+				op.addEventListener(ResultEvent.RESULT,resultOrderListClose);
+				RemoteUtil.openLoading();
+				op.send(orderid);
+			}
+			public  function resultOrderListClose(e:ResultEvent):void
+			{
+				
+				if(e.result.success){
+					var orderid:Array=e.result.result as Array;
+					
+						var myDateFormatter:DateFormatter=new DateFormatter();
+						myDateFormatter.formatString="YYYYMMDD";
+						
+						for each(var id:int in orderid){
+							for each(var item:Object in query){
+								if(id==item.orderlist_id){
+									item.closedate=myDateFormatter.format(new Date());
+									break;
+								}
+							}
+						}
+//						orderGenZongRefresh();
+					grid.invalidateList();
+					
+					Alert.show("订单已经关闭","提示");
+				}
+			}
+			
+			public function queryreset():void{
+				//				cbo.setValue("");
+//				code.setValue("");
+			}
+			
+			public function orderGenZongRefresh():void{
+				//				bbchange(null);
+				var myDateFormatter:DateFormatter=new DateFormatter();
+				myDateFormatter.formatString="YYYYMMDD";
+				var op:AbstractOperation=RemoteUtil.getOperation("getOrderGenZongToday");
+				op.addEventListener(ResultEvent.RESULT,resultOrderGenZongByDate);
+				RemoteUtil.openLoading();
+//				var ddbh:Array=new Array();
+//				for each(var item:Object in orderbb){
+//					if(item.selected==true){
+//						ddbh.push(item.id);
+//					}
+//				}
+				op.send(myDateFormatter.format(new Date()),"open");
+			}
+			
+			public function resultOrderGenZongByDate(e:ResultEvent):void{
+				if(e.result.success){
+					
+				}
+			}
+			
+			private function changeHead(e:Event):void{
+				var cb:CheckBox=e.currentTarget as CheckBox;
+				var cg:AdvancedDataGridColumnGroup;
+				var g:AdvancedDataGridColumnGroup;
+				var column:AdvancedDataGridColumn;
+				if(cb!=null){
+					for(var i:int=0;i<grid.groupedColumns.length;i++){
+						cg=grid.groupedColumns[i] as AdvancedDataGridColumnGroup;
+						column=grid.groupedColumns[i] as AdvancedDataGridColumn;
+						if(column!=null&&column.headerText==cb.label){
+							column.visible=cb.selected;
+						}
+						if(cg!=null){
+							for(var k:int=0;k<cg.children.length;k++){
+								g=cg.children[k] as AdvancedDataGridColumnGroup;
+								column=cg.children[k] as AdvancedDataGridColumn;
+								if(column!=null&&column.headerText==cb.label){
+									column.visible=cb.selected;
+								}
+								if(g!=null&&g.headerText==cb.label){
+									g.visible=cb.selected;
+									
+								}
+								
+							}
+						}
+						
+					}
+				}
+			}
+			
+			
+			
+			[Bindable]
+			public var doflag:Boolean=false;
+			
+			[Bindable]
+			public var query:ArrayCollection=new ArrayCollection();
+			
+			[Bindable]
+			public var orderisopenlist:ArrayCollection=new ArrayCollection();
+			
+			[Bindable]
+			public var orderbb:ArrayCollection=new ArrayCollection();
+			
+			[Bindable]
+			private var buttonArr:ArrayCollection=new ArrayCollection([{'label':'同步数据','ico':refreshimg}]);
+			
+			public var orderAndCodeMap:Object=new Object();
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<s:RadioButtonGroup id="ddquerytype" >
+			
+		</s:RadioButtonGroup>
+	</fx:Declarations>
+	<s:HGroup top="8" right="8" bottom="8" left="8" gap="7">
+		
+		<s:BorderContainer width="100%" height="100%"  borderVisible="false" color="0x333333" skinClass="skins.contentBoxSkin">	
+			<s:layout>
+				<s:VerticalLayout gap="5" paddingTop="5" paddingLeft="5" paddingRight="5">
+					
+				</s:VerticalLayout>
+			</s:layout>
+			<s:BorderContainer left="0" top="0" height="45" width="100%" borderVisible="false" backgroundImage="{CBorderContainer.toolbgimg}">
+				<s:layout>
+					<s:BasicLayout>
+						
+					</s:BasicLayout>
+				</s:layout>
+				<mx:ButtonBar dataProvider="{buttonArr}"  doubleClickEnabled="true"  chromeColor="#faf0cc"  labelField="label" iconField="ico"  height="30" top="7" bottom="7" left="10" itemClick="clickHander(event);">
+					
+				</mx:ButtonBar>
+				
+			</s:BorderContainer>
+			<s:BorderContainer left="0" top="0" height="45" width="100%" borderVisible="false" >
+				<s:layout>
+					<s:HorizontalLayout gap="10" verticalAlign="middle" paddingLeft="20">
+						
+					</s:HorizontalLayout>
+				</s:layout>
+				<s:CheckBox id="cbclose" label="已关闭订单" />
+				<s:CheckBox id="cbopen" label="未关闭订单" selected="true" />
+				<s:Label text="下达日期:">
+					
+				</s:Label>
+				<mx:DateField id="startdate" width="100" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
+				<s:Label text="~"/>
+				<mx:DateField id="enddate" width="100" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
+				
+			</s:BorderContainer>
+			
+			
+			<s:Scroller width="100%" height="100%">
+				<s:Group width="100%" height="100%">
+					<mx:AdvancedDataGrid id="grid" dataProvider="{query}" visible="false" editable="true"  height="100%">
+						<mx:groupedColumns>
+							<mx:AdvancedDataGridColumn headerText="选择" dataField="selected"  sortable="false" width="60"  editorDataField="selected" rendererIsEditor="true" >
+								<mx:itemRenderer>
+									<fx:Component>
+										<mx:HBox horizontalAlign="center">
+											<fx:Script>
+												<![CDATA[
+													public function get selected():Boolean{
+														return cb.selected;
+													}
+													public function set selected(value:Boolean):void{
+														cb.selected=value;
+													}
+												]]>
+											</fx:Script>
+											
+											<mx:CheckBox id="cb" selected="{data.selected}" >
+												
+											</mx:CheckBox>
+										</mx:HBox>
+									</fx:Component>
+								</mx:itemRenderer>
+							</mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn headerText="订单号" width="120">
+							</mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn headerText="下达日期" width="100"></mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn headerText="录入" width="120"></mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn headerText="项数" width="60"></mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn headerText="件数" width="60"></mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn headerText="已关闭项数" width="120"></mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn headerText="未关闭项数" width="120"></mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn headerText="关闭标记" width="120"></mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn headerText="未关闭时间" width="120"></mx:AdvancedDataGridColumn>
+						</mx:groupedColumns>
+					</mx:AdvancedDataGrid>	
+				</s:Group>
+			</s:Scroller>
+			
+			
+		</s:BorderContainer>
+	</s:HGroup>
+</control:CBorderContainer>

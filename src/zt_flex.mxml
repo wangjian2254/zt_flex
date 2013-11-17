@@ -15,6 +15,7 @@
 			import control.OrderBBEdit;
 			import control.OrderBBQuery;
 			import control.OrderMonitor;
+			import control.OrderRuningShow;
 			import control.People;
 			import control.PlanEdit;
 			import control.Scx;
@@ -232,6 +233,12 @@
 						c.label=xml.attribute('label').toString();
 						c.flag=mod;
 						break;
+					case 'orderruning':
+						c=new OrderRuningShow();
+						c.closeEnable=false;
+						c.label=xml.attribute('label').toString();
+						c.flag=mod;
+						break;
 					case 'planedit':
 						c=new PlanEdit();
 						c.label=xml.attribute('label').toString();
@@ -287,7 +294,8 @@
 		<fx:XML format="e4x" id="myMenu3">
 			<root>
 				<menuitem label="订单追踪" mod='ordermonitor'>
-					
+				</menuitem>
+				<menuitem label="订单执行情况汇总表" mod='orderruning'>
 				</menuitem>
 				
 			</root>
