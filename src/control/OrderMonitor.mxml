@@ -706,21 +706,6 @@
 			
 		</s:BorderContainer>
 	</s:HGroup>
-	<s:BorderContainer width="100%" height="100%" borderVisible="false" visible="{bar.visible}" backgroundAlpha="0.5" backgroundColor="#000000">
-		
-	<mx:ProgressBar id="bar"
-					x="{(this.width-569)/2}" y="{(this.height-50)/2}"
-					labelPlacement="center"
-					chromeColor="#00ff00"
-					trackHeight="15"
-					minimum="0"
-					visible="false"
-					maximum="100"
-					label=" 0%"
-					direction="right"
-					mode="manual"
-					width="569" 
-					fontSize="14"
-					color="#0000ff" />
-	</s:BorderContainer>
+	<uicontrol:CProgressBar id="bar" width="100%" height="100%" visible="false">
+	</uicontrol:CProgressBar>
 </control:CBorderContainer>

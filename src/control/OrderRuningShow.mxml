@@ -32,7 +32,6 @@
 			public var showLabel:String;
 			
 			override public function init(e:FlexEvent):void{
-				//orderGenZongRefresh();
 
 			}
 			
@@ -42,116 +41,59 @@
 			}
 			
 			
+		
+//					grid.invalidateList();
 			
-			//新增，保存，删除的处理函数
-			private function clickHander(e:ItemClickEvent):void{
-				
-				
-				if(e.label=="关闭选中订单"){
-					closeOrderList();
-				}
-				if(e.label=='同步数据'){
-					//					InfoUtil.orderbhRefresh();
-					orderGenZongRefresh();
-				}
-			}
+
 			
-			public function closeOrderList():void{
-				var orderid:Array=new Array();
-				for each(var item:Object in query){
-					if(item.closedate.length==8){
-						continue;
-					}
-					if(item.selected==true){
-						orderid.push(item.orderlist_id);
-					}
-				}
-				var op:AbstractOperation=RemoteUtil.getOperation("setOrderListClose");
-				op.addEventListener(ResultEvent.RESULT,resultOrderListClose);
-				RemoteUtil.openLoading();
-				op.send(orderid);
-			}
-			public  function resultOrderListClose(e:ResultEvent):void
-			{
-				
-				if(e.result.success){
-					var orderid:Array=e.result.result as Array;
-					
-						var myDateFormatter:DateFormatter=new DateFormatter();
-						myDateFormatter.formatString="YYYYMMDD";
-						
-						for each(var id:int in orderid){
-							for each(var item:Object in query){
-								if(id==item.orderlist_id){
-									item.closedate=myDateFormatter.format(new Date());
-									break;
-								}
-							}
-						}
-//						orderGenZongRefresh();
-					grid.invalidateList();
-					
-					Alert.show("订单已经关闭","提示");
-				}
-			}
-			
-			public function queryreset():void{
-				//				cbo.setValue("");
-//				code.setValue("");
-			}
-			
-			public function orderGenZongRefresh():void{
+			public function orderRuningRefresh():void{
 				//				bbchange(null);
 				var myDateFormatter:DateFormatter=new DateFormatter();
 				myDateFormatter.formatString="YYYYMMDD";
-				var op:AbstractOperation=RemoteUtil.getOperation("getOrderGenZongToday");
-				op.addEventListener(ResultEvent.RESULT,resultOrderGenZongByDate);
+				myDateFormatter.format(new Date());
+				if(startdate.selectedDate==null||enddate.selectedDate==null){
+					Alert.show("订单下达日期必须选择","提示");
+					return;
+				}
+				var start:String=myDateFormatter.format(startdate.selectedDate);	
+				var end:String=myDateFormatter.format(enddate.selectedDate);
+				var open:String="close";
+				if(cbopen.selected){
+					open="open";
+				}
+				var op:AbstractOperation=RemoteUtil.getOperation("getOrderRuningList");
+				op.addEventListener(ResultEvent.RESULT,resultOrderRuningList);
 				RemoteUtil.openLoading();
-//				var ddbh:Array=new Array();
-//				for each(var item:Object in orderbb){
-//					if(item.selected==true){
-//						ddbh.push(item.id);
-//					}
-//				}
-				op.send(myDateFormatter.format(new Date()),"open");
+				op.send(start,end,open);
 			}
 			
-			public function resultOrderGenZongByDate(e:ResultEvent):void{
-				if(e.result.success){
-					
-				}
+			public function resultOrderRuningList(e:ResultEvent):void{
+				
 			}
 			
-			private function changeHead(e:Event):void{
-				var cb:CheckBox=e.currentTarget as CheckBox;
-				var cg:AdvancedDataGridColumnGroup;
-				var g:AdvancedDataGridColumnGroup;
-				var column:AdvancedDataGridColumn;
-				if(cb!=null){
-					for(var i:int=0;i<grid.groupedColumns.length;i++){
-						cg=grid.groupedColumns[i] as AdvancedDataGridColumnGroup;
-						column=grid.groupedColumns[i] as AdvancedDataGridColumn;
-						if(column!=null&&column.headerText==cb.label){
-							column.visible=cb.selected;
-						}
-						if(cg!=null){
-							for(var k:int=0;k<cg.children.length;k++){
-								g=cg.children[k] as AdvancedDataGridColumnGroup;
-								column=cg.children[k] as AdvancedDataGridColumn;
-								if(column!=null&&column.headerText==cb.label){
-									column.visible=cb.selected;
-								}
-								if(g!=null&&g.headerText==cb.label){
-									g.visible=cb.selected;
-									
-								}
-								
-							}
-						}
-						
-					}
+			
+			public function setDateRange(type:String):void{
+				var end:Date=new Date();
+				var start:Date=new Date();
+				switch(type){
+					case "oneweek":
+						start.date-=7;
+						break;
+					case "twoweek":
+						start.date-=14;
+						break;
+					case "onemonth":
+						start.date-=31;
+						break;
+					case "twomonth":
+						start.date-=62;
+						break;
 				}
+				startdate.selectedDate=start;
+				enddate.selectedDate=end;
 			}
+			
+			
 			
 			
 			
@@ -167,8 +109,6 @@
 			[Bindable]
 			public var orderbb:ArrayCollection=new ArrayCollection();
 			
-			[Bindable]
-			private var buttonArr:ArrayCollection=new ArrayCollection([{'label':'同步数据','ico':refreshimg}]);
 			
 			public var orderAndCodeMap:Object=new Object();
 		]]>
@@ -189,33 +129,32 @@
 			</s:layout>
 			<s:BorderContainer left="0" top="0" height="45" width="100%" borderVisible="false" backgroundImage="{CBorderContainer.toolbgimg}">
 				<s:layout>
-					<s:BasicLayout>
-						
-					</s:BasicLayout>
-				</s:layout>
-				<mx:ButtonBar dataProvider="{buttonArr}"  doubleClickEnabled="true"  chromeColor="#faf0cc"  labelField="label" iconField="ico"  height="30" top="7" bottom="7" left="10" itemClick="clickHander(event);">
-					
-				</mx:ButtonBar>
-				
-			</s:BorderContainer>
-			<s:BorderContainer left="0" top="0" height="45" width="100%" borderVisible="false" >
-				<s:layout>
 					<s:HorizontalLayout gap="10" verticalAlign="middle" paddingLeft="20">
 						
 					</s:HorizontalLayout>
 				</s:layout>
-				<s:CheckBox id="cbclose" label="已关闭订单" />
-				<s:CheckBox id="cbopen" label="未关闭订单" selected="true" />
+				<s:RadioButton id="cbclose" groupName="order" label="已关闭订单" />
+				<s:RadioButton id="cbopen" groupName="order"  label="未关闭订单" selected="true" />
+				
+				
 				<s:Label text="下达日期:">
 					
 				</s:Label>
 				<mx:DateField id="startdate" width="100" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
 				<s:Label text="~"/>
 				<mx:DateField id="enddate" width="100" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
+				<s:Button label="一周内" click="setDateRange('oneweek');">
+				</s:Button>
+				<s:Button label="两周内" click="setDateRange('twoweek');">
+				</s:Button>
+				<s:Button label="一月内" click="setDateRange('onemonth');">
+				</s:Button>
+				<s:Button label="两月内" click="setDateRange('twomonth');">
+				</s:Button>
+				<s:Button label="查询" click="orderRuningRefresh()">
+				</s:Button>
 				
 			</s:BorderContainer>
-			
-			
 			<s:Scroller width="100%" height="100%">
 				<s:Group width="100%" height="100%">
 					<mx:AdvancedDataGrid id="grid" dataProvider="{query}" visible="false" editable="true"  height="100%">
@@ -260,4 +199,6 @@
 			
 		</s:BorderContainer>
 	</s:HGroup>
+	<uicontrol:CProgressBar id="bar" width="100%" height="100%" visible="false">
+	</uicontrol:CProgressBar>
 </control:CBorderContainer>
