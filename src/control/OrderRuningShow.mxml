@@ -12,6 +12,7 @@
 			import httpcontrol.RemoteUtil;
 			
 			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
 			import mx.controls.Alert;
 			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumnGroup;
@@ -20,6 +21,7 @@
 			import mx.events.ItemClickEvent;
 			import mx.formatters.DateFormatter;
 			import mx.rpc.AbstractOperation;
+			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.ObjectUtil;
 			import mx.utils.StringUtil;
@@ -50,7 +52,7 @@
 				//				bbchange(null);
 				var myDateFormatter:DateFormatter=new DateFormatter();
 				myDateFormatter.formatString="YYYYMMDD";
-				myDateFormatter.format(new Date());
+//				myDateFormatter.format(new Date());
 				if(startdate.selectedDate==null||enddate.selectedDate==null){
 					Alert.show("订单下达日期必须选择","提示");
 					return;
@@ -61,6 +63,11 @@
 				if(cbopen.selected){
 					open="open";
 				}
+				
+				if(cball.selected){
+					open="";
+				}
+				
 				var op:AbstractOperation=RemoteUtil.getOperation("getOrderRuningList");
 				op.addEventListener(ResultEvent.RESULT,resultOrderRuningList);
 				RemoteUtil.openLoading();
@@ -68,9 +75,89 @@
 			}
 			
 			public function resultOrderRuningList(e:ResultEvent):void{
+				var today:Number=(new Date()).valueOf();
+				
+				if(e.result.success){
+					var ddbhlist:ArrayCollection=new ArrayCollection();
+					query.removeAll();
+					query.addAll(new ArrayCollection(e.result.result as Array));
+					var item:Object=null;
+					for(var i:Number=0;i<query.length;i++){
+						item = query.getItemAt(i);
+						if(item['closeflag']==0){
+							item['opentime']= int((today-item['xddate'].valueOf())/ 24 / 60 / 60 /1000)+1;
+						}else{
+							ddbhlist.addItem(item);
+						}
+					}
+					jisuanOpentime(ddbhlist);
+					
+				}
+			}
+			
+			public function jisuanOpentime(ids:ArrayCollection):void{
+				resultAjax=0;
+				needAjax=ids.length;
+				queryreset();
+				for(var i:Number=0;i<ids.length;i++){
+				
+					var op:AbstractOperation=RemoteUtil.getOperationByProgressBar("getOrderEndDate");
+					op.addEventListener(ResultEvent.RESULT,resultZYOrder);
+					op.addEventListener(FaultEvent.FAULT,faultZYOrder);
+					//						RemoteUtil.openLoading();
+					op.send(ids.getItemAt(i)["id"]);
+				}
 				
 			}
 			
+			public function faultZYOrder(e:FaultEvent):void{
+				
+				post_request();
+				faultAjax++;
+			}
+			
+			public function resultZYOrder(e:ResultEvent):void{
+				post_request();
+				if(e.result.success){
+					var ddbhid:Number=e.result.result.ddbhid;
+					var date:Date=e.result.result.date;
+					var item:Object=null;
+					for(var i:Number=0;i<query.length;i++){
+						item = query.getItemAt(i);
+						if(item['id']==ddbhid){
+							item['opentime']= int((date.valueOf()-item['xddate'].valueOf())/ 24 / 60 / 60 /1000)+1;
+							break;
+						}
+					}
+					grid.invalidateList();
+				}
+			}
+			
+			private var resultAjax:Number=0;
+			private var needAjax:Number=0;
+			private var faultAjax:Number=0;
+			public function post_request():void
+			{
+				resultAjax++;
+				bar.setProgress(resultAjax, needAjax);
+				var percent:Number = (resultAjax*100/needAjax);
+				bar.label = percent.toString().split(".")[0] + "%";
+				
+				if(needAjax==(resultAjax+1)&&needAjax>0){
+					bar.visible=false;
+					bar.label="0%";
+				}
+			}
+			
+			
+			public function queryreset():void{
+				if(needAjax==0){
+					needAjax=100;
+				}
+				bar.visible=true;
+				post_request();
+				
+			}
 			
 			public function setDateRange(type:String):void{
 				var end:Date=new Date();
@@ -94,7 +181,13 @@
 			}
 			
 			
-			
+			public function getDataStr(item:Object, column:AdvancedDataGridColumn):String{
+				if(item.xddate==""){
+					return "";
+				}
+				var date:Date=item.xddate;
+				return ""+date.fullYear+"/"+(date.month+1)+"/"+date.date;
+			}
 			
 			
 			[Bindable]
@@ -123,7 +216,7 @@
 		
 		<s:BorderContainer width="100%" height="100%"  borderVisible="false" color="0x333333" skinClass="skins.contentBoxSkin">	
 			<s:layout>
-				<s:VerticalLayout gap="5" paddingTop="5" paddingLeft="5" paddingRight="5">
+				<s:VerticalLayout gap="5" paddingTop="5" paddingLeft="5" paddingRight="5" paddingBottom="5">
 					
 				</s:VerticalLayout>
 			</s:layout>
@@ -135,14 +228,15 @@
 				</s:layout>
 				<s:RadioButton id="cbclose" groupName="order" label="已关闭订单" />
 				<s:RadioButton id="cbopen" groupName="order"  label="未关闭订单" selected="true" />
+				<s:RadioButton id="cball" groupName="order"  label="所有订单"  />
 				
 				
 				<s:Label text="下达日期:">
 					
 				</s:Label>
-				<mx:DateField id="startdate" width="100" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
+				<mx:DateField id="startdate" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
 				<s:Label text="~"/>
-				<mx:DateField id="enddate" width="100" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
+				<mx:DateField id="enddate"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
 				<s:Button label="一周内" click="setDateRange('oneweek');">
 				</s:Button>
 				<s:Button label="两周内" click="setDateRange('twoweek');">
@@ -155,46 +249,23 @@
 				</s:Button>
 				
 			</s:BorderContainer>
-			<s:Scroller width="100%" height="100%">
-				<s:Group width="100%" height="100%">
-					<mx:AdvancedDataGrid id="grid" dataProvider="{query}" visible="false" editable="true"  height="100%">
+			
+					<mx:AdvancedDataGrid id="grid" dataProvider="{query}" editable="false" width="100%" height="100%">
 						<mx:groupedColumns>
-							<mx:AdvancedDataGridColumn headerText="选择" dataField="selected"  sortable="false" width="60"  editorDataField="selected" rendererIsEditor="true" >
-								<mx:itemRenderer>
-									<fx:Component>
-										<mx:HBox horizontalAlign="center">
-											<fx:Script>
-												<![CDATA[
-													public function get selected():Boolean{
-														return cb.selected;
-													}
-													public function set selected(value:Boolean):void{
-														cb.selected=value;
-													}
-												]]>
-											</fx:Script>
-											
-											<mx:CheckBox id="cb" selected="{data.selected}" >
-												
-											</mx:CheckBox>
-										</mx:HBox>
-									</fx:Component>
-								</mx:itemRenderer>
+							
+							<mx:AdvancedDataGridColumn headerText="订单号" dataField="ddbh" width="120">
 							</mx:AdvancedDataGridColumn>
-							<mx:AdvancedDataGridColumn headerText="订单号" width="120">
-							</mx:AdvancedDataGridColumn>
-							<mx:AdvancedDataGridColumn headerText="下达日期" width="100"></mx:AdvancedDataGridColumn>
-							<mx:AdvancedDataGridColumn headerText="录入" width="120"></mx:AdvancedDataGridColumn>
-							<mx:AdvancedDataGridColumn headerText="项数" width="60"></mx:AdvancedDataGridColumn>
-							<mx:AdvancedDataGridColumn headerText="件数" width="60"></mx:AdvancedDataGridColumn>
-							<mx:AdvancedDataGridColumn headerText="已关闭项数" width="120"></mx:AdvancedDataGridColumn>
-							<mx:AdvancedDataGridColumn headerText="未关闭项数" width="120"></mx:AdvancedDataGridColumn>
-							<mx:AdvancedDataGridColumn headerText="关闭标记" width="120"></mx:AdvancedDataGridColumn>
-							<mx:AdvancedDataGridColumn headerText="未关闭时间" width="120"></mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn headerText="下达日期" labelFunction="getDataStr" dataField="xddate" width="100"></mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn headerText="录入" dataField="lr" width="120"></mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn headerText="项数" dataField="orderlistnum" width="60"></mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn headerText="件数" dataField="productnum" width="60"></mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn headerText="已关闭项数" dataField="closeorderlistnum" width="120"></mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn headerText="未关闭项数" dataField="openorderlistnum" width="120"></mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn headerText="关闭标记" dataField="closeflag" width="120"></mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn headerText="未关闭时间" dataField="opentime" width="120"></mx:AdvancedDataGridColumn>
 						</mx:groupedColumns>
 					</mx:AdvancedDataGrid>	
-				</s:Group>
-			</s:Scroller>
+				
 			
 			
 		</s:BorderContainer>

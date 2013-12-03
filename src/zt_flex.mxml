@@ -235,7 +235,6 @@
 						break;
 					case 'orderruning':
 						c=new OrderRuningShow();
-						c.closeEnable=false;
 						c.label=xml.attribute('label').toString();
 						c.flag=mod;
 						break;
