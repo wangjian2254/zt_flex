@@ -22,6 +22,8 @@
 			import control.Site;
 			import control.Welcome;
 			
+			import events.ChangeMenuEvent;
+			
 			import httpcontrol.RemoteUtil;
 			
 			import model.User;
@@ -29,6 +31,7 @@
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.controls.Menu;
+			import mx.events.FlexEvent;
 			import mx.events.MenuEvent;
 			import mx.managers.PopUpManager;
 			import mx.messaging.ChannelSet;
@@ -55,7 +58,49 @@
 				RemoteUtil.openLoading();
 				operation1.send();
 				
+				gongNengStack.addEventListener(ChangeMenuEvent.ChangeMenu_EventStr,changeMenu);
+				
 			}
+			
+			private function changeMenu(evt:ChangeMenuEvent):void{
+				var event:MenuEvent=new MenuEvent(MenuEvent.CHANGE);
+				var label:String;
+				var mod:String;
+				var xml:XML;
+				var xml2:XML;
+				for each(var xml1:XML in myMenu1..menuitem){
+					xml2=xml1 as XML;
+					if(xml2.attribute('mod').toString()==evt.getMenuMod()){
+						xml=xml2 as XML;
+						break;
+					}
+				}
+				for each(xml1 in myMenu2..menuitem){
+					xml2=xml1 as XML;
+					if(xml2.attribute('mod').toString()==evt.getMenuMod()){
+						xml=xml2 as XML;
+						break;
+					}
+				}
+				for each(xml1 in myMenu3..menuitem){
+					xml2=xml1 as XML;
+					if(xml2.attribute('mod').toString()==evt.getMenuMod()){
+						xml=xml2 as XML;
+						break;
+					}
+				}
+				for each(xml1 in myMenu4..menuitem){
+					xml2=xml1 as XML;
+					if(xml2.attribute('mod').toString()==evt.getMenuMod()){
+						xml=xml2 as XML;
+						break;
+					}
+				}
+				event.item=xml; 
+				
+				onMenuChange(event,evt.getObj());
+			}
+			
 			private function resulthaschange(evt:ResultEvent, token:Object=null):void{
 				if(evt.result.success==true){
 					if(evt.result.result){
@@ -171,81 +216,68 @@
 				menuflag=null;
 			}
 			
-			protected function onMenuChange(event:MenuEvent):void
+			protected function onMenuChange(event:MenuEvent,obj:Object=null):void
 			{
 				menuflag=null;
+				var c:CBorderContainer;
 				var xml:XML=event.item as XML;
 				var mod:String=xml.attribute('mod').toString();
 				website.text=xml.attribute('label').toString();
-				if(cbar.setView(mod)){
-					return;
-				}
-				var c:CBorderContainer;
-				switch(mod){
-					case 'people':
-						c=new People();
-						c.label=xml.attribute('label').toString();
-						c.flag=mod;
-						break;
-					case 'scx':
-						c=new Scx();
-						c.label=xml.attribute('label').toString();
-						c.flag=mod;
-						break;
-					case 'code':
-						c=new Code();
-						c.label=xml.attribute('label').toString();
-						c.flag=mod;
-						break;
-					case 'site':
-						c=new Site();
-						c.label=xml.attribute('label').toString();
-						c.flag=mod;
-						break;
-					case 'order':
-						c=new Order();
-						c.label=xml.attribute('label').toString();
-						c.flag=mod;
-						break;
-					case 'orderbblr':
-						c=new OrderBBEdit();
-						c.label=xml.attribute('label').toString();
-						c.flag=mod;
-						break;
-					case 'orderquery':
-						c=new OrderBBQuery();
-						c.label=xml.attribute('label').toString();
-						c.flag=mod;
-						break;
-					case 'ordermonitor':
-						c=new OrderMonitor();
-						c.label=xml.attribute('label').toString();
-						c.flag=mod;
-						break;
-					case 'orderbbdetailquery':
-						c=new OrderBBDetailQuery();
-						c.label=xml.attribute('label').toString();
-						c.flag=mod;
-						break;
-					case 'welcome':
-						c=new Welcome();
-						c.closeEnable=false;
-						c.label=xml.attribute('label').toString();
-						c.flag=mod;
-						break;
-					case 'orderruning':
-						c=new OrderRuningShow();
-						c.label=xml.attribute('label').toString();
-						c.flag=mod;
-						break;
-					case 'planedit':
-						c=new PlanEdit();
-						c.label=xml.attribute('label').toString();
-						c.flag=mod;
-						break;
+				c = cbar.getView(mod);
+				if(c==null){
+					switch(mod){
+						case 'people':
+							c=new People();
+							break;
+						case 'scx':
+							c=new Scx();
+							break;
+						case 'code':
+							c=new Code();
+							break;
+						case 'site':
+							c=new Site();
+							break;
+						case 'order':
+							c=new Order();
+							break;
+						case 'orderbblr':
+							c=new OrderBBEdit();
+							break;
+						case 'orderquery':
+							c=new OrderBBQuery();
+							break;
+						case 'ordermonitor':
+							c=new OrderMonitor();
+							break;
+						case 'orderbbdetailquery':
+							c=new OrderBBDetailQuery();
+							break;
+						case 'welcome':
+							c=new Welcome();
+							c.closeEnable=false;
+							break;
+						case 'orderruning':
+							c=new OrderRuningShow();
+							break;
+						case 'planedit':
+							c=new PlanEdit();
+							break;
+					}
+				}else{
+					c.removeEventListener(FlexEvent.SHOW,c.reloadParamData);
+					if(obj!=null){
+						c.addEventListener(FlexEvent.SHOW,c.reloadParamData);
+					}
 				}
 				if(c!=null){
-					cbar.addView(c);
+					c.label=xml.attribute('label').toString();
+					c.flag=mod;
+					c.param=obj;
+					
+					if(!cbar.setView(mod)){
+						cbar.addView(c);
+					}
 				}
 				
 			}

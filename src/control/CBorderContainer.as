@@ -14,6 +14,7 @@ package control
 		private var _flag:String;
 		private var _icon:Class;
 		private var _closeEnable:Boolean=true;
+		private var _param:Object;//附带的参数
 		
 		[Bindable]
 		[Embed("assets/img/toolbg.png")]
@@ -40,6 +41,7 @@ package control
 			super();
 			this.setStyle("borderVisible",false);
 			this.addEventListener(FlexEvent.CREATION_COMPLETE,init);
+			this.addEventListener(FlexEvent.CREATION_COMPLETE,reloadParamData);
 		}
 		
 		public function get flag():String
@@ -96,6 +98,20 @@ package control
 		
 		public function closeContainer(e:CloseEvent):void{
 			throw new Error("CBorderContainer 的子类必须重写 closeContainer(e:CloseEvent) 方法。在方法中触发 CloseEvent 事件。");
+		}
+		
+		public function get param():Object
+		{
+			return _param;
+		}
+		
+		public function set param(value:Object):void
+		{
+			_param = value;
+		}
+		
+		public function reloadParamData(e:FlexEvent):void{
+			param=null;
 		}
 	}
 }

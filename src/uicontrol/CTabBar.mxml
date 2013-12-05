@@ -64,6 +64,14 @@
 				}
 				return false;
 			}
+			public function getView(mod:String):CBorderContainer{
+				for each(var o:CBorderContainer in dataProvider.getChildren()){
+					if(o.flag==mod){
+						return o;
+					}
+				}
+				return null;
+			}
 			
 			private function close(e:CloseTabButtonEvent):void{
 				

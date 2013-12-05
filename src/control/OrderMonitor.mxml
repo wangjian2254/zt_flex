@@ -32,15 +32,16 @@
 			
 			import spark.components.CheckBox;
 			
+			import util.DateUtil;
 			import util.InfoUtil;
 			[Bindable]
 			public var showLabel:String;
 			
 			override public function init(e:FlexEvent):void{
-				orderbb=ObjectUtil.copy(InfoUtil.orderbhList) as ArrayCollection;
-				for each(var item:Object in orderbb){
-					item.selected=false;
-				}
+//				orderbb=ObjectUtil.copy(InfoUtil.orderbhList) as ArrayCollection;
+//				for each(var item:Object in orderbb){
+//					item.selected=false;
+//				}
 //				ddbhGrid.addEventListener(CollectionEvent.COLLECTION_CHANGE,bbchange);
 //				getAllOrderIsOpen();
 //				orderlist=ObjectUtil.copy(InfoUtil.orderList) as ArrayCollection;
@@ -48,11 +49,19 @@
 //				orderbblist.removeAll();
 //				orderbbgrid.init(null);
 				datelr.selectedDate=new Date();
+				
 			}
 			
 			override public function closeContainer(e:CloseEvent):void{
 				dispatchEvent(e);
 				
+			}
+			override public function reloadParamData(e:FlexEvent):void{
+				
+				ddbhGrid.selectedItem=param;
+				datelr.selectedDate=new Date();
+				orderGenZongRefresh();
+				super.reloadParamData(e);
 			}
 			
 			
@@ -411,11 +420,14 @@
 				op.addEventListener(ResultEvent.RESULT,resultOrderGenZongByDate);
 				RemoteUtil.openLoading();
 				var ddbh:Array=new Array();
-				for each(var item:Object in orderbb){
-					if(item.selected==true){
-						ddbh.push(item.id);
-					}
+				if(ddbhGrid.selectedItem!=null){
+					ddbh.push(ddbhGrid.selectedItem.id);
 				}
+//				for each(var item:Object in orderbb){
+//					if(item.selected==true){
+//						ddbh.push(item.id);
+//					}
+//				}
 				op.send(myDateFormatter.format(datelr.selectedDate),ddquerytype.selectedValue,ddbh,code.data,isaction.selected);
 			}
 			
@@ -572,8 +584,8 @@
 			[Bindable]
 			public var orderisopenlist:ArrayCollection=new ArrayCollection();
 			
-			[Bindable]
-			public var orderbb:ArrayCollection=new ArrayCollection();
+//			[Bindable]
+//			public var orderbb:ArrayCollection=new ArrayCollection();
 			
 			[Bindable]
 			private var buttonArr:ArrayCollection=new ArrayCollection([{'label':'新增','ico':addimg},{'label':'保存','ico':saveimg},{'label':'删除','ico':delimg},{'label':'同步数据','ico':refreshimg},{'label':'导出数据','ico':refreshimg}]);
@@ -612,7 +624,7 @@
 						</s:HorizontalLayout>
 					</s:layout>
 					<s:Label text="日期:"/>
-					<mx:DateField id="datelr" width="100" >
+					<mx:DateField id="datelr" width="100"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}"  >
 						
 					</mx:DateField>
 					<s:BorderContainer width="90" height="100%" borderVisible="false">
@@ -632,7 +644,11 @@
 					<s:CheckBox label="只显示选中的订单" id="cbox">
 						
 					</s:CheckBox>
-					
+					<s:Label text="订单编号:"/>
+					<uicontrol:FliterComboBox id="ddbhGrid" dataProvider="{InfoUtil.orderbhList}" labelField="ddbh" valueField="id" width="100" styleName="fliterComboBox" dropdownWidth="200">
+						
+					</uicontrol:FliterComboBox>
+					<!--
 					<mx:DataGrid id="ddbhGrid" dataProvider="{orderbb}" editable="true" height="100%" width="200"  >
 						<mx:columns>
 							<mx:DataGridColumn dataField="selected" headerText="选择" editorDataField="selected" rendererIsEditor="true" width="60">
@@ -659,7 +675,7 @@
 								
 							</mx:DataGridColumn>
 						</mx:columns>
-					</mx:DataGrid>
+					</mx:DataGrid>-->
 					
 					<s:Label text="物料代码:"/>
 					<uicontrol:FliterComboBox id="code" dataProvider="{InfoUtil.codeList}" labelField="code" valueField="id" width="100" styleName="fliterComboBox" dropdownWidth="200">
@@ -675,8 +691,6 @@
 					</s:Button>
 					<s:Button label="重置" click="queryreset()">
 					</s:Button>
-					<s:CheckBox label="拉长查询界面" id="cboH" change="cboH.selected?codeAreaContainer.height+=200:codeAreaContainer.height-=200;">
-					</s:CheckBox>
 					<s:CheckBox label="不显示禁用的位置" id="isaction" selected="true" >
 					</s:CheckBox>
 				</s:BorderContainer>
