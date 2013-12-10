@@ -641,9 +641,7 @@
 						</s:RadioButton>
 					</s:BorderContainer>
 					
-					<s:CheckBox label="只显示选中的订单" id="cbox">
-						
-					</s:CheckBox>
+					
 					<s:Label text="订单编号:"/>
 					<uicontrol:FliterComboBox id="ddbhGrid" dataProvider="{InfoUtil.orderbhList}" labelField="ddbh" valueField="id" width="100" styleName="fliterComboBox" dropdownWidth="200">
 						

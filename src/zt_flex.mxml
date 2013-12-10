@@ -264,11 +264,6 @@
 							c=new PlanEdit();
 							break;
 					}
-				}else{
-					c.removeEventListener(FlexEvent.SHOW,c.reloadParamData);
-					if(obj!=null){
-						c.addEventListener(FlexEvent.SHOW,c.reloadParamData);
-					}
 				}
 				if(c!=null){
 					c.label=xml.attribute('label').toString();

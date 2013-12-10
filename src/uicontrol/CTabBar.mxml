@@ -59,6 +59,8 @@
 					if(o.flag==mod){
 						dataProvider.selectedChild=o;
 						refrash();
+						
+						o.reloadParamData(null);
 						return true;
 					}
 				}

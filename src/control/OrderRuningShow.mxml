@@ -7,6 +7,7 @@
 	</control:layout>
 	<fx:Script>
 		<![CDATA[
+			import events.ChangeMenuEvent;
 			import events.CloseEvent;
 			
 			import httpcontrol.RemoteUtil;
@@ -96,6 +97,9 @@
 			}
 			
 			public function jisuanOpentime(ids:ArrayCollection):void{
+				if(ids.length==0){
+					return;
+				}
 				resultAjax=0;
 				needAjax=ids.length;
 				queryreset();
@@ -189,6 +193,22 @@
 				return ""+date.fullYear+"/"+(date.month+1)+"/"+date.date;
 			}
 			
+			public function gotoMonitorView():void{
+				var obj:Object=null;
+				for each(var item:Object in InfoUtil.orderbhList){
+					if(item.ddbh==grid.selectedItem.ddbh){
+						obj = item;
+						break;
+					}
+				}
+				var evt:ChangeMenuEvent=new ChangeMenuEvent(ChangeMenuEvent.ChangeMenu_EventStr,"ordermonitor",obj,true)
+				dispatchEvent(evt);
+			}
+			
+			public function getExcel():void{
+				
+			}
+			
 			
 			[Bindable]
 			public var doflag:Boolean=false;
@@ -247,10 +267,12 @@
 				</s:Button>
 				<s:Button label="查询" click="orderRuningRefresh()">
 				</s:Button>
+				<s:Button label="导出数据" click="getExcel()">
+				</s:Button>
 				
 			</s:BorderContainer>
 			
-					<mx:AdvancedDataGrid id="grid" dataProvider="{query}" editable="false" width="100%" height="100%">
+					<mx:AdvancedDataGrid id="grid" dataProvider="{query}" doubleClickEnabled="true" itemDoubleClick="gotoMonitorView()" editable="false" width="100%" height="100%">
 						<mx:groupedColumns>
 							
 							<mx:AdvancedDataGridColumn headerText="订单号" dataField="ddbh" width="120">
