@@ -34,8 +34,13 @@
 			}
 			public function getPermissionsStr(item:Object, column:AdvancedDataGridColumn):String{
 				var str:String="";
+				var n:Number = 1;
 				for each(var obj:Object in item.user_permissions){
 					str+=obj.name+"、"
+					if(n%5==0){
+						str+="\n";
+					}
+					n++;
 				}
 				return str;
 			}
@@ -79,7 +84,22 @@
 					this.user_add.selected=false;
 					this.user_update.selected=false;
 					this.user_view.selected=false;
-					this.user_change.selected=false;
+					
+					this.user_manager.selected=false;
+					this.scx_manager.selected=false;
+					this.code_manager.selected=false;
+					this.site_manager.selected=false;
+					this.order_manager.selected=false;
+					
+					this.plan_update.selected=false;
+					this.plan_check.selected=false;
+					this.plan_uncheck.selected=false;
+					this.plan_all.selected=false;
+					this.plan_query.selected=false;
+					this.plan_changerecord.selected=false;
+					
+					this.order_zhuizong.selected=false;
+					this.orderruning.selected=false;
 			}
 			public function del():void{
 				var userArr:ArrayCollection=new ArrayCollection();
@@ -118,7 +138,23 @@
 				this.user_add.selected=false;
 				this.user_update.selected=false;
 				this.user_view.selected=false;
-				this.user_change.selected=false;
+				
+				this.user_manager.selected=false;
+				this.scx_manager.selected=false;
+				this.code_manager.selected=false;
+				this.site_manager.selected=false;
+				this.order_manager.selected=false;
+				
+				this.plan_update.selected=false;
+				this.plan_check.selected=false;
+				this.plan_uncheck.selected=false;
+				this.plan_all.selected=false;
+				this.plan_query.selected=false;
+				this.plan_changerecord.selected=false;
+				
+				this.order_zhuizong.selected=false;
+				this.orderruning.selected=false;
+				
 				for each(var item:Object in obj.user_permissions){
 					if(item.codename=="user_add"){
 						this.user_add.selected=true;
@@ -129,8 +165,44 @@
 					if(item.codename=="user_view"){
 						this.user_view.selected=true;
 					}
-					if(item.codename=="user_change"){
-						this.user_change.selected=true;	
+					if(item.codename=="user_manager"){
+						this.user_manager.selected=true;
+					}
+					if(item.codename=="scx_manager"){
+						this.scx_manager.selected=true;
+					}
+					if(item.codename=="code_manager"){
+						this.code_manager.selected=true;
+					}
+					if(item.codename=="site_manager"){
+						this.site_manager.selected=true;
+					}
+					if(item.codename=="order_manager"){
+						this.order_manager.selected=true;
+					}
+					if(item.codename=="plan_update"){
+						this.plan_update.selected=true;
+					}
+					if(item.codename=="plan_check"){
+						this.plan_check.selected=true;
+					}
+					if(item.codename=="plan_uncheck"){
+						this.plan_uncheck.selected=true;
+					}
+					if(item.codename=="plan_all"){
+						this.plan_all.selected=true;
+					}
+					if(item.codename=="plan_query"){
+						this.plan_query.selected=true;
+					}
+					if(item.codename=="plan_changerecord"){
+						this.plan_changerecord.selected=true;
+					}
+					if(item.codename=="order_zhuizong"){
+						this.order_zhuizong.selected=true;
+					}
+					if(item.codename=="orderruning"){
+						this.orderruning.selected=true;
 					}
 				}
 				
@@ -170,9 +242,46 @@
 				if(this.user_update.selected){
 					obj.permissions.push("user_update");
 				}
-				if(this.user_change.selected){
-					obj.permissions.push("user_change");
+				if(this.user_manager.selected){
+					obj.permissions.push("user_manager");
 				}
+				if(this.scx_manager.selected){
+					obj.permissions.push("scx_manager");
+				}
+				if(this.code_manager.selected){
+					obj.permissions.push("code_manager");
+				}
+				if(this.site_manager.selected){
+					obj.permissions.push("site_manager");
+				}
+				if(this.order_manager.selected){
+					obj.permissions.push("order_manager");
+				}
+				if(this.plan_update.selected){
+					obj.permissions.push("plan_update");
+				}
+				if(this.plan_check.selected){
+					obj.permissions.push("plan_check");
+				}
+				if(this.plan_uncheck.selected){
+					obj.permissions.push("plan_uncheck");
+				}
+				if(this.plan_all.selected){
+					obj.permissions.push("plan_all");
+				}
+				if(this.plan_query.selected){
+					obj.permissions.push("plan_query");
+				}
+				if(this.plan_changerecord.selected){
+					obj.permissions.push("plan_changerecord");
+				}
+				if(this.order_zhuizong.selected){
+					obj.permissions.push("order_zhuizong");
+				}
+				if(this.orderruning.selected){
+					obj.permissions.push("orderruning");
+				}
+				
 				RemoteUtil.openLoading();
 				op.send(obj);
 				
@@ -207,57 +316,129 @@
 	</fx:Declarations>
 	<s:HGroup top="8" right="8" bottom="8" left="8" gap="7">
 		<s:BorderContainer width="400" height="100%"  borderVisible="false" color="0x333333" skinClass="skins.contentBoxSkin">	
-			<s:BorderContainer left="0" top="0" height="100%" width="100%" borderVisible="false" >
-				<s:layout>
-					<s:BasicLayout>
-						
-					</s:BasicLayout>
-				</s:layout>
-				<s:Form width="100%" id="form" >
-					<s:FormHeading label="用户信息" textAlign="center">
-						
-					</s:FormHeading>
-					<s:FormItem label="用户名:" textAlign="right">
-						<s:TextInput id="username" width="200" enabled="{userid==0}">
+				<s:Scroller  left="0" top="0" height="100%" width="100%">
+					<s:Group>
+						<s:Form width="100%" id="form" >
+							<s:FormHeading label="用户信息" textAlign="center">
+								
+							</s:FormHeading>
+							<s:FormItem label="用户名:" textAlign="right">
+								<s:TextInput id="username" width="200" enabled="{userid==0}">
+									
+								</s:TextInput>
+							</s:FormItem>
+							<s:FormItem label="密码:" textAlign="right">
+								<s:TextInput id="password"  width="200">
+									
+								</s:TextInput>
+							</s:FormItem>
+							<s:FormItem label="确认密码:" textAlign="right">
+								<s:TextInput id="rpassword"  width="200">
+									
+								</s:TextInput>
+							</s:FormItem>
+							<s:FormItem label="姓名:" textAlign="right">
+								<s:TextInput id="xing"  width="200">
+									
+								</s:TextInput>
+							</s:FormItem>
 							
-						</s:TextInput>
-					</s:FormItem>
-					<s:FormItem label="密码:" textAlign="right">
-						<s:TextInput id="password"  width="200">
-							
-						</s:TextInput>
-					</s:FormItem>
-					<s:FormItem label="确认密码:" textAlign="right">
-						<s:TextInput id="rpassword"  width="200">
-							
-						</s:TextInput>
-					</s:FormItem>
-					<s:FormItem label="姓名:" textAlign="right">
-						<s:TextInput id="xing"  width="200">
-							
-						</s:TextInput>
-					</s:FormItem>
-					
-					<s:FormItem label="权限:" textAlign="right">
-						<s:CheckBox label="日报表录入" id="user_add">
-						</s:CheckBox>
-						<s:CheckBox label="日报表修改" id="user_update">
-						</s:CheckBox>
-						<s:CheckBox label="查询人员" id="user_view">
-						</s:CheckBox>
-						<s:CheckBox label="维护人员" id="user_change">
-						</s:CheckBox>
-					</s:FormItem>
-					<s:FormItem label="启用:" textAlign="right">
-						<s:CheckBox id="isUsed" label="可用"/>
-					</s:FormItem>
-					<s:FormItem>
-						<s:Button label="保存" click="save()">
-							
-						</s:Button>
-					</s:FormItem>
-				</s:Form>
-			</s:BorderContainer>
+							<s:FormItem label="权限:" textAlign="right">
+								<s:BorderContainer borderVisible="false">
+									<s:layout>
+										<s:VerticalLayout gap="15">
+											
+										</s:VerticalLayout>
+									</s:layout>
+									<s:BorderContainer borderVisible="false">
+										<s:layout>
+											<s:HorizontalLayout gap="5">
+												
+											</s:HorizontalLayout>
+										</s:layout>
+										<s:BorderContainer  borderVisible="false">
+											<s:layout>
+												<s:VerticalLayout gap="5">
+												</s:VerticalLayout>
+											</s:layout>
+											<s:CheckBox label="人员管理" id="user_manager">
+											</s:CheckBox>
+											<s:CheckBox label="生产线管理" id="scx_manager">
+											</s:CheckBox>
+											<s:CheckBox label="物料管理" id="code_manager">
+											</s:CheckBox>
+											<s:CheckBox label="位置管理" id="site_manager">
+											</s:CheckBox>
+											<s:CheckBox label="订单管理" id="order_manager">
+											</s:CheckBox>
+										</s:BorderContainer>
+										<s:BorderContainer  borderVisible="false">
+											<s:layout>
+												<s:VerticalLayout gap="5">
+												</s:VerticalLayout>
+											</s:layout>
+											<s:CheckBox label="日报表录入" id="user_add">
+											</s:CheckBox>
+											<s:CheckBox label="日报表修改" id="user_update">
+											</s:CheckBox>
+											<s:CheckBox label="查询人员" id="user_view">
+											</s:CheckBox>
+										</s:BorderContainer>
+										
+										
+									</s:BorderContainer>
+									<s:BorderContainer borderVisible="false">
+										<s:layout>
+											<s:HorizontalLayout gap="5">
+												
+											</s:HorizontalLayout>
+										</s:layout>
+										
+										
+										<s:BorderContainer  borderVisible="false">
+											<s:layout>
+												<s:VerticalLayout gap="5">
+												</s:VerticalLayout>
+											</s:layout>
+											<s:CheckBox label="订单追踪" id="order_zhuizong">
+											</s:CheckBox>
+											<s:CheckBox label="订单执行情况" id="orderruning">
+											</s:CheckBox>
+										</s:BorderContainer>
+										<s:BorderContainer  borderVisible="false">
+											<s:layout>
+												<s:VerticalLayout gap="5">
+												</s:VerticalLayout>
+											</s:layout>
+											<s:CheckBox label="主计划编制" id="plan_update">
+											</s:CheckBox>
+											<s:CheckBox label="主计划审核" id="plan_check">
+											</s:CheckBox>
+											<s:CheckBox label="主计划退审" id="plan_uncheck">
+											</s:CheckBox>
+											<s:CheckBox label="主计划汇总" id="plan_all">
+											</s:CheckBox>
+											<s:CheckBox label="主计划查询" id="plan_query">
+											</s:CheckBox>
+											<s:CheckBox label="主计划修改记录" id="plan_changerecord">
+											</s:CheckBox>
+										</s:BorderContainer>
+										
+									</s:BorderContainer>
+								</s:BorderContainer>
+								
+							</s:FormItem>
+							<s:FormItem label="启用:" textAlign="right">
+								<s:CheckBox id="isUsed" label="可用"/>
+							</s:FormItem>
+							<s:FormItem>
+								<s:Button label="保存" click="save()">
+									
+								</s:Button>
+							</s:FormItem>
+						</s:Form>
+					</s:Group>
+				</s:Scroller>
 		</s:BorderContainer>
 		<s:BorderContainer width="100%" height="100%"  borderVisible="false" color="0x333333" skinClass="skins.contentBoxSkin">	
 				<s:BorderContainer left="0" top="0" height="45" width="100%" borderVisible="false" backgroundImage="{CBorderContainer.toolbgimg}">
@@ -271,7 +452,7 @@
 					</mx:ButtonBar>
 					
 				</s:BorderContainer>
-			<uicontrol:MarkAdvancedDataGrid id="peopgrid" dataProvider="{peoplelist}"  isNewAdd="false" enabled="true" editable="false" top="46" bottom="0" right="0" left="0">
+			<uicontrol:MarkAdvancedDataGrid id="peopgrid" dataProvider="{peoplelist}" variableRowHeight="false" rowHeight="60"  isNewAdd="false" enabled="true" editable="false" top="46" bottom="0" right="0" left="0">
 				<uicontrol:columns>
 					<mx:AdvancedDataGridColumn headerText="选择" dataField="selected"  sortable="false" width="60"  editorDataField="selected" rendererIsEditor="true" >
 						<mx:itemRenderer>
@@ -306,7 +487,7 @@
 						
 					</mx:AdvancedDataGridColumn>
 					
-					<mx:AdvancedDataGridColumn headerText="权限"  dataField="permissions" labelFunction="getPermissionsStr" >
+					<mx:AdvancedDataGridColumn headerText="权限"  dataField="permissions" labelFunction="getPermissionsStr" minWidth="300" >
 						
 					</mx:AdvancedDataGridColumn>
 				</uicontrol:columns>
