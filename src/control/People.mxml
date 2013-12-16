@@ -377,9 +377,9 @@
 												<s:VerticalLayout gap="5">
 												</s:VerticalLayout>
 											</s:layout>
-											<s:CheckBox label="日报表录入" id="user_add">
+											<s:CheckBox label="日报表录入（修改自己的日报表）" id="user_add">
 											</s:CheckBox>
-											<s:CheckBox label="日报表修改" id="user_update">
+											<s:CheckBox label="日报表修改（修改他人日报表）" id="user_update">
 											</s:CheckBox>
 											<s:CheckBox label="查询人员" id="user_view">
 											</s:CheckBox>
