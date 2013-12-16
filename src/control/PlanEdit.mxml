@@ -20,9 +20,14 @@
 			import mx.utils.ObjectUtil;
 			import mx.utils.StringUtil;
 			
+			import uicontrol.SiteBox;
+			
 			import util.InfoUtil;
 			[Bindable]
 			public var showLabel:String;
+			
+			[bindable]
+			private var headsitelist:ArrayCollection=new ArrayCollection();;
 			
 			override public function init(e:FlexEvent):void{
 				
@@ -35,6 +40,33 @@
 				
 			}
 			
+			private function getAllOpenProductSite():void{
+				var op:AbstractOperation=RemoteUtil.getOperation("getAllOpenProductSite");
+				op.addEventListener(ResultEvent.RESULT,resultAllOpenProductSite);
+				RemoteUtil.openLoading();
+				op.send();
+			}
+			
+			private function resultAllOpenProductSite(e:ResultEvent):void{
+				if(e.result.success){
+					headsitelist.removeAll();
+					headsitelist.addAll(new ArrayCollection(e.result.result as Array));
+					
+					
+				}
+			}
+			
+			private function refrashHead():void{
+				headBox.removeAllElements();
+				var cb:SiteBox;
+				for each(var obj:Object in headsitelist){
+					cb=new SiteBox();
+					cb.label=obj.name;
+					cb.selected=true;
+//					cb.addEventListener(Event.CHANGE,changeHead);
+					headBox.addElement(cb);
+				}
+			}
 			
 			
 			
@@ -51,19 +83,7 @@
 				
 				return "";
 			}
-			public function getZRDDBHStr(item:Object, column:AdvancedDataGridColumn):String{
-				if(InfoUtil.orderlistbhObj.hasOwnProperty("orderlist"+item.zrddbh)){
-					return InfoUtil.orderlistbhObj["orderlist"+item.zrddbh];
-				}
-				for each(var obj:Object in InfoUtil.openOrderList){
-					if(obj.id==item.zrddbh){
-						InfoUtil.orderlistbhObj["orderlist"+item.zrddbh]=obj.ddbhstr;
-						return obj.ddbh;
-					}
-				}
-				
-				return "";
-			}
+			
 			public function getYWZStr(item:Object, column:AdvancedDataGridColumn):String{
 				for each(var obj:Object in InfoUtil.siteList){
 					if(obj.id==item.ywz){
@@ -82,6 +102,7 @@
 				
 				return "";
 			}
+			
 			public function getScxStr(item:Object, column:AdvancedDataGridColumn):String{
 				for each(var obj:Object in InfoUtil.codeList){
 					if(obj.id==item.code){
@@ -153,7 +174,6 @@
 				}
 				if(e.label=='同步数据'){
 					if(this.lsh.text!=""){
-						getOrderBBByLSH(this.lsh.text);
 					}
 					
 									}
@@ -292,38 +312,7 @@
 					orderbblist.refresh();
 					return;
 				}
-				var scxArr:ArrayCollection=new ArrayCollection();
-				var obj:Object;
-				for each(var item:Object in orderbblist){
-					obj=new Object();
-					if(item.hasOwnProperty("id")){
-						obj.id=item.id;
-					}
-					obj.yorder=item.yorder;
-					obj.zrorder=item.zrorder;
-					obj.yzydh=item.yzydh;
-					if(item.hasOwnProperty("ywz")&&item.ywznum>0){
-						obj.ywz=item.ywz;
-						obj.ywznum=item.ywznum;
-					}
-					if(item.hasOwnProperty("zrwz")&&item.zrwz!=""&&item.zrwz!=null&&item.zrwz>0){
-						obj.zrwz=item.zrwz;
-						obj.zrwznum=item.zrwznum;
-					}
-					
-					
-					obj.bfnum=item.bfnum;
-					obj.ysnum=item.ysnum;
-					obj.ywzsynum=item.ywzsynum;
-					obj.bztext=item.bztext;
-					scxArr.addItem(obj);
-				}
-				if(scxArr.length>0){
-					var op:AbstractOperation=RemoteUtil.getOperation("saveOrderBB");
-					op.addEventListener(ResultEvent.RESULT,refreshSave);
-					RemoteUtil.openLoading();
-					op.send(scxArr,this.lsh.text);
-				}
+				
 				
 				
 			}
@@ -370,47 +359,7 @@
 				this.codeArea.text="";
 			}
 			
-			public function getOrderBBByLSH(lsh:String):void{
-				var op:AbstractOperation=RemoteUtil.getOperation("getOrderBBByLsh");
-				op.addEventListener(ResultEvent.RESULT,resultOrderBBByLSH);
-				RemoteUtil.openLoading();
-				op.send(lsh);
-			}
 			
-			public function resultOrderBBByLSH(e:ResultEvent):void{
-				var result:Object=e.result;
-				if(result.success==true){
-					orderbblist.removeAll();
-					orderbblist.addAll(new ArrayCollection(result.result.list as Array));
-					var num:int=0;
-					for each(var item:Object in InfoUtil.openOrderList){
-						for each(var obj:Object in orderbblist){
-							if(obj.yorder==item.id){
-								obj.yddbh=item.id;
-								obj.code=item.code;
-								for each(var obj1:Object in InfoUtil.codeList){
-									if(obj.code==obj1.id){
-										InfoUtil.codeObj["code"+obj1.id]=obj1.code;
-										obj.codestr=obj1.code;
-										obj.codename=obj1.name;
-										obj.codegg=obj1.gg;
-									}
-								}
-								num++;
-							}
-							if(obj.zrorder==item.id){
-								obj.zrddbh=item.id;
-								num++
-							}
-						}
-						if(num==orderbblist.length*2){
-							break;
-						}
-					}
-					orderbbgrid.init(null);
-					this.lsh.text=result.result.lsh;
-				}
-			}
 			
 			public function refreshDel(e:ResultEvent):void{
 				if(e.result.success){
@@ -426,40 +375,11 @@
 					}
 				}
 			}
-			public function refreshSave(e:ResultEvent):void{
-				if(e.result.success){
-					Alert.show("日报表保存成功。","提示");
-					
-					//保存成功后不再 重新加载 20130120
-					//getOrderBBByLSH(e.result.result);
-					//保存成功后，进入新增状态
-					orderbblist.removeAll();
-					this.lsh.text="";
-				}else{
-					if(e.result.result!=false&&e.result.result.hasOwnProperty("order")){
-						var rowIndex:int=0;
-						var item:Object;
-						for(;rowIndex<orderbblist.length;rowIndex++){
-							item=orderbblist.getItemAt(rowIndex);
-							if(item.yorder==e.result.result.order&&item.ywz==e.result.result.wz){
-								orderbbgrid.scrollToIndex(rowIndex);
-								orderbbgrid.selectedIndex=rowIndex;
-								return;
-							}
-							if(item.zrorder==e.result.result.order&&item.zrwz==e.result.result.wz){
-								orderbbgrid.scrollToIndex(rowIndex);
-								orderbbgrid.selectedIndex=rowIndex;
-								return;
-							}
-						}
-					}
-				}
-			}
+			
 			
 
 			
-			[Bindable]
-			public var doflag:Boolean=false;
+			
 			
 			[Bindable]
 			public var orderbblist:ArrayCollection=new ArrayCollection();
