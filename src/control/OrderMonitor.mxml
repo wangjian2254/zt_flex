@@ -60,7 +60,7 @@
 				
 				ddbhGrid.selectedItem=param;
 				datelr.selectedDate=new Date();
-				orderGenZongRefresh();
+				orderGenZongRefresh(true);
 				super.reloadParamData(e);
 			}
 			
@@ -412,8 +412,11 @@
 
 			}
 			
-			public function orderGenZongRefresh():void{
+			private var closefilter:Boolean=false;
+			
+			public function orderGenZongRefresh(filter:Boolean=false):void{
 //				bbchange(null);
+				closefilter=filter;
 				var myDateFormatter:DateFormatter=new DateFormatter();
 				myDateFormatter.formatString="YYYYMMDD";
 				var op:AbstractOperation=RemoteUtil.getOperation("getOrderGenZongByDate");
@@ -501,6 +504,13 @@
 					grid.minWidth=w;
 					query.removeAll();
 					query.addAll(new ArrayCollection(e.result.result.query as Array));
+					if(closefilter){
+						for(var j:Number=query.length-1;j>=0;j--){
+							if(query.getItemAt(j).ddwczt=="1"){
+								query.removeItemAt(j);
+							}
+						}
+					}
 				}
 			}
 			

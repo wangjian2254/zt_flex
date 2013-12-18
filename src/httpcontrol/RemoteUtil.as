@@ -42,6 +42,20 @@ package httpcontrol
 			op.addEventListener(FaultEvent.FAULT,faultEvent);
 			return op;
 		}
+		public static function getSingleOperation(method:String):AbstractOperation{
+			var remoteObject:RemoteObject=new RemoteObject("service");
+			var channel:AMFChannel = new AMFChannel("pyamf-channel", "/zt/geteway/");
+			var channels:ChannelSet = new ChannelSet();
+			channels.addChannel(channel);
+			
+			remoteObject.showBusyCursor = true;
+			remoteObject.channelSet = channels;
+			
+			var op:AbstractOperation= remoteObject.getOperation(method);
+			op.addEventListener(ResultEvent.RESULT,resultEvent);
+			op.addEventListener(FaultEvent.FAULT,faultEvent);
+			return op;
+		}
 		
 		public static function getOperationByProgressBar(method:String):AbstractOperation{
 			var remoteObject:RemoteObject=new RemoteObject("service");

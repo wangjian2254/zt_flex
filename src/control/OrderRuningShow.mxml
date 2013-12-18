@@ -54,12 +54,21 @@
 
 			
 			public function orderRuningRefresh():void{
-				//				bbchange(null);
+				var ddbhid:Number=0;
+				var ddbhstr:String =null;
+				if(ddbhGrid.text!=""&&ddbhGrid.text!=null){
+					ddbhstr=ddbhGrid.text;
+				}
+				if(ddbhGrid.selectedItem==null){
+					ddbhid=0;
+				}else{
+					ddbhid = ddbhGrid.selectedItem.id;
+				}
+				
 				var myDateFormatter:DateFormatter=new DateFormatter();
 				myDateFormatter.formatString="YYYYMMDD";
-//				myDateFormatter.format(new Date());
-				if(startdate.selectedDate==null||enddate.selectedDate==null){
-					Alert.show("订单下达日期必须选择","提示");
+				if((startdate.selectedDate==null||enddate.selectedDate==null)&&(ddbhid==0&&!ddbhstr)){
+					Alert.show("订单下达日期必须选择,或者订单号查询","提示");
 					return;
 				}
 				var start:String=myDateFormatter.format(startdate.selectedDate);	
@@ -73,10 +82,18 @@
 					open="";
 				}
 				
+				
 				var op:AbstractOperation=RemoteUtil.getOperation("getOrderRuningList");
 				op.addEventListener(ResultEvent.RESULT,resultOrderRuningList);
 				RemoteUtil.openLoading();
-				op.send(start,end,open);
+				if(ddbhid!=0){
+					op.send(start,end,open,ddbhid);
+				}else if(ddbhstr){
+					op.send(start,end,open,ddbhstr);
+				}else{
+					op.send(start,end,open);
+				}
+				
 			}
 			
 			public function resultOrderRuningList(e:ResultEvent):void{
@@ -274,10 +291,12 @@
 				<s:RadioButton id="cbclose" groupName="order" label="已关闭订单" />
 				<s:RadioButton id="cbopen" groupName="order"  label="未关闭订单" selected="true" />
 				<s:RadioButton id="cball" groupName="order"  label="所有订单"  />
-				
-				
-				<s:Label text="下达日期:">
+				<s:Label text="订单号:">
+				</s:Label>
+				<uicontrol:FliterComboBox id="ddbhGrid" dataProvider="{InfoUtil.orderbhList}" labelField="ddbh" valueField="id" width="100" styleName="fliterComboBox" dropdownWidth="200">
 					
+				</uicontrol:FliterComboBox>
+				<s:Label text="下达日期:">
 				</s:Label>
 				<mx:DateField id="startdate" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
 				<s:Label text="~"/>

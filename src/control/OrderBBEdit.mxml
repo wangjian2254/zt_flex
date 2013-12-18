@@ -321,7 +321,7 @@
 					scxArr.addItem(obj);
 				}
 				if(scxArr.length>0){
-					var op:AbstractOperation=RemoteUtil.getOperation("saveOrderBB");
+					var op:AbstractOperation=RemoteUtil.getSingleOperation("saveOrderBB");
 					op.addEventListener(ResultEvent.RESULT,refreshSave);
 					RemoteUtil.openLoading();
 					op.send(scxArr,this.lsh.text);

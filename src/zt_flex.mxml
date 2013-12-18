@@ -263,6 +263,9 @@
 						case 'planedit':
 							c=new PlanEdit();
 							break;
+						default:
+							return;
+							break;
 					}
 				}
 				if(c!=null){

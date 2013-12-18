@@ -853,14 +853,16 @@ package uicontrol
 		 *  
 		 */  
 		private function filterData(ac:ArrayCollection):ArrayCollection{  
-			var dp:ArrayCollection=new ArrayCollection();  
+			var dp:ArrayCollection=new ArrayCollection(); 
+			var k:String=textInput.text.toUpperCase();
 			for(var i:int=0;i<ac.length;i++){  
 				var item:Object=ac.getItemAt(i);  
 				if(item.hasOwnProperty(labelField)){  
 					var value:String=item[labelField];  
-					if(value.indexOf(textInput.text)!=-1){  
+					if(value.indexOf(k)!=-1){  
 						dp.addItem(item);  
 					}  
+					
 				}  
 			}  
 			return dp;  
