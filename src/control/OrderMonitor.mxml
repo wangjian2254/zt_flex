@@ -61,7 +61,7 @@
 				datelr.selectedDate=new Date();
 //				query.filterFunction = scxFilterChanged;
 				allquery.filterFunction = scxFilterChanged;
-				allquery.addEventListener(CollectionEvent.COLLECTION_CHANGE,allqueryChanged);
+//				allquery.addEventListener(CollectionEvent.COLLECTION_CHANGE,allqueryChanged);
 				
 			}
 			
@@ -73,6 +73,11 @@
 				if(param){
 					ddbhGrid.selectedItem=param["ddbh"];
 					datelr.selectedDate=new Date();
+					if(param["isopen"]=="1"){
+						ddquerytype.selectedValue="open";
+					}else{
+						ddquerytype.selectedValue="close";
+					}
 					orderGenZongRefresh(param["isopen"]);
 				}
 				super.reloadParamData(e);
@@ -530,8 +535,9 @@
 //						}
 //					}
 //					query.refresh();
+					query.removeAll();
 					allquery.removeAll();
-					allquery.refresh();
+					refreshData();
 					allquery.addAll(new ArrayCollection(e.result.result.query as Array));
 					if(closefilter){
 						for(var j:Number=allquery.length-1;j>=0;j--){
@@ -540,7 +546,7 @@
 							}
 						}
 					}
-					allquery.refresh();
+					refreshData();
 					
 					
 				}
@@ -556,22 +562,14 @@
 			
 			
 			private function refreshData():void{
-//				query.refresh();
 				allquery.refresh();
-				
-				
-			}
-			private function allqueryChanged(e:CollectionEvent):void{
-				if(e.kind!=CollectionEventKind.REFRESH){
-					return;
-				}
 				query.removeAll();
 				query.addAll(allquery);
-//				for each(var item:Object in allquery){
-//					query.addItem(item);
-//				}
 				grid.invalidateList();
+				
+				
 			}
+			
 			
 			private function changeHead(e:Event):void{
 				var cb:CheckBox=e.currentTarget as CheckBox;

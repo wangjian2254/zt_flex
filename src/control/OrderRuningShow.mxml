@@ -22,6 +22,7 @@
 			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumnGroup;
 			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
 			import mx.events.FlexEvent;
 			import mx.events.ItemClickEvent;
 			import mx.formatters.DateFormatter;
@@ -39,7 +40,8 @@
 			public var showLabel:String;
 			
 			override public function init(e:FlexEvent):void{
-
+				query.filterFunction=closeFilterChanged;
+//				query.addEventListener(CollectionEvent.COLLECTION_CHANGE,queryChanged);
 			}
 			
 			override public function closeContainer(e:CloseEvent):void{
@@ -73,20 +75,20 @@
 				}
 				var start:String=myDateFormatter.format(startdate.selectedDate);	
 				var end:String=myDateFormatter.format(enddate.selectedDate);
-				var open:String="close";
-				if(cbopen.selected){
-					open="open";
-				}
+//				var open:String="close";
+//				if(cbopen.selected){
+//					open="open";
+//				}
 				
 				var op:AbstractOperation=RemoteUtil.getOperation("getOrderRuningList");
 				op.addEventListener(ResultEvent.RESULT,resultOrderRuningList);
 				RemoteUtil.openLoading();
 				if(ddbhid!=0){
-					op.send(start,end,open,ddbhid);
+					op.send(start,end,ddbhid);
 				}else if(ddbhstr){
-					op.send(start,end,open,ddbhstr);
+					op.send(start,end,ddbhstr);
 				}else{
-					op.send(start,end,open);
+					op.send(start,end);
 				}
 				
 			}
@@ -96,6 +98,7 @@
 				
 				if(e.result.success){
 					var ddbhlist:ArrayCollection=new ArrayCollection();
+					var openddbhlist:ArrayCollection=new ArrayCollection();
 					query.removeAll();
 					query.addAll(new ArrayCollection(e.result.result as Array));
 					var item:Object=null;
@@ -103,22 +106,105 @@
 						item = query.getItemAt(i);
 						if(item['closeflag']==0){
 							item['opentime']= int((today-DateField.stringToDate(item['xddate'],"YYYY/MM/DD").valueOf())/ 24 / 60 / 60 /1000);
+							openddbhlist.addItem(item);
 						}else{
 							ddbhlist.addItem(item);
 						}
 					}
-					jisuanOpentime(ddbhlist);
+					if(ddbhlist.length>0||openddbhlist.length>0){
+						
+						resultAjax=0;
+						needAjax=ddbhlist.length+openddbhlist.length;
+						queryreset();
+						jisuanOpentime(ddbhlist);
+						jisuanCloseNum(openddbhlist);
+					}else{
+						refreshData();
+					}
 					
 				}
 			}
 			
-			public function jisuanOpentime(ids:ArrayCollection):void{
-				if(ids.length==0){
-					return;
+			public function closeFilterChanged(item:Object):Boolean{ 
+				
+				if(cbopen.selected){
+					if(item['closeflag']==0){
+						return true;
+					}else{
+						return false
+					}
+				}else{
+					if(item['closeflag']==1){
+						return true;
+					}else{
+						return false
+					}
 				}
-				resultAjax=0;
-				needAjax=ids.length;
-				queryreset();
+					
+			} 
+			
+			
+			private function refreshData():void{
+				query.refresh();
+				queryfilter.removeAll();
+				queryfilter.addAll(query);
+				grid.invalidateList();
+				
+				
+			}
+//			private function queryChanged(e:CollectionEvent):void{
+//				if(e.kind!=CollectionEventKind.REFRESH){
+//					return;
+//				}
+//				
+//			}
+			
+			private var resultAjaxClose:Number=0;
+			private var needAjaxClose:Number=0;
+			private function jisuanCloseNum(arr:ArrayCollection):void{
+				
+				var myDateFormatter:DateFormatter=new DateFormatter();
+				myDateFormatter.formatString="YYYYMMDD";
+				for each(var item:Object in arr){
+					var op:AbstractOperation=RemoteUtil.getOperationByProgressBar("getOrderGenZongByDate");
+					op.addEventListener(ResultEvent.RESULT,resultJisuanClose);
+					var ddbh:Array=new Array();
+					ddbh.push(item.id);
+					op.send(myDateFormatter.format(new Date()),"open",ddbh,null,true);
+				}
+			}
+			public function resultJisuanClose(e:ResultEvent):void{
+				
+				if(e.result.success){
+					var q:ArrayCollection=new ArrayCollection(e.result.result.query as Array);
+					var ddbh_id:Number=0;
+					var queryitem:Object=null;
+					for each(var item:Object in q){
+						ddbh_id=item.ddbh_id;
+						if(item.ddwczt=="1"){
+							if(queryitem==null){
+								for each(var item2:Object in query){
+									if(item2.id==ddbh_id){
+										queryitem=item2;
+									}
+								}
+							}
+							queryitem.closeorderlistnum++;
+							queryitem.openorderlistnum--;
+						}
+					}
+					if(queryitem!=null&&queryitem.openorderlistnum==0){
+						queryitem['closeflag']=1;
+					}	
+						
+					grid.invalidateList();
+				}
+				post_request();
+			}
+			
+			public function jisuanOpentime(ids:ArrayCollection):void{
+				
+				
 				for(var i:Number=0;i<ids.length;i++){
 				
 					var op:AbstractOperation=RemoteUtil.getOperationByProgressBar("getOrderEndDate");
@@ -137,7 +223,7 @@
 			}
 			
 			public function resultZYOrder(e:ResultEvent):void{
-				post_request();
+				
 				if(e.result.success){
 					var ddbhid:Number=e.result.result.ddbhid;
 					var date:Date=e.result.result.date;
@@ -149,9 +235,9 @@
 							break;
 						}
 					}
-					grid.invalidateList();
+					
 				}
-			}
+				post_request();			}
 			
 			private var resultAjax:Number=0;
 			private var needAjax:Number=0;
@@ -166,6 +252,7 @@
 				if(needAjax==(resultAjax+1)&&needAjax>0){
 					bar.visible=false;
 					bar.label="0%";
+					refreshData();
 				}
 			}
 			
@@ -220,9 +307,9 @@
 				var param:Object=new Object();
 				param["ddbh"]=obj;
 				param["isopen"]="1";
-				if(cbclose.selected){
-					param["isopen"]="0";
-				}
+//				if(cbclose.selected){
+//					param["isopen"]="0";
+//				}
 				
 				var evt:ChangeMenuEvent=new ChangeMenuEvent(ChangeMenuEvent.ChangeMenu_EventStr,"ordermonitor",param,true)
 				dispatchEvent(evt);
@@ -259,6 +346,8 @@
 			
 			[Bindable]
 			public var query:ArrayCollection=new ArrayCollection();
+			[Bindable]
+			public var queryfilter:ArrayCollection=new ArrayCollection();
 			
 			[Bindable]
 			public var orderisopenlist:ArrayCollection=new ArrayCollection();
@@ -272,7 +361,7 @@
 	</fx:Script>
 	<fx:Declarations>
 		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
-		<s:RadioButtonGroup id="ddquerytype" >
+		<s:RadioButtonGroup id="ddquerytype" change="refreshData()" >
 			
 		</s:RadioButtonGroup>
 	</fx:Declarations>
@@ -290,8 +379,7 @@
 						
 					</s:HorizontalLayout>
 				</s:layout>
-				<s:RadioButton id="cbclose" groupName="order" label="已关闭订单" />
-				<s:RadioButton id="cbopen" groupName="order"  label="未关闭订单" selected="true" />
+				
 				
 				<s:Label text="订单号:">
 				</s:Label>
@@ -313,6 +401,15 @@
 				</s:Button>
 				<s:Button label="查询" click="orderRuningRefresh()">
 				</s:Button>
+				<s:BorderContainer width="90" height="100%" backgroundAlpha="0" borderVisible="false">
+					<s:layout>
+						<s:VerticalLayout verticalAlign="middle">
+							
+						</s:VerticalLayout>
+					</s:layout>
+					<s:RadioButton id="cbclose"  group="{ddquerytype}" label="已完成订单" />
+					<s:RadioButton id="cbopen" group="{ddquerytype}"  label="未完成订单"  selected="true" />
+				</s:BorderContainer>
 				<s:Button label="导出数据" click="getExcel()">
 				</s:Button>
 				
@@ -326,8 +423,8 @@
 							<mx:AdvancedDataGridColumn headerText="下达日期" dataField="xddate" width="100"></mx:AdvancedDataGridColumn>
 							<mx:AdvancedDataGridColumn headerText="项数" dataField="orderlistnum" width="60"></mx:AdvancedDataGridColumn>
 							<mx:AdvancedDataGridColumn headerText="件数" dataField="productnum" width="60"></mx:AdvancedDataGridColumn>
-							<mx:AdvancedDataGridColumn headerText="已关闭项数" dataField="closeorderlistnum" width="120"></mx:AdvancedDataGridColumn>
-							<mx:AdvancedDataGridColumn headerText="未关闭项数" dataField="openorderlistnum" width="120"></mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn headerText="已完成项数" dataField="closeorderlistnum" width="120"></mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn headerText="未完成项数" dataField="openorderlistnum" width="120"></mx:AdvancedDataGridColumn>
 							<mx:AdvancedDataGridColumn headerText="关闭标记" dataField="closeflag" width="120"></mx:AdvancedDataGridColumn>
 							<mx:AdvancedDataGridColumn headerText="未关闭时间" dataField="opentime" width="120"></mx:AdvancedDataGridColumn>
 						</mx:groupedColumns>
