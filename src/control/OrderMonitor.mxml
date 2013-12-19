@@ -16,6 +16,7 @@
 			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumnGroup;
 			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
 			import mx.events.FlexEvent;
 			import mx.events.ItemClickEvent;
 			import mx.events.ListEvent;
@@ -37,6 +38,9 @@
 			[Bindable]
 			public var showLabel:String;
 			
+			[Bindable]
+			private var scxquery:ArrayCollection=null;
+			
 			override public function init(e:FlexEvent):void{
 //				orderbb=ObjectUtil.copy(InfoUtil.orderbhList) as ArrayCollection;
 //				for each(var item:Object in orderbb){
@@ -48,7 +52,16 @@
 //				orderbhlist=ObjectUtil.copy(InfoUtil.orderbhList) as ArrayCollection;
 //				orderbblist.removeAll();
 //				orderbbgrid.init(null);
+				scxquery=ObjectUtil.copy(InfoUtil.scxList) as ArrayCollection;
+				var item:Object=new Object();
+				item["name"]="全部";
+				item["id"]=0;
+				scxquery.addItemAt(item,0);
+				scxComb.selectedIndex=0;
 				datelr.selectedDate=new Date();
+//				query.filterFunction = scxFilterChanged;
+				allquery.filterFunction = scxFilterChanged;
+				allquery.addEventListener(CollectionEvent.COLLECTION_CHANGE,allqueryChanged);
 				
 			}
 			
@@ -57,10 +70,11 @@
 				
 			}
 			override public function reloadParamData(e:FlexEvent):void{
-				
-				ddbhGrid.selectedItem=param;
-				datelr.selectedDate=new Date();
-				orderGenZongRefresh(true);
+				if(param){
+					ddbhGrid.selectedItem=param["ddbh"];
+					datelr.selectedDate=new Date();
+					orderGenZongRefresh(param["isopen"]);
+				}
 				super.reloadParamData(e);
 			}
 			
@@ -412,9 +426,9 @@
 
 			}
 			
-			private var closefilter:Boolean=false;
+			private var closefilter:String="";
 			
-			public function orderGenZongRefresh(filter:Boolean=false):void{
+			public function orderGenZongRefresh(filter:String=""):void{
 //				bbchange(null);
 				closefilter=filter;
 				var myDateFormatter:DateFormatter=new DateFormatter();
@@ -502,16 +516,61 @@
 						grid.groupedColumns.push(column);
 					}
 					grid.minWidth=w;
-					query.removeAll();
-					query.addAll(new ArrayCollection(e.result.result.query as Array));
+					
+					
+					scxComb.selectedIndex=0;
+//					query.removeAll();
+//					query.refresh();
+//					query.addAll(new ArrayCollection(e.result.result.query as Array));
+//					if(closefilter){
+//						for(var j:Number=query.length-1;j>=0;j--){
+//							if(query.getItemAt(j).ddwczt==closefilter){
+//								query.removeItemAt(j);
+//							}
+//						}
+//					}
+//					query.refresh();
+					allquery.removeAll();
+					allquery.refresh();
+					allquery.addAll(new ArrayCollection(e.result.result.query as Array));
 					if(closefilter){
-						for(var j:Number=query.length-1;j>=0;j--){
-							if(query.getItemAt(j).ddwczt=="1"){
-								query.removeItemAt(j);
+						for(var j:Number=allquery.length-1;j>=0;j--){
+							if(allquery.getItemAt(j).ddwczt==closefilter){
+								allquery.removeItemAt(j);
 							}
 						}
 					}
+					allquery.refresh();
+					
+					
 				}
+			}
+			
+			public function scxFilterChanged(item:Object):Boolean{ 
+				
+				if(scxComb.selectedIndex<=0||scxComb.selectedItem.name==item.scx) 
+					return true; 
+				else 
+					return false; 
+			} 
+			
+			
+			private function refreshData():void{
+//				query.refresh();
+				allquery.refresh();
+				
+				
+			}
+			private function allqueryChanged(e:CollectionEvent):void{
+				if(e.kind!=CollectionEventKind.REFRESH){
+					return;
+				}
+				query.removeAll();
+				query.addAll(allquery);
+//				for each(var item:Object in allquery){
+//					query.addItem(item);
+//				}
+				grid.invalidateList();
 			}
 			
 			private function changeHead(e:Event):void{
@@ -590,6 +649,8 @@
 			public var head:Object=new Object();
 			[Bindable]
 			public var query:ArrayCollection=new ArrayCollection();
+			[Bindable]
+			public var allquery:ArrayCollection=new ArrayCollection();
 			
 			[Bindable]
 			public var orderisopenlist:ArrayCollection=new ArrayCollection();
@@ -633,6 +694,11 @@
 							
 						</s:HorizontalLayout>
 					</s:layout>
+					<s:Label text="生产线:"/>
+					<mx:ComboBox  id="scxComb" dataProvider="{scxquery}" labelField="name" width="100" dropdownWidth="200"  change="refreshData()" >
+						
+					</mx:ComboBox>
+					
 					<s:Label text="日期:"/>
 					<mx:DateField id="datelr" width="100"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}"  >
 						
@@ -704,7 +770,7 @@
 				</s:BorderContainer>
 			<s:Scroller width="100%" height="40" left="5" right="5">
 				<s:Group width="100%" height="100%">
-				<s:BorderContainer id="headBox"  height="40" backgroundAlpha="0" borderVisible="false" >
+				<s:BorderContainer id="headBox"  height="30" backgroundAlpha="0" borderVisible="false" >
 					<s:layout>
 						<s:HorizontalLayout gap="10" paddingLeft="10" horizontalAlign="left" verticalAlign="top">
 							
@@ -717,7 +783,7 @@
 			
 				<s:Scroller width="100%" height="100%">
 					<s:Group width="100%" height="100%">
-					<mx:AdvancedDataGrid id="grid" dataProvider="{query}" selectionMode="singleCell" itemClick="getZYDHData(event)" visible="false"  height="100%">
+					<mx:AdvancedDataGrid id="grid" rowHeight="30" dataProvider="{query}" selectionMode="singleCell" itemClick="getZYDHData(event)" visible="false"  height="100%">
 						<mx:groupedColumns>
 							
 						</mx:groupedColumns>

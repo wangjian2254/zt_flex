@@ -78,11 +78,6 @@
 					open="open";
 				}
 				
-				if(cball.selected){
-					open="";
-				}
-				
-				
 				var op:AbstractOperation=RemoteUtil.getOperation("getOrderRuningList");
 				op.addEventListener(ResultEvent.RESULT,resultOrderRuningList);
 				RemoteUtil.openLoading();
@@ -222,7 +217,14 @@
 						break;
 					}
 				}
-				var evt:ChangeMenuEvent=new ChangeMenuEvent(ChangeMenuEvent.ChangeMenu_EventStr,"ordermonitor",obj,true)
+				var param:Object=new Object();
+				param["ddbh"]=obj;
+				param["isopen"]="1";
+				if(cbclose.selected){
+					param["isopen"]="0";
+				}
+				
+				var evt:ChangeMenuEvent=new ChangeMenuEvent(ChangeMenuEvent.ChangeMenu_EventStr,"ordermonitor",param,true)
 				dispatchEvent(evt);
 			}
 			
@@ -290,7 +292,7 @@
 				</s:layout>
 				<s:RadioButton id="cbclose" groupName="order" label="已关闭订单" />
 				<s:RadioButton id="cbopen" groupName="order"  label="未关闭订单" selected="true" />
-				<s:RadioButton id="cball" groupName="order"  label="所有订单"  />
+				
 				<s:Label text="订单号:">
 				</s:Label>
 				<uicontrol:FliterComboBox id="ddbhGrid" dataProvider="{InfoUtil.orderbhList}" labelField="ddbh" valueField="id" width="100" styleName="fliterComboBox" dropdownWidth="200">
