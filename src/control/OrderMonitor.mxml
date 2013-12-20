@@ -60,7 +60,7 @@
 				scxComb.selectedIndex=0;
 				datelr.selectedDate=new Date();
 //				query.filterFunction = scxFilterChanged;
-				allquery.filterFunction = scxFilterChanged;
+				
 //				allquery.addEventListener(CollectionEvent.COLLECTION_CHANGE,allqueryChanged);
 				
 			}
@@ -538,7 +538,8 @@
 					query.removeAll();
 					allquery.removeAll();
 					refreshData();
-					allquery.addAll(new ArrayCollection(e.result.result.query as Array));
+					allquery=new ArrayCollection(e.result.result.query as Array);
+					allquery.filterFunction = scxFilterChanged;
 					if(closefilter){
 						for(var j:Number=allquery.length-1;j>=0;j--){
 							if(allquery.getItemAt(j).ddwczt==closefilter){

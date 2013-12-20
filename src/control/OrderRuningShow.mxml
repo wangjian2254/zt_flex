@@ -40,7 +40,7 @@
 			public var showLabel:String;
 			
 			override public function init(e:FlexEvent):void{
-				query.filterFunction=closeFilterChanged;
+				
 //				query.addEventListener(CollectionEvent.COLLECTION_CHANGE,queryChanged);
 			}
 			
@@ -66,6 +66,8 @@
 				}else{
 					ddbhid = ddbhGrid.selectedItem.id;
 				}
+				
+				
 				
 				var myDateFormatter:DateFormatter=new DateFormatter();
 				myDateFormatter.formatString="YYYYMMDD";
@@ -99,8 +101,11 @@
 				if(e.result.success){
 					var ddbhlist:ArrayCollection=new ArrayCollection();
 					var openddbhlist:ArrayCollection=new ArrayCollection();
+					queryfilter.removeAll();
 					query.removeAll();
-					query.addAll(new ArrayCollection(e.result.result as Array));
+					
+					query = new ArrayCollection(e.result.result as Array);
+					query.filterFunction=closeFilterChanged;
 					var item:Object=null;
 					for(var i:Number=0;i<query.length;i++){
 						item = query.getItemAt(i);
@@ -245,11 +250,11 @@
 			public function post_request():void
 			{
 				resultAjax++;
-				bar.setProgress(resultAjax, needAjax);
+				bar.setProgress(resultAjax-1, needAjax);
 				var percent:Number = (resultAjax*100/needAjax);
 				bar.label = percent.toString().split(".")[0] + "%";
 				
-				if(needAjax==(resultAjax+1)&&needAjax>0){
+				if(needAjax==(resultAjax-1)&&needAjax>0){
 					bar.visible=false;
 					bar.label="0%";
 					refreshData();
@@ -285,6 +290,19 @@
 				}
 				startdate.selectedDate=start;
 				enddate.selectedDate=end;
+				
+				queryparamchange(true);
+				
+			}
+			
+			private function queryparamchange(f:Boolean):void{
+				if(f){
+//					ddbhGrid.selectedItem=null;
+					ddbhGrid.setValue("");
+				}else{
+					startdate.selectedDate=null;
+					enddate.selectedDate=null;
+				}
 			}
 			
 			
@@ -383,14 +401,14 @@
 				
 				<s:Label text="订单号:">
 				</s:Label>
-				<uicontrol:FliterComboBox id="ddbhGrid" dataProvider="{InfoUtil.orderbhList}" labelField="ddbh" valueField="id" width="100" styleName="fliterComboBox" dropdownWidth="200">
+				<uicontrol:FliterComboBox id="ddbhGrid" dataProvider="{InfoUtil.orderbhList}" labelField="ddbh" valueField="id" width="100" styleName="fliterComboBox" dropdownWidth="200" change="queryparamchange(false)">
 					
 				</uicontrol:FliterComboBox>
 				<s:Label text="下达日期:">
 				</s:Label>
-				<mx:DateField id="startdate" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
+				<mx:DateField id="startdate" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" change="queryparamchange(true)" />
 				<s:Label text="~"/>
-				<mx:DateField id="enddate"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
+				<mx:DateField id="enddate"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" change="queryparamchange(true)"/>
 				<s:Button label="一周内" click="setDateRange('oneweek');">
 				</s:Button>
 				<s:Button label="两周内" click="setDateRange('twoweek');">
