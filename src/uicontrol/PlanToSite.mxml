@@ -45,7 +45,7 @@
 			
 			override public function set data(value:Object):void {
 				if(!value.hasOwnProperty(_listData.dataField)){
-					value[_listData.dataField]=null
+					value[_listData.dataField]=""
 				}
 				cbo.setValue(value[_listData.dataField]);
 				super.data=value[_listData.dataField];

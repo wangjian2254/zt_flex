@@ -292,6 +292,27 @@
 				}
 			}
 			
+			private function getGridGroupColumnByDataFiled(key:String):String{
+//				var group:AdvancedDataGridColumnGroup=null;
+				var column:AdvancedDataGridColumn=null;
+				for(var i:Number=0;i<orderbbgrid.groupedColumns.length;i++){
+					column=orderbbgrid.groupedColumns[i] as AdvancedDataGridColumn;
+					if(column!=null&&column.dataField==key){
+						return column.headerText;
+					}
+				}
+				if(key.indexOf("startdate")==0){
+					
+				}
+				if(key.indexOf("enddate")==0){
+					
+				}
+				if(key.indexOf("zrwz")==0){
+					
+				}
+				return null;
+			}
+			
 			public function check():Boolean{
 				var obj:Object;
 				for(var ii:int=0;ii<orderbblist.length;ii++){
@@ -320,11 +341,12 @@
 						co=2;
 						break;
 					}
-					if(!obj.hasOwnProperty("yzydh")||obj["yzydh"]==""||obj["yzydh"]==null){
-						Alert.show(msg+"源作业单编号不能为空","提示");
-						co=6;
+					if(!obj.hasOwnProperty("plannum")||obj["plannum"]==""||obj["plannum"]==null||obj["plannum"]<=0){
+						Alert.show(msg+"计划数量必须大于0","提示");
+						co=7;
 						break;
 					}
+//					orderbbgrid.get
 					if(!obj.hasOwnProperty("zrddbh")||obj["zrddbh"]==""||obj["zrddbh"]==null){
 						Alert.show(msg+"转入订单编号不能为空","提示");
 						co=10;
@@ -589,7 +611,7 @@
 						<mx:AdvancedDataGridColumn headerText="计划投入日期" itemEditor="uicontrol.PlanStartDate"  dataField="startdate"   editorDataField="data"  width="100"  >
 							
 						</mx:AdvancedDataGridColumn>
-						<mx:AdvancedDataGridColumn headerText="计划完成日期" itemEditor="uicontrol.PlanEndDate"  dataField="startdate"   editorDataField="data"  width="100"  >
+						<mx:AdvancedDataGridColumn headerText="计划完成日期" itemEditor="uicontrol.PlanEndDate"  dataField="enddate"   editorDataField="data"  width="100"  >
 							
 						</mx:AdvancedDataGridColumn>
 						<mx:AdvancedDataGridColumn headerText="去向位置" itemEditor="uicontrol.PlanToSite"  dataField="zrwz" editorDataField="data"  labelFunction="getZRWZStr" width="100"  >
