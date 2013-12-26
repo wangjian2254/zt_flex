@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300"
+		 horizontalGap="10"
+		 implements="mx.controls.listClasses.IDropInListItemRenderer,mx.managers.IFocusManagerComponent"
+		 backgroundAlpha="1"
+		 >
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.DateField;
+			import mx.controls.dataGridClasses.DataGridListData;
+			import mx.controls.listClasses.BaseListData;
+			import mx.core.INavigatorContent;
+			
+			import util.DateUtil;
+			import util.InfoUtil;
+			private var _listData:DataGridListData;
+			
+			private static var yj:String="永久";
+			// Define a property for returning the new value to the cell.
+			[Bindable]
+			private var _value:Object;            
+			
+			// Implement the drawFocus() method for the VBox.
+			override public function drawFocus(draw:Boolean):void {
+				//											outerDocument.getMacAll();
+				cbo.setFocus();
+				//													cbo.;
+				
+			}
+			
+			override public function get data():Object {
+				if(cbo==null){
+					return super.data;
+				}else{
+					if(cbyj.selected){
+						return yj;
+					}
+					if(cbo.selectedDate!=null ){
+						return DateField.dateToString(cbo.selectedDate,"YYYY/MM/DD");
+					}
+					return super.data;
+				}
+			}            
+			
+			override public function set data(value:Object):void {
+				if(yj==value[_listData.dataField]){
+					cbyj.selected=true;
+				}else{
+					
+					try{
+						cbo.selectedDate=DateField.stringToDate(value[_listData.dataField],"YYYY/MM/DD");
+					}catch(e:Error){
+						cbo.selectedDate=null;
+					}
+				}
+				super.data=value[_listData.dataField];
+				_value=value;
+				
+			} 
+			
+			public function get listData():BaseListData
+			{
+				return _listData;
+			}
+			
+			public function set listData(value:BaseListData):void
+			{
+				_listData = DataGridListData(value);
+			}
+			
+			private function dateChange():void{
+				if(cbo.selectedDate!=null){
+					cbyj.selected=false;
+				}
+			}
+			private function cbChange():void{
+				if(cbyj.selected){
+					cbo.selectedDate=null;
+				}
+			}
+			
+			
+		]]>
+	</fx:Script>
+	<mx:DateField id="cbo" dayNames="{DateUtil.dayNames}"
+					monthNames="{DateUtil.monthNames}"  change="dateChange()" >
+	</mx:DateField>
+	<s:CheckBox id="cbyj" label="永久" change="cbChange()" />
+</mx:HBox>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300"
+		 horizontalAlign="center"
+		 >
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			public function get selected():Boolean{
+				return cb.selected;
+			}
+			public function set selected(value:Boolean):void{
+				cb.selected=value;
+			}
+		]]>
+	</fx:Script>
+	
+	<mx:CheckBox id="cb" selected="{data.selected}" >
+		
+	</mx:CheckBox>
+</mx:HBox>
