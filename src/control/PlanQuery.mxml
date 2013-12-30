@@ -109,11 +109,15 @@
 //			}
 			
 			
+			
+			
 			[Bindable]
 			public var query:ArrayCollection=new ArrayCollection();
 			
 			[Bindable]
 			public var planlist:ArrayCollection=new ArrayCollection();
+			
+			
 			
 			
 			
@@ -151,20 +155,20 @@
 					<s:Label text="~"/>
 					<mx:DateField id="enddate"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
 					
-					<s:Button label="查询" click="queryPlanList()">
-					</s:Button>
 					
-					<s:BorderContainer width="90" height="100%" backgroundAlpha="0" borderVisible="false">
+					
+					<s:BorderContainer width="230" height="100%" backgroundAlpha="0" borderVisible="false">
 						<s:layout>
-							<s:VerticalLayout verticalAlign="middle">
+							<s:HorizontalLayout verticalAlign="middle">
 								
-							</s:VerticalLayout>
+							</s:HorizontalLayout>
 						</s:layout>
 						<s:RadioButton id="cbclose" value="2"  group="{ddquerytype}" label="审核通过" />
 						<s:RadioButton id="cbopen" value="1" group="{ddquerytype}"  label="未通过或未审核"  selected="true" />
 						<s:RadioButton id="cball" value="0" group="{ddquerytype}"  label="全部"   />
 					</s:BorderContainer>
-					
+					<s:Button label="查询" click="queryPlanList()">
+					</s:Button>
 				</s:BorderContainer>
 				
 			
