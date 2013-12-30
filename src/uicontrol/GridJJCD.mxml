@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300"
+		 implements="mx.controls.listClasses.IDropInListItemRenderer,mx.managers.IFocusManagerComponent" xmlns:uicontrol="uicontrol.*"
+		 >
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.dataGridClasses.DataGridListData;
+			import mx.controls.listClasses.BaseListData;
+			import mx.core.INavigatorContent;
+			
+			import util.InfoUtil;
+			private var _listData:DataGridListData;
+			// Define a property for returning the new value to the cell.
+			[Bindable]
+			private var _value:Object;  
+			
+			[Bindable]
+			private var list:ArrayCollection=new ArrayCollection();
+			
+			// Implement the drawFocus() method for the VBox.
+			override public function drawFocus(draw:Boolean):void {
+				//											outerDocument.getMacAll();
+				cbo.setFocus();
+				cbo.open();
+				
+			}
+			
+			public function refresh():void{
+				list = InfoUtil.planjjcd;
+			}
+			
+			override public function get data():Object {
+				if(cbo==null){
+					return super.data;
+				}else{
+//					if(cbo.selectedIndex==-1){
+//						for each(var it:Object in cbo.dataProvider){
+//							if(it[cbo.labelField]==cbo.data||it[cbo.valueField]==cbo.data){
+//								return it[cbo.valueField]
+//							}
+//						}
+//						return null;
+//					}
+					return cbo.data;
+				}
+			}            
+			
+			override public function set data(value:Object):void {
+				super.data=value[_listData.dataField];
+				_value=value;
+//				changeFilterValue();
+				cbo.setValue(value[_listData.dataField]);
+				
+				//												
+				
+			} 
+			
+			public function get listData():BaseListData
+			{
+				return _listData;
+			}
+			
+			public function set listData(value:BaseListData):void
+			{
+				_listData = DataGridListData(value);
+//				cbo.listData = DataGridListData(value);
+			}
+			
+			public function changeCode():void{
+				if(cbo.selectedItem==null){
+					return;
+				}
+				
+				
+			}
+			
+			
+			
+		]]>
+	</fx:Script>
+	<uicontrol:FliterComboBox id="cbo"  dataProvider="{list}"   labelField="text" valueField="id" change="changeCode()" height="{this.height}" width="{this.width}" styleName="fliterComboBox" dropdownWidth="200">
+		
+	</uicontrol:FliterComboBox>
+</mx:HBox>

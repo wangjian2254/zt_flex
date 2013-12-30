@@ -18,6 +18,7 @@
 			import control.OrderRuningShow;
 			import control.People;
 			import control.PlanEdit;
+			import control.PlanQuery;
 			import control.Scx;
 			import control.Site;
 			import control.Welcome;
@@ -263,6 +264,9 @@
 						case 'planedit':
 							c=new PlanEdit();
 							break;
+						case 'planshow':
+							c=new PlanQuery();
+							break;
 						default:
 							return;
 							break;
@@ -333,7 +337,9 @@
 			<root>
 				<menuitem label="主计划编制" mod='planedit'>
 				</menuitem>
-				<menuitem label="主计划汇总" mod='planshow'>
+				<menuitem label="主计划查询" mod='planshow'>
+				</menuitem>
+				<menuitem label="主计划汇总" mod='planall'>
 				</menuitem>
 				<menuitem label="主计划修改记录" mod='planrecord'>
 				</menuitem>

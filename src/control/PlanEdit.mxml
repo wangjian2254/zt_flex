@@ -188,6 +188,15 @@
 				
 				return "";
 			}
+			public function getJJCDStr(item:Object, column:AdvancedDataGridColumn):String{
+				for each(var obj:Object in InfoUtil.planjjcd){
+					if(obj.id==item[column.dataField]){
+						return obj.text;
+					}
+				}
+				
+				return "";
+			}
 			
 			public function getScxStr(item:Object, column:AdvancedDataGridColumn):String{
 				for each(var obj:Object in InfoUtil.codeList){
@@ -315,13 +324,16 @@
 			
 			public function check():Boolean{
 				var obj:Object;
+				var j:Number=0;
 				for(var ii:int=0;ii<orderbblist.length;ii++){
 					
 					obj=orderbblist.getItemAt(ii);
 					obj['num']=ii+1;
 				}
+				var sbx:SiteBox=null;
 				var co:int=1;
 				var flag:Boolean=false;
+				var zflag:Boolean=false;
 				var ydd:Boolean=false;
 				var zdd:Boolean=false;
 				var msg:String='';
@@ -352,54 +364,42 @@
 						co=10;
 						break;
 					}
-					if((obj["yddbh"]==obj["zrddbh"])&&(obj["ywz"]==obj["zrwz"])){
-						Alert.show(msg+"源订单编号 与 转入订单编号 相同，且 转出位置 与 转入位置 也相同了。","提示");
-						break;
-					}
+					
+					
 					co=0;
-					if((!obj.hasOwnProperty("ywz")||obj["ywz"]==""||obj["ywz"]==null)&&(!obj.hasOwnProperty("zrwz")||obj["zrwz"]==""||obj["zrwz"]==null)){
-						Alert.show(msg+"源位置与转入位置不能同时为空","提示");
-						break;
-					}
-					if((!obj.hasOwnProperty("ywznum")||obj["ywznum"]==""||obj["ywznum"]==null)&&(!obj.hasOwnProperty("zrwznum")||obj["zrwznum"]==""||obj["zrwznum"]==null)){
-						Alert.show(msg+"转出数量与转入数量不能同时为空","提示");
-						break;
-					}
-					if(!obj.hasOwnProperty("ywz")||obj["ywz"]==""||obj["ywz"]==null){
-						
-					}else{
-						if(obj["ywznum"]!=obj["zrwznum"]+obj["bfnum"]+obj["ysnum"]){
-							Alert.show(msg+"转出数量不等于转入数量+报废数量+遗失数量+源位置剩余数量","提示");
+					for (j=0;j<headBox.numElements;j++){
+						sbx=headBox.getElementAt(j) as SiteBox;
+						zflag = true;
+						if(sbx!=null){
+							if(sbx.selected){
+								if((!obj.hasOwnProperty("startdate"+sbx.data.id)||!obj["startdate"+sbx.data.id])&&(!obj.hasOwnProperty("enddate"+sbx.data.id)||!obj["enddate"+sbx.data.id])&&(!obj.hasOwnProperty("zrwz"+sbx.data.id)||!obj["zrwz"+sbx.data.id])){
+									continue;
+								}
+								if(!obj.hasOwnProperty("startdate"+sbx.data.id)||!obj["startdate"+sbx.data.id]){
+									zflag=false;
+									Alert.show(msg+sbx.data.name+" 位置 投入日期不能为空","提示");
+									break;
+								}
+								if(!obj.hasOwnProperty("enddate"+sbx.data.id)||!obj["enddate"+sbx.data.id]){
+									zflag=false;
+									Alert.show(msg+sbx.data.name+" 位置 完成日期不能为空","提示");
+									break;
+								}
+								if(obj["enddate"+sbx.data.id]!="永久"&&(!obj.hasOwnProperty("zrwz"+sbx.data.id)||!obj["zrwz"+sbx.data.id])){
+									zflag=false;
+									Alert.show(msg+sbx.data.name+" 位置 完成日期不为“永久”，转入位置不能为空","提示");
+									break;
+								}
+							}
+						}
+						if(!zflag){
 							break;
 						}
 					}
-					
-					
-					for each(var item:Object in InfoUtil.openOrderList){
-						if(item.id==obj.yddbh){
-							if(item.code==obj.code){
-								ydd=true;
-								obj.yorder=item.id;
-							}
-						}
-						if(item.code==obj.code){
-							if(item.id==obj.zrddbh){
-								zdd=true;
-								obj.zrorder=item.id;
-							}
-						}
-						if(ydd&&zdd){
-							break;
-						}
-					}
-					if(!ydd){
-						Alert.show(msg+"源订单没有选定的物料。","提示");
+					if(!zflag){
 						break;
 					}
-					if(!zdd){
-						Alert.show(msg+"转入订单没有选定的物料。","提示");
-						break;
-					}
+					
 					flag=true;
 				}
 				orderbbgrid.scrollToIndex(i);
@@ -421,11 +421,16 @@
 					return;
 				}
 				var headList:ArrayCollection=new ArrayCollection();
+				var unheadList:ArrayCollection=new ArrayCollection();
 				var sbx:SiteBox=null;
-				for (var i:Number;i<headBox.numElements;i++){
+				for (var i:Number=0;i<headBox.numElements;i++){
 					sbx=headBox.getElementAt(i) as SiteBox;
 					if(sbx!=null){
-						headList.addItem(sbx.data);
+						if(sbx.selected){
+							headList.addItem(sbx.data);
+						}else{
+							unheadList.addItem(sbx.data);
+						}
 					}
 				}
 				
@@ -433,14 +438,15 @@
 				var op:AbstractOperation=RemoteUtil.getOperation("updatePlan");
 				op.addEventListener(ResultEvent.RESULT,saveResult);
 				RemoteUtil.openLoading();
-				op.send(headList,orderbblist);
-				
-				
-				
+				op.send(headList,unheadList,orderbblist,lsh.text);
 			}
 			
-			private function saveResult(result:Object,e:ResultEvent):void{
-				
+			private function saveResult(e:ResultEvent):void{
+				var result:Object=e.result;
+				if(result.success==true){
+					Alert.show(result.message,"提示");
+					lsh.text = result.result["lsh"];
+				}
 			}
 			
 			public function trimStr(str:String):String{
@@ -468,16 +474,7 @@
 							item.codegg=obj.gg;
 							item.isModfy=true;
 							item.selected=false;
-							item.yddbh="";
-							item.zrddbh="";
-							item.ywz="";
-							item.ywznum=0;
-							item.zrwz="";
-							item.zrwznum=0;
-							item.bfnum=0;
-							item.ysnum=0;
-							item.ywzsynum=0;
-							item.bztext="";
+							
 							orderbblist.addItem(item);
 							break;
 						}
@@ -626,7 +623,7 @@
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn headerText="要求工艺"  dataField="bztext"   width="200"  >
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="紧急程度"  dataField="bztext"   width="80"  >
+					<mx:AdvancedDataGridColumn headerText="紧急程度" itemEditor="uicontrol.GridJJCD" labelFunction="getJJCDStr" editorDataField="data"  dataField="bztext"   width="80"  >
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn headerText="在线可用数量"  dataField="bztext"   width="120"  >
 					</mx:AdvancedDataGridColumn>

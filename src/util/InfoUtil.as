@@ -28,6 +28,10 @@ package util
 		public static var codeToBHlistObj:Object=new Object();
 		
 		[Bindable]
+		public static var planjjcd:ArrayCollection=new ArrayCollection([{"id":0,"text":"非常紧急"},{"id":1,"text":"一般紧急"},{"id":2,"text":"标准生产"},{"id":3,"text":"库备"}]);
+		
+		
+		[Bindable]
 		public static var orderbhList:ArrayCollection=new ArrayCollection();
 		
 		public static function orderbhRefresh(fun:Function=null):void{
