@@ -12,6 +12,7 @@
 			import httpcontrol.RemoteUtil;
 			
 			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
 			import mx.controls.Alert;
 			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumnGroup;
@@ -68,6 +69,7 @@
 					startDateColumn.width=100;
 					startDateColumn.dataField="startdate"+item.id;
 					startDateColumn.itemEditor=new ClassFactory(PlanStartDate);
+					startDateColumn.labelFunction = showOldData
 					
 					endDateColumn=new AdvancedDataGridColumn();
 					endDateColumn.headerText="完成日期";
@@ -76,6 +78,7 @@
 					endDateColumn.width=150;
 					endDateColumn.dataField="enddate"+item.id;
 					endDateColumn.itemEditor=new ClassFactory(PlanEndDate);
+					endDateColumn.labelFunction = showOldData;
 					
 					toSiteColumn=new AdvancedDataGridColumn();
 					toSiteColumn.headerText="转入位置";
@@ -157,48 +160,85 @@
 				}
 			}
 			
+			private function showOldData(item:Object, column:AdvancedDataGridColumn):String{
+				var str:String=null;
+				if(item[column.dataField]){
+					str = item[column.dataField];
+				}else{
+					str='"空"';
+				}
+				if(item.hasOwnProperty("oldDataDict")&&item.oldDataDict[column.dataField]!=item[column.dataField]){
+					if(item.oldDataDict[column.dataField]){
+						str+="\n\n"+item.oldDataDict[column.dataField]
+					}else{
+						str+='\n\n"空"';
+					}
+				}
+				return str;
+				
+			}
 			
-			
-			public function getDDBHStr(item:Object, column:AdvancedDataGridColumn):String{
-				if(InfoUtil.orderlistbhObj.hasOwnProperty("orderlist"+item.yddbh)){
-					return InfoUtil.orderlistbhObj["orderlist"+item.yddbh];
+			private function getDDBHById(yddbh:Number):String{
+				if(InfoUtil.orderlistbhObj.hasOwnProperty("orderlist"+yddbh)){
+					return InfoUtil.orderlistbhObj["orderlist"+yddbh];
 				}
 				for each(var obj:Object in InfoUtil.openOrderList){
-					if(obj.id==item.yddbh){
-						InfoUtil.orderlistbhObj["orderlist"+item.yddbh]=obj.ddbhstr;
+					if(obj.id==yddbh){
+						InfoUtil.orderlistbhObj["orderlist"+yddbh]=obj.ddbhstr;
 						return obj.ddbhstr;
 					}
 				}
 				
-				return "";
+				return '"空"';
 			}
 			
-			public function getYWZStr(item:Object, column:AdvancedDataGridColumn):String{
+			public function getDDBHStr(item:Object, column:AdvancedDataGridColumn):String{
+				var str:String=getDDBHById(item.yddbh);
+				if(item.hasOwnProperty("oldDataDict")&&item.oldDataDict.yddbh!=item.yddbh){
+					str+="\n\n"+getDDBHById(item.oldDataDict.yddbh);
+				}
+				
+				return str;
+			}
+			
+			
+			
+			private function getZRWZAndOldData(siteid:Number):String{
 				for each(var obj:Object in InfoUtil.siteList){
-					if(obj.id==item.ywz){
+					if(obj.id==siteid){
 						return obj.name;
 					}
 				}
-				
-				return "";
+				return '"空"';
 			}
+			
 			public function getZRWZStr(item:Object, column:AdvancedDataGridColumn):String{
-				for each(var obj:Object in InfoUtil.siteList){
-					if(obj.id==item[column.dataField]){
-						return obj.name;
-					}
+				var str:String=getZRWZAndOldData(item[column.dataField]);
+				if(item.hasOwnProperty("oldDataDict")&&item.oldDataDict[column.dataField]!=item[column.dataField]){
+					str+="\n\n"+getZRWZAndOldData(item.oldDataDict[column.dataField]);
 				}
 				
-				return "";
+				return str;
+				
 			}
-			public function getJJCDStr(item:Object, column:AdvancedDataGridColumn):String{
+			
+			private function getJJCDOldData(level:Number):String{
 				for each(var obj:Object in InfoUtil.planjjcd){
-					if(obj.id==item[column.dataField]){
+					if(obj.id==level){
 						return obj.text;
 					}
 				}
 				
-				return "";
+				return '"空"';
+			}
+			
+			public function getJJCDStr(item:Object, column:AdvancedDataGridColumn):String{
+				var str:String=getJJCDOldData(item[column.dataField]);
+				if(item.hasOwnProperty("oldDataDict")&&item.oldDataDict[column.dataField]!=item[column.dataField]){
+					str+="\n\n"+getJJCDOldData(item.oldDataDict[column.dataField]);
+				}
+				
+				return str;
 			}
 			
 			public function getScxStr(item:Object, column:AdvancedDataGridColumn):String{
@@ -278,7 +318,7 @@
 			}
 			
 			public function del():void{
-				var scxArr:ArrayCollection=new ArrayCollection();
+				var scxArr:Array=new Array();
 				var obj:Object;
 				var item:Object;
 				for(var i:int=orderbblist.length-1;i>=0;i--){
@@ -289,7 +329,7 @@
 					obj=new Object();
 					if(item.hasOwnProperty("id")){
 						obj.id=item.id;
-						scxArr.addItem(obj);
+						scxArr.push(item.id);
 					}else{
 						orderbblist.removeItemAt(orderbblist.getItemIndex(item));
 					}
@@ -297,33 +337,14 @@
 					
 				}
 				if(scxArr.length>0){
-					var op:AbstractOperation=RemoteUtil.getOperation("delOrderBB");
+					var op:AbstractOperation=RemoteUtil.getOperation("updatePlanDelete");
 					op.addEventListener(ResultEvent.RESULT,refreshDel);
 					RemoteUtil.openLoading();
 					op.send(scxArr);
 				}
 			}
 			
-			private function getGridGroupColumnByDataFiled(key:String):String{
-//				var group:AdvancedDataGridColumnGroup=null;
-				var column:AdvancedDataGridColumn=null;
-				for(var i:Number=0;i<orderbbgrid.groupedColumns.length;i++){
-					column=orderbbgrid.groupedColumns[i] as AdvancedDataGridColumn;
-					if(column!=null&&column.dataField==key){
-						return column.headerText;
-					}
-				}
-				if(key.indexOf("startdate")==0){
-					
-				}
-				if(key.indexOf("enddate")==0){
-					
-				}
-				if(key.indexOf("zrwz")==0){
-					
-				}
-				return null;
-			}
+			
 			
 			public function check():Boolean{
 				var obj:Object;
@@ -361,12 +382,7 @@
 						co=7;
 						break;
 					}
-//					orderbbgrid.get
-					if(!obj.hasOwnProperty("zrddbh")||obj["zrddbh"]==""||obj["zrddbh"]==null){
-						Alert.show(msg+"转入订单编号不能为空","提示");
-						co=10;
-						break;
-					}
+				
 					
 					
 					co=0;
@@ -522,7 +538,23 @@
 			}
 			
 			private function shouPlan():void{
+				var obj:Object = lshGrid.selectedItem;
+				if(obj==null){
+					return;
+				}
+				var op:AbstractOperation=RemoteUtil.getOperation("getPlanDetailByIdOrLsh");
+				op.addEventListener(ResultEvent.RESULT,showPlanResult);
+				RemoteUtil.openLoading();
+				op.send(obj.id);
 				
+			}
+			
+			private function showPlanResult(e:ResultEvent):void{
+				if(e.result.success){
+					lsh.text = e.result.result.plan.lsh;
+					
+					orderbblist = new ArrayCollection(e.result.result.list as Array);
+				}
 			}
 			
 			[Bindable]
@@ -554,7 +586,7 @@
 			<s:Button label="隐藏" click="{lshPanel.width=0;}"   chromeColor="#faf0cc" >
 				
 			</s:Button>
-			<mx:DataGrid width="100%" height="100%" dataProvider="{plannolist}" itemDoubleClick="shouPlan()" doubleClickEnabled="true" >
+			<mx:DataGrid id="lshGrid" width="100%" height="100%" dataProvider="{plannolist}" itemDoubleClick="shouPlan()" doubleClickEnabled="true" >
 				<mx:columns>
 					<mx:DataGridColumn headerText="流水号" dataField="lsh">
 					</mx:DataGridColumn>
@@ -587,7 +619,8 @@
 					<s:Label text="物料代号:"/>
 					<s:TextArea id="codeArea" width="400" height="100%"  >
 						<s:text>
-							C20110003
+							
+							A70170817
 						</s:text>
 					</s:TextArea>
 					<s:Button label="提交" click="addItem()"/>
@@ -616,7 +649,7 @@
 								
 							</s:HorizontalLayout>
 						</s:layout>
-			<uicontrol:MarkAdvancedDataGrid id="orderbbgrid" isNewAdd="false" rowHeight="25" dataProvider="{orderbblist}" visible="false"  enabled="true" editable="true" height="100%">
+			<uicontrol:MarkAdvancedDataGrid id="orderbbgrid" isNewAdd="false" rowHeight="60" dataProvider="{orderbblist}" visible="false"  enabled="true" editable="true" height="100%">
 				<uicontrol:groupedColumns>
 					<mx:AdvancedDataGridColumn headerText="选择" itemRenderer="uicontrol.GridCheckBox" dataField="selected"  sortable="false" width="60"  editorDataField="selected" rendererIsEditor="true" >
 						
@@ -640,11 +673,11 @@
 					<mx:AdvancedDataGridColumn headerText="生产线"  dataField="scx"  editable="false" labelFunction="getScxStr"  width="90" >
 						
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="作业单号"    dataField="zydh"   width="100" >
+					<mx:AdvancedDataGridColumn headerText="作业单号"    dataField="zydh"   width="100" labelFunction="showOldData" >
 						
 					</mx:AdvancedDataGridColumn>
 					
-					<mx:AdvancedDataGridColumn headerText="计划数量" itemEditor="uicontrol.GridNum"  dataField="plannum" editorDataField="data"  width="80"  >
+					<mx:AdvancedDataGridColumn headerText="计划数量" itemEditor="uicontrol.GridNum"  dataField="plannum" editorDataField="data"  width="80"  labelFunction="showOldData" >
 						
 					</mx:AdvancedDataGridColumn>
 					
@@ -664,13 +697,13 @@
 					</mx:AdvancedDataGridColumnGroup>
 					</mx:AdvancedDataGridColumnGroup>
 					
-					<mx:AdvancedDataGridColumn headerText="订单要求说明"  dataField="planbz"   width="200"  >
+					<mx:AdvancedDataGridColumn headerText="订单要求说明"  dataField="planbz"   width="200"   labelFunction="showOldData">
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="要求工艺"  dataField="ordergongyi"   width="200"  >
+					<mx:AdvancedDataGridColumn headerText="要求工艺"  dataField="ordergongyi"   width="200"   labelFunction="showOldData">
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn headerText="紧急程度" itemEditor="uicontrol.GridJJCD" labelFunction="getJJCDStr" editorDataField="data"  dataField="level"   width="80"  >
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="在线可用数量"  dataField="usenum"   width="120"  >
+					<mx:AdvancedDataGridColumn headerText="在线可用数量"  dataField="usenum"   width="120"   labelFunction="showOldData">
 					</mx:AdvancedDataGridColumn>
 					
 				</uicontrol:groupedColumns>

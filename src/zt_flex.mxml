@@ -19,6 +19,7 @@
 			import control.People;
 			import control.PlanEdit;
 			import control.PlanQuery;
+			import control.PlanRecordQuery;
 			import control.Scx;
 			import control.Site;
 			import control.Welcome;
@@ -264,8 +265,11 @@
 						case 'planedit':
 							c=new PlanEdit();
 							break;
-						case 'planshow':
+						case 'planall':
 							c=new PlanQuery();
+							break;
+						case 'planshow':
+							c=new PlanRecordQuery();
 							break;
 						default:
 							return;
