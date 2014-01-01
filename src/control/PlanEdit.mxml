@@ -35,7 +35,9 @@
 			public var showLabel:String;
 			
 			[bindable]
-			private var headsitelist:ArrayCollection=new ArrayCollection();;
+			private var headsitelist:ArrayCollection=new ArrayCollection();
+			
+			private var currentPlan:Object=null;
 			
 			override public function init(e:FlexEvent):void{
 				
@@ -111,6 +113,13 @@
 				
 				
 				orderbbgrid.invalidateList();
+			}
+			
+			override public function reloadParamData(e:FlexEvent):void{
+				if(param){
+					showPlanDetail(param["plan"].lsh);
+				}
+				super.reloadParamData(e);
 			}
 			
 			private function refreshHeadGroup(e:Event):void{
@@ -295,8 +304,7 @@
 			private function clickHander(e:ItemClickEvent):void{
 				
 				if(e.label=="新增"){
-					orderbblist.removeAll();
-					this.lsh.text="";
+					clear();
 				}
 				if(e.label=="保存"){
 					save();
@@ -314,7 +322,27 @@
 					if(this.lsh.text!=""){
 					}
 					
-									}
+				}
+				if(e.label=='审核'){
+					var op:AbstractOperation=RemoteUtil.getOperation("checkPlan");
+					op.addEventListener(ResultEvent.RESULT,checkPlanResult);
+					RemoteUtil.openLoading();
+					op.send(lsh.text);
+				}
+				if(e.label=='退审'){
+					var op2:AbstractOperation=RemoteUtil.getOperation("uncheckPlan");
+					op2.addEventListener(ResultEvent.RESULT,checkPlanResult);
+					RemoteUtil.openLoading();
+					op2.send(lsh.text);
+				}
+			}
+			
+			private function checkPlanResult(e:ResultEvent):void{
+				if(e.result.success){
+					Alert.show(e.result.message,"提示");
+					showPlanDetail(lsh.text);
+					findAllMyPlan();
+				}
 			}
 			
 			public function del():void{
@@ -342,6 +370,13 @@
 					RemoteUtil.openLoading();
 					op.send(scxArr);
 				}
+			}
+			
+			public function clear():void{
+				orderbblist.removeAll();
+				
+				currentPlan=null;
+				changeStatus();
 			}
 			
 			
@@ -464,8 +499,7 @@
 				var result:Object=e.result;
 				if(result.success==true){
 					Alert.show(result.message,"提示");
-					orderbblist.removeAll();
-					this.lsh.text="";
+					clear();
 					
 					findAllMyPlan();
 				}
@@ -542,19 +576,56 @@
 				if(obj==null){
 					return;
 				}
+				
+				showPlanDetail(obj.id);
+				
+			}
+			
+			private function showPlanDetail(id:*):void{
 				var op:AbstractOperation=RemoteUtil.getOperation("getPlanDetailByIdOrLsh");
 				op.addEventListener(ResultEvent.RESULT,showPlanResult);
 				RemoteUtil.openLoading();
-				op.send(obj.id);
-				
+				op.send(id);
 			}
 			
 			private function showPlanResult(e:ResultEvent):void{
 				if(e.result.success){
-					lsh.text = e.result.result.plan.lsh;
+					currentPlan=e.result.result.plan;
+					changeStatus();
 					
 					orderbblist = new ArrayCollection(e.result.result.list as Array);
 				}
+			}
+			
+			private function changeStatus():void{
+				if(currentPlan&&currentPlan.status=="1"){
+					this.planstatus.text="未审核";
+				}
+				if(currentPlan&&currentPlan.status=="2"){
+					this.planstatus.text="审核";
+				}
+				if(currentPlan&&currentPlan.status=="3"){
+					this.planstatus.text="退审";
+				}
+				if(!currentPlan){
+					this.planstatus.text="未保存";
+					this.lsh.text="";
+				}else{
+					this.lsh.text=currentPlan.lsh;
+				}
+			}
+			
+			private function statusLabFun(item:Object,column:DataGridColumn):String{
+				if(item[column.dataField]=="1"){
+					return "未审核";
+				}
+				if(item[column.dataField]=="2"){
+					return "审核";
+				}
+				if(item[column.dataField]=="3"){
+					return "退审";
+				}
+					return "";
 			}
 			
 			[Bindable]
@@ -569,7 +640,7 @@
 			public var orderisopenlist:ArrayCollection=new ArrayCollection();
 			
 			[Bindable]
-			private var buttonArr:ArrayCollection=new ArrayCollection([{'label':'新增','ico':addimg},{'label':'保存','ico':saveimg},{'label':'删除','ico':delimg},{'label':'同步数据','ico':refreshimg},{'label':'同步订单编号和物料','ico':refreshimg}]);
+			private var buttonArr:ArrayCollection=new ArrayCollection([{'label':'新增','ico':addimg},{'label':'保存','ico':saveimg},{'label':'删除','ico':delimg},{'label':'同步数据','ico':refreshimg},{'label':'同步订单编号和物料','ico':refreshimg},{'label':'审核','ico':addimg},{'label':'退审','ico':addimg}]);
 			
 		]]>
 	</fx:Script>
@@ -588,7 +659,9 @@
 			</s:Button>
 			<mx:DataGrid id="lshGrid" width="100%" height="100%" dataProvider="{plannolist}" itemDoubleClick="shouPlan()" doubleClickEnabled="true" >
 				<mx:columns>
-					<mx:DataGridColumn headerText="流水号" dataField="lsh">
+					<mx:DataGridColumn headerText="未审核流水号" dataField="lsh">
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="状态" dataField="status" labelFunction="statusLabFun" width="50">
 					</mx:DataGridColumn>
 				</mx:columns>
 			</mx:DataGrid>
@@ -627,6 +700,9 @@
 					<s:Label width="20"/>
 					<s:Label text="流水号:" />
 					<s:TextInput id="lsh" enabled="false">
+					</s:TextInput>
+					<s:Label text="主计划状态:" />
+					<s:TextInput id="planstatus" enabled="false">
 					</s:TextInput>
 				</s:BorderContainer>
 			<s:Scroller width="100%" height="40" left="5" right="5">

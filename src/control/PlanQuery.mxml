@@ -7,6 +7,7 @@
 	</control:layout>
 	<fx:Script>
 		<![CDATA[
+			import events.ChangeMenuEvent;
 			import events.CloseEvent;
 			
 			import httpcontrol.RemoteUtil;
@@ -50,16 +51,28 @@
 			
 			
 			private function queryPlanList():void{
+				
+				if((editstartdate.selectedDate&&editenddate.selectedDate)||(checkstartdate.selectedDate&&checkenddate.selectedDate)){
+				}else{
+					Alert.show("计划编织日期和审核日期，必须选择其一。","提示");
+					return;
+				}
+				
 				var myDateFormatter:DateFormatter=new DateFormatter();
 				myDateFormatter.formatString="YYYYMMDD";
 				
-				var start:String=myDateFormatter.format(startdate.selectedDate);	
-				var end:String=myDateFormatter.format(enddate.selectedDate);
+				var editstart:String=myDateFormatter.format(editstartdate.selectedDate);	
+				var editend:String=myDateFormatter.format(editenddate.selectedDate);
+				
+				var checkstart:String=myDateFormatter.format(checkstartdate.selectedDate);	
+				var checkend:String=myDateFormatter.format(checkenddate.selectedDate);
+				
+				
 				
 				var op:AbstractOperation=RemoteUtil.getOperation("queryPlan");
 				op.addEventListener(ResultEvent.RESULT,resultPlanList);
 				RemoteUtil.openLoading();
-				op.send(user.selectedItem!=null?user.selectedItem.id:null,start,end,ddquerytype.selectedValue);
+				op.send(user.selectedItem!=null?user.selectedItem.id:null,checkuser.selectedItem!=null?checkuser.selectedItem.id:null,editstart,editend,checkstart,checkend);
 			}
 			public function resultPlanList(e:ResultEvent):void{
 				
@@ -109,6 +122,15 @@
 //			}
 			
 			
+			public function gotoPlanEditView():void{
+				var obj:Object=planlistgrid.selectedItem;
+				
+				var param:Object=new Object();
+				param["plan"]=obj;
+				
+				var evt:ChangeMenuEvent=new ChangeMenuEvent(ChangeMenuEvent.ChangeMenu_EventStr,"planedit",param,true)
+				dispatchEvent(evt);
+			}
 			
 			
 			[Bindable]
@@ -119,7 +141,18 @@
 			
 			
 			
-			
+			private function statusLabFun(item:Object,column:AdvancedDataGridColumn):String{
+				if(item[column.dataField]=="1"){
+					return "未审核";
+				}
+				if(item[column.dataField]=="2"){
+					return "审核";
+				}
+				if(item[column.dataField]=="3"){
+					return "退审";
+				}
+				return "";
+			}
 			
 		]]>
 	</fx:Script>
@@ -145,35 +178,37 @@
 					</s:layout>
 					
 					
-					<s:Label text="计划编制者:">
+					<s:Label text="编制者:">
 					</s:Label>
 					<uicontrol:FliterComboBox id="user" dataProvider="{InfoUtil.userList}" labelField="last_name" valueField="id" width="120" styleName="fliterComboBox" dropdownWidth="200">
 					</uicontrol:FliterComboBox>
-					<s:Label text="计划编制日期:">
+					<s:Label text="审核者:">
 					</s:Label>
-					<mx:DateField id="startdate" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
+					<uicontrol:FliterComboBox id="checkuser" dataProvider="{InfoUtil.userList}" labelField="last_name" valueField="id" width="120" styleName="fliterComboBox" dropdownWidth="200">
+					</uicontrol:FliterComboBox>
+					<s:Label text="编制日期:">
+					</s:Label>
+					<mx:DateField id="editstartdate" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
 					<s:Label text="~"/>
-					<mx:DateField id="enddate"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
+					<mx:DateField id="editenddate"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
+					
+					
+					<s:Label text="审核日期:">
+					</s:Label>
+					<mx:DateField id="checkstartdate" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
+					<s:Label text="~"/>
+					<mx:DateField id="checkenddate"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
 					
 					
 					
-					<s:BorderContainer width="230" height="100%" backgroundAlpha="0" borderVisible="false">
-						<s:layout>
-							<s:HorizontalLayout verticalAlign="middle">
-								
-							</s:HorizontalLayout>
-						</s:layout>
-						<s:RadioButton id="cbclose" value="2"  group="{ddquerytype}" label="审核通过" />
-						<s:RadioButton id="cbopen" value="1" group="{ddquerytype}"  label="未通过或未审核"  selected="true" />
-						<s:RadioButton id="cball" value="0" group="{ddquerytype}"  label="全部"   />
-					</s:BorderContainer>
+					
 					<s:Button label="查询" click="queryPlanList()">
 					</s:Button>
 				</s:BorderContainer>
 				
 			
 					
-			<uicontrol:MarkAdvancedDataGrid id="planlistgrid" isNewAdd="false" rowHeight="25" dataProvider="{planlist}" visible="true"  enabled="true" editable="false" height="100%" width="100%">
+			<uicontrol:MarkAdvancedDataGrid id="planlistgrid" isNewAdd="false" rowHeight="25" dataProvider="{planlist}" visible="true" doubleClickEnabled="true" itemDoubleClick="gotoPlanEditView()"  enabled="true" editable="false" height="100%" width="100%">
 				<uicontrol:groupedColumns>
 					<mx:AdvancedDataGridColumn headerText="选择" itemRenderer="uicontrol.GridCheckBox" dataField="selected"  sortable="false" width="60"  editorDataField="selected" rendererIsEditor="true" >
 						
@@ -189,10 +224,10 @@
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn headerText="审核者"  dataField="shenhe"  editable="false"  width="120" >
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="审核日期"  dataField="lastcheckTime"  editable="false"  width="100" >
+					<mx:AdvancedDataGridColumn headerText="最后一次审核日期"  dataField="lastcheckTime"  editable="false"  width="160" >
 					</mx:AdvancedDataGridColumn>
 					
-					<mx:AdvancedDataGridColumn headerText="状态"  dataField="status"   width="120"  >
+					<mx:AdvancedDataGridColumn headerText="状态"  dataField="status" labelFunction="statusLabFun"   width="120"  >
 					</mx:AdvancedDataGridColumn>
 					
 				</uicontrol:groupedColumns>
