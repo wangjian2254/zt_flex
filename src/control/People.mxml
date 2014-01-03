@@ -96,6 +96,7 @@
 					this.plan_uncheck.selected=false;
 					this.plan_all.selected=false;
 					this.plan_query.selected=false;
+					this.plan_daily.selected=false;
 					this.plan_changerecord.selected=false;
 					
 					this.order_zhuizong.selected=false;
@@ -150,6 +151,7 @@
 				this.plan_uncheck.selected=false;
 				this.plan_all.selected=false;
 				this.plan_query.selected=false;
+				this.plan_daily.selected=false;
 				this.plan_changerecord.selected=false;
 				
 				this.order_zhuizong.selected=false;
@@ -194,6 +196,9 @@
 					}
 					if(item.codename=="plan_query"){
 						this.plan_query.selected=true;
+					}
+					if(item.codename=="plan_daily"){
+						this.plan_daily.selected=true;
 					}
 					if(item.codename=="plan_changerecord"){
 						this.plan_changerecord.selected=true;
@@ -271,6 +276,9 @@
 				}
 				if(this.plan_query.selected){
 					obj.permissions.push("plan_query");
+				}
+				if(this.plan_daily.selected){
+					obj.permissions.push("plan_daily");
 				}
 				if(this.plan_changerecord.selected){
 					obj.permissions.push("plan_changerecord");
@@ -419,6 +427,8 @@
 											<s:CheckBox label="主计划汇总" id="plan_all">
 											</s:CheckBox>
 											<s:CheckBox label="主计划查询" id="plan_query">
+											</s:CheckBox>
+											<s:CheckBox label="生产情况日报表" id="plan_daily">
 											</s:CheckBox>
 											<s:CheckBox label="主计划修改记录" id="plan_changerecord">
 											</s:CheckBox>

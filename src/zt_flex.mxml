@@ -345,6 +345,8 @@
 				</menuitem>
 				<menuitem label="主计划汇总" mod='planall'>
 				</menuitem>
+				<menuitem label="主计划汇总" mod='planall'>
+				</menuitem>
 				<menuitem label="主计划修改记录" mod='planrecord'>
 				</menuitem>
 				
