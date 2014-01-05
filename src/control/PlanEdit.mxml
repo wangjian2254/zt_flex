@@ -39,6 +39,8 @@
 			
 			private var currentPlan:Object=null;
 			
+			private var regsite:RegExp=/[a-z]+/g;
+			
 			override public function init(e:FlexEvent):void{
 				
 				findAllMyPlan();
@@ -71,7 +73,7 @@
 					startDateColumn.width=100;
 					startDateColumn.dataField="startdate"+item.id;
 					startDateColumn.itemEditor=new ClassFactory(PlanStartDate);
-					startDateColumn.labelFunction = showOldData
+					startDateColumn.labelFunction = showOldDataPSite;
 					
 					endDateColumn=new AdvancedDataGridColumn();
 					endDateColumn.headerText="完成日期";
@@ -80,7 +82,7 @@
 					endDateColumn.width=150;
 					endDateColumn.dataField="enddate"+item.id;
 					endDateColumn.itemEditor=new ClassFactory(PlanEndDate);
-					endDateColumn.labelFunction = showOldData;
+					endDateColumn.labelFunction = showOldDataPSite;
 					
 					toSiteColumn=new AdvancedDataGridColumn();
 					toSiteColumn.headerText="转入位置";
@@ -176,6 +178,30 @@
 				}else{
 					str='"空"';
 				}
+				if(item.hasOwnProperty("isdel")||item.isdel){
+					str+='--"删除"';
+				}
+				if(item.hasOwnProperty("oldDataDict")&&item.oldDataDict[column.dataField]!=item[column.dataField]){
+					if(item.oldDataDict[column.dataField]){
+						str+="\n\n"+item.oldDataDict[column.dataField]
+					}else{
+						str+='\n\n"空"';
+					}
+				}
+				return str;
+				
+			}
+			private function showOldDataPSite(item:Object, column:AdvancedDataGridColumn):String{
+				var str:String=null;
+				if(item[column.dataField]){
+					str = item[column.dataField];
+				}else{
+					str='"空"';
+				}
+			
+				if(item.hasOwnProperty("isdel")||item.isdel||item.hasOwnProperty(column.dataField.replace(regsite,"isdel"))||item[column.dataField.replace(regsite,"isdel")]){
+					str+='--"删除"';
+				}
 				if(item.hasOwnProperty("oldDataDict")&&item.oldDataDict[column.dataField]!=item[column.dataField]){
 					if(item.oldDataDict[column.dataField]){
 						str+="\n\n"+item.oldDataDict[column.dataField]
@@ -203,8 +229,12 @@
 			
 			public function getDDBHStr(item:Object, column:AdvancedDataGridColumn):String{
 				var str:String=getDDBHById(item.yddbh);
+				if(item.hasOwnProperty("isdel")||item.isdel){
+					str+='--"删除"';
+				}
 				if(item.hasOwnProperty("oldDataDict")&&item.oldDataDict.yddbh!=item.yddbh){
 					str+="\n\n"+getDDBHById(item.oldDataDict.yddbh);
+					
 				}
 				
 				return str;
@@ -223,6 +253,9 @@
 			
 			public function getZRWZStr(item:Object, column:AdvancedDataGridColumn):String{
 				var str:String=getZRWZAndOldData(item[column.dataField]);
+				if(item.hasOwnProperty("isdel")||item.isdel||item.hasOwnProperty(column.dataField.replace(regsite,"isdel"))||item[column.dataField.replace(regsite,"isdel")]){
+					str+='--"删除"';
+				}
 				if(item.hasOwnProperty("oldDataDict")&&item.oldDataDict[column.dataField]!=item[column.dataField]){
 					str+="\n\n"+getZRWZAndOldData(item.oldDataDict[column.dataField]);
 				}
@@ -243,6 +276,9 @@
 			
 			public function getJJCDStr(item:Object, column:AdvancedDataGridColumn):String{
 				var str:String=getJJCDOldData(item[column.dataField]);
+				if(item.hasOwnProperty("isdel")||item.isdel){
+					str+='--"删除"';
+				}
 				if(item.hasOwnProperty("oldDataDict")&&item.oldDataDict[column.dataField]!=item[column.dataField]){
 					str+="\n\n"+getJJCDOldData(item.oldDataDict[column.dataField]);
 				}
@@ -749,7 +785,7 @@
 					<mx:AdvancedDataGridColumn headerText="生产线"  dataField="scx"  editable="false" labelFunction="getScxStr"  width="90" >
 						
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="作业单号"    dataField="zydh"   width="100" labelFunction="showOldData" >
+					<mx:AdvancedDataGridColumn headerText="作业单号"    dataField="zydh"  editorDataField="data" itemEditor="uicontrol.GridText"    width="100" labelFunction="showOldData" >
 						
 					</mx:AdvancedDataGridColumn>
 					
@@ -773,13 +809,13 @@
 					</mx:AdvancedDataGridColumnGroup>
 					</mx:AdvancedDataGridColumnGroup>
 					
-					<mx:AdvancedDataGridColumn headerText="订单要求说明"  dataField="planbz"   width="200"   labelFunction="showOldData">
+					<mx:AdvancedDataGridColumn headerText="订单要求说明"  dataField="planbz" editorDataField="data" itemEditor="uicontrol.GridText"   width="200"   labelFunction="showOldData">
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="要求工艺"  dataField="ordergongyi"   width="200"   labelFunction="showOldData">
+					<mx:AdvancedDataGridColumn headerText="要求工艺"  dataField="ordergongyi" editorDataField="data" itemEditor="uicontrol.GridText"    width="200"   labelFunction="showOldData">
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn headerText="紧急程度" itemEditor="uicontrol.GridJJCD" labelFunction="getJJCDStr" editorDataField="data"  dataField="level"   width="80"  >
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="在线可用数量"  dataField="usenum"   width="120"   labelFunction="showOldData">
+					<mx:AdvancedDataGridColumn headerText="在线可用数量"  dataField="usenum"  editable="false"  width="120"   labelFunction="showOldData">
 					</mx:AdvancedDataGridColumn>
 					
 				</uicontrol:groupedColumns>
