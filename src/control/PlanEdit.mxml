@@ -178,8 +178,8 @@
 				}else{
 					str='"空"';
 				}
-				if(item.hasOwnProperty("isdel")||item.isdel){
-					str+='--"删除"';
+				if(item.hasOwnProperty("isdel")&&item.isdel){
+					str+='\n--"删除"';
 				}
 				if(item.hasOwnProperty("oldDataDict")&&item.oldDataDict[column.dataField]!=item[column.dataField]){
 					if(item.oldDataDict[column.dataField]){
@@ -199,8 +199,8 @@
 					str='"空"';
 				}
 			
-				if(item.hasOwnProperty("isdel")||item.isdel||item.hasOwnProperty(column.dataField.replace(regsite,"isdel"))||item[column.dataField.replace(regsite,"isdel")]){
-					str+='--"删除"';
+				if((item.hasOwnProperty("isdel")&&item.isdel)||(item.hasOwnProperty(column.dataField.replace(regsite,"isdel"))&&item[column.dataField.replace(regsite,"isdel")])){
+					str+='\n--"删除"';
 				}
 				if(item.hasOwnProperty("oldDataDict")&&item.oldDataDict[column.dataField]!=item[column.dataField]){
 					if(item.oldDataDict[column.dataField]){
@@ -229,8 +229,8 @@
 			
 			public function getDDBHStr(item:Object, column:AdvancedDataGridColumn):String{
 				var str:String=getDDBHById(item.yddbh);
-				if(item.hasOwnProperty("isdel")||item.isdel){
-					str+='--"删除"';
+				if(item.hasOwnProperty("isdel")&&item.isdel){
+					str+='\n--"删除"';
 				}
 				if(item.hasOwnProperty("oldDataDict")&&item.oldDataDict.yddbh!=item.yddbh){
 					str+="\n\n"+getDDBHById(item.oldDataDict.yddbh);
@@ -253,8 +253,8 @@
 			
 			public function getZRWZStr(item:Object, column:AdvancedDataGridColumn):String{
 				var str:String=getZRWZAndOldData(item[column.dataField]);
-				if(item.hasOwnProperty("isdel")||item.isdel||item.hasOwnProperty(column.dataField.replace(regsite,"isdel"))||item[column.dataField.replace(regsite,"isdel")]){
-					str+='--"删除"';
+				if((item.hasOwnProperty("isdel")&&item.isdel)||(item.hasOwnProperty(column.dataField.replace(regsite,"isdel"))&&item[column.dataField.replace(regsite,"isdel")])){
+					str+='\n--"删除"';
 				}
 				if(item.hasOwnProperty("oldDataDict")&&item.oldDataDict[column.dataField]!=item[column.dataField]){
 					str+="\n\n"+getZRWZAndOldData(item.oldDataDict[column.dataField]);
@@ -276,8 +276,8 @@
 			
 			public function getJJCDStr(item:Object, column:AdvancedDataGridColumn):String{
 				var str:String=getJJCDOldData(item[column.dataField]);
-				if(item.hasOwnProperty("isdel")||item.isdel){
-					str+='--"删除"';
+				if(item.hasOwnProperty("isdel")&&item.isdel){
+					str+='\n--"删除"';
 				}
 				if(item.hasOwnProperty("oldDataDict")&&item.oldDataDict[column.dataField]!=item[column.dataField]){
 					str+="\n\n"+getJJCDOldData(item.oldDataDict[column.dataField]);
@@ -345,8 +345,14 @@
 				if(e.label=="保存"){
 					save();
 				}
+				if(e.label=="修改作业单号"){
+					saveZYDH();
+				}
 				if(e.label=="删除"){
 					del();
+				}
+				if(e.label=="删除恢复"){
+					ubdel();
 				}
 				if(e.label=="同步订单编号和物料"){
 					InfoUtil.scxRefresh();
@@ -407,6 +413,35 @@
 					op.send(scxArr);
 				}
 			}
+			public function ubdel():void{
+				var scxArr:Array=new Array();
+				var obj:Object;
+				var item:Object;
+				for(var ii:int=0;ii<orderbblist.length;ii++){
+					
+					obj=orderbblist.getItemAt(ii);
+					obj['num']=ii+1;
+				}
+				for(var i:int=orderbblist.length-1;i>=0;i--){
+					item=orderbblist.getItemAt(i);
+					if(!item.selected){
+						continue;
+					}
+					if(!item.hasOwnProperty("id")||!item.id||!item.hasOwnProperty("isdel")||!item.isdel){
+						Alert.show("第 "+i+1+" 行计划，不可以被恢复。（新编计划和未删除计划不可被恢复）","警告");
+						return;
+					}else{
+						scxArr.push(item.id);
+					}
+					
+				}
+				if(scxArr.length>0){
+					var op:AbstractOperation=RemoteUtil.getOperation("updatePlanUNDelete");
+					op.addEventListener(ResultEvent.RESULT,refreshUnDel);
+					RemoteUtil.openLoading();
+					op.send(scxArr);
+				}
+			}
 			
 			public function clear():void{
 				orderbblist.removeAll();
@@ -437,6 +472,9 @@
 					ydd=false;
 					zdd=false;
 					obj=orderbblist.getItemAt(i);
+					if(obj.hasOwnProperty("isdel")&&obj.isdel){
+						continue;
+					}
 					msg="第 "+(i+1)+" 行 ：";
 					if(!obj.hasOwnProperty("yddbh")||obj["yddbh"]==""||obj["yddbh"]==null){
 						Alert.show(msg+"源订单编号不能为空","提示");
@@ -530,6 +568,32 @@
 				RemoteUtil.openLoading();
 				op.send(headList,unheadList,orderbblist,lsh.text);
 			}
+			public function saveZYDH():void{
+				
+				var zydhList:ArrayCollection=new ArrayCollection();
+				var obj:Object =null;
+				if(currentPlan&&currentPlan.status=="2"){
+					Alert.show("只有审核过的计划才需要单独使用 作业单号修改，其他情况正常修改即可。","警告");
+					return;
+				}
+				
+				for each(var item:Object in orderbblist){
+					obj=new Object();
+					
+					obj["recordid"]=item.id;
+					if(!item.hasOwnProperty("zydh")){
+						item.zydh="";
+					}
+					obj["zydh"]= item.zydh;
+					zydhList.addItem(obj);
+				}
+				
+				
+				var op:AbstractOperation=RemoteUtil.getOperation("updatePlanZYDH");
+				op.addEventListener(ResultEvent.RESULT,updatePlanZYDHResult);
+				RemoteUtil.openLoading();
+				op.send(zydhList);
+			}
 			
 			private function saveResult(e:ResultEvent):void{
 				var result:Object=e.result;
@@ -538,6 +602,13 @@
 					clear();
 					
 					findAllMyPlan();
+				}
+			}
+			private function updatePlanZYDHResult(e:ResultEvent):void{
+				var result:Object=e.result;
+				if(result.success==true){
+					Alert.show(result.message,"提示");
+					
 				}
 			}
 			
@@ -587,6 +658,20 @@
 							item=orderbblist.getItemAt(i);
 							if(item.id==id){
 								orderbblist.removeItemAt(i);
+							}
+						}
+					}
+				}
+			}
+			public function refreshUnDel(e:ResultEvent):void{
+				if(e.result.success){
+					var item:Object;
+					for each(var id:int in e.result.result){
+						
+						for(var i:int=orderbblist.length-1;i>=0;i--){
+							item=orderbblist.getItemAt(i);
+							if(item.id==id){
+								item.isdel=false;
 							}
 						}
 					}
@@ -676,7 +761,7 @@
 			public var orderisopenlist:ArrayCollection=new ArrayCollection();
 			
 			[Bindable]
-			private var buttonArr:ArrayCollection=new ArrayCollection([{'label':'新增','ico':addimg},{'label':'保存','ico':saveimg},{'label':'删除','ico':delimg},{'label':'同步数据','ico':refreshimg},{'label':'同步订单编号和物料','ico':refreshimg},{'label':'审核','ico':addimg},{'label':'退审','ico':addimg}]);
+			private var buttonArr:ArrayCollection=new ArrayCollection([{'label':'新增','ico':addimg},{'label':'保存','ico':saveimg},{'label':'删除','ico':delimg},{'label':'删除恢复','ico':saveimg},{'label':'修改作业单号','ico':saveimg},{'label':'同步数据','ico':refreshimg},{'label':'同步订单编号和物料','ico':refreshimg},{'label':'审核','ico':addimg},{'label':'退审','ico':addimg}]);
 			
 		]]>
 	</fx:Script>
@@ -815,7 +900,7 @@
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn headerText="紧急程度" itemEditor="uicontrol.GridJJCD" labelFunction="getJJCDStr" editorDataField="data"  dataField="level"   width="80"  >
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="在线可用数量"  dataField="usenum"  editable="false"  width="120"   labelFunction="showOldData">
+					<mx:AdvancedDataGridColumn headerText="在线可用数量"  dataField="usenum"  editable="false"  width="120"   >
 					</mx:AdvancedDataGridColumn>
 					
 				</uicontrol:groupedColumns>

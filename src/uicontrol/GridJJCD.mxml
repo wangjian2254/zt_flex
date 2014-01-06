@@ -26,6 +26,7 @@
 			// Implement the drawFocus() method for the VBox.
 			override public function drawFocus(draw:Boolean):void {
 				//											outerDocument.getMacAll();
+				refresh();
 				cbo.setFocus();
 				cbo.open();
 				
