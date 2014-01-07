@@ -97,6 +97,7 @@
 				if(_value['zrddbh']==null||_value['zrddbh']==""){
 					_value["zrddbh"]=cbo.selectedItem.id;
 				}
+				InfoUtil.orderlistToOrderbhRefresh(cbo.selectedItem.id);
 				
 			}
 			

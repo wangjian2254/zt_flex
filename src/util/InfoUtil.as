@@ -27,8 +27,28 @@ package util
 		public static var orderlistbhObj:Object=new Object();
 		public static var codeToBHlistObj:Object=new Object();
 		
+		public static var orderlistToZYBHlistObj:Object=new Object();
+		
 		[Bindable]
 		public static var planjjcd:ArrayCollection=new ArrayCollection([{"id":0,"text":"非常紧急"},{"id":1,"text":"一般紧急"},{"id":2,"text":"标准生产"},{"id":3,"text":"库备"}]);
+		
+		
+		public static function orderlistToOrderbhRefresh(orderlistid:Number,fun:Function=null):void{
+			var operation:AbstractOperation=RemoteUtil.getOperation("getZYDHByOrderList");
+			operation.addEventListener(ResultEvent.RESULT, resultZYDHByOrderlist);
+			
+			RemoteUtil.openLoading();
+			operation.send(orderlistid);
+		}
+		public static function resultZYDHByOrderlist(e:ResultEvent):void{
+			var result:Object=e.result;
+			if(result.success==true){
+				
+				for(var k:String in result.result){
+					orderlistToZYBHlistObj[k]=result.result[k];
+				}
+			}
+		}
 		
 		
 		[Bindable]

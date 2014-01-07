@@ -60,12 +60,19 @@
 			{
 				_listData = DataGridListData(value);
 			}
-			
-			
+			private function del():void{
+				cbo.selectedDate=null;
+				_value[_listData.dataField.replace("startdate","enddate")]="";
+				_value[_listData.dataField.replace("startdate","zrwz")]="";
+				_value[_listData.dataField]="";
+			}
 			
 		]]>
 	</fx:Script>
 	<mx:DateField id="cbo" dayNames="{DateUtil.dayNames}"
 					monthNames="{DateUtil.monthNames}"  >
 	</mx:DateField>
+	<s:Button label="删除本位置" click="del()">
+		
+	</s:Button>
 </mx:HBox>

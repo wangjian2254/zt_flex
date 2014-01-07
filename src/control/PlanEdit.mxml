@@ -60,6 +60,9 @@
 				var endDateColumn:AdvancedDataGridColumn=null;
 				var toSiteColumn:AdvancedDataGridColumn=null;
 				for each(var item:Object in InfoUtil.siteList){
+					if(item.type=='3'){
+						continue;
+					}
 					cbx=new SiteBox();
 					cbx.label=item.name;
 					cbx.data = item;
@@ -366,12 +369,20 @@
 					
 				}
 				if(e.label=='审核'){
+					if(this.lsh.text==""){
+						Alert.show("请先保存，再审核","提示");
+						return;
+					}
 					var op:AbstractOperation=RemoteUtil.getOperation("checkPlan");
 					op.addEventListener(ResultEvent.RESULT,checkPlanResult);
 					RemoteUtil.openLoading();
 					op.send(lsh.text);
 				}
 				if(e.label=='退审'){
+					if(this.lsh.text==""){
+						Alert.show("请先保存，再审核","提示");
+						return;
+					}
 					var op2:AbstractOperation=RemoteUtil.getOperation("uncheckPlan");
 					op2.addEventListener(ResultEvent.RESULT,checkPlanResult);
 					RemoteUtil.openLoading();
@@ -623,6 +634,7 @@
 				return _str;
 			}
 			public function addItem():void{
+				var codeids:Array=new Array();
 				var codeStr:String=this.codeArea.text.replace("\r");
 //				Alert.show(codeStr);
 				var item:Object;
@@ -638,13 +650,15 @@
 							item.isModfy=true;
 							item.selected=false;
 							item.yddbh='';
-							
+							codeids.push(obj.id);
 							orderbblist.addItem(item);
 							break;
 						}
 					}
 				}
 				this.codeArea.text="";
+				
+//				InfoUtil.codeToOrderbhRefresh(codeids);
 			}
 			
 			
