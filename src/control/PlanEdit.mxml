@@ -25,10 +25,12 @@
 			import mx.utils.StringUtil;
 			
 			import uicontrol.DDBHFliterComboBox;
+			import uicontrol.GridManageSite;
 			import uicontrol.PlanEndDate;
 			import uicontrol.PlanStartDate;
 			import uicontrol.PlanToSite;
 			import uicontrol.SiteBox;
+			import events.GridItemChange;
 			
 			import util.InfoUtil;
 			[Bindable]
@@ -47,6 +49,7 @@
 				
 				orderbblist.removeAll();
 				orderbbgrid.init(null);
+				orderbbgrid.addEventListener(GridItemChange.GridItemChange,gridItemChange);
 				headBox.removeAllElements();
 				var cbx:SiteBox=null;
 				var siteGroup:AdvancedDataGridColumnGroup=null;
@@ -59,6 +62,7 @@
 				var startDateColumn:AdvancedDataGridColumn=null;
 				var endDateColumn:AdvancedDataGridColumn=null;
 				var toSiteColumn:AdvancedDataGridColumn=null;
+				var managerColumn:AdvancedDataGridColumn=null;
 				for each(var item:Object in InfoUtil.siteList){
 					if(item.type=='3'){
 						continue;
@@ -96,7 +100,17 @@
 					toSiteColumn.itemEditor=new ClassFactory(PlanToSite);
 					toSiteColumn.labelFunction=getZRWZStr;
 					
-					siteGroup.children.push(startDateColumn,endDateColumn,toSiteColumn);
+					managerColumn=new AdvancedDataGridColumn();
+					managerColumn.headerText="操作";
+					managerColumn.editable=false;
+					managerColumn.editorDataField="data";
+					managerColumn.width=80;
+					managerColumn.dataField="startdate"+item.id;
+					managerColumn.itemRenderer=new ClassFactory(GridManageSite);
+					managerColumn.rendererIsEditor=true;
+//					managerColumn.labelFunction=getZRWZStr;
+					
+					siteGroup.children.push(startDateColumn,endDateColumn,toSiteColumn,managerColumn);
 					siteGroup.width=330;
 					orderbbgrid.minWidth+=330;
 					zyq.children.push(siteGroup);
@@ -125,6 +139,10 @@
 					showPlanDetail(param["plan"].lsh);
 				}
 				super.reloadParamData(e);
+			}
+			
+			private function gridItemChange(e:GridItemChange):void{
+				orderbbgrid.invalidateList();
 			}
 			
 			private function refreshHeadGroup(e:Event):void{
@@ -364,8 +382,7 @@
 
 				}
 				if(e.label=='同步数据'){
-					if(this.lsh.text!=""){
-					}
+					orderbbgrid.invalidateList();
 					
 				}
 				if(e.label=='审核'){
@@ -840,9 +857,9 @@
 					<s:TextInput id="planstatus" enabled="false">
 					</s:TextInput>
 				</s:BorderContainer>
-			<s:Scroller width="100%" height="40" left="5" right="5">
+			<s:Scroller width="100%" height="5" left="5" right="5" visible="false">
 				<s:Group width="100%" height="100%">
-					<s:BorderContainer id="headBox"  height="40" backgroundAlpha="0" borderVisible="false" >
+					<s:BorderContainer id="headBox"  height="5" backgroundAlpha="0" borderVisible="false" >
 						<s:layout>
 							<s:HorizontalLayout gap="10" paddingLeft="10" horizontalAlign="left" verticalAlign="top">
 								

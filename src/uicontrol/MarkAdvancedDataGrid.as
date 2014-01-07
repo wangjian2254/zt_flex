@@ -256,13 +256,13 @@ package uicontrol
 		 * */
 		private function styleHandler(data:Object, column:AdvancedDataGridColumn):Object
 		{
-			if (!data.hasOwnProperty("oldData"))
+			if (data &&!data.hasOwnProperty("oldData"))
 				return {color: 0x0055cc, textSelectedColor: 0x0055cc, textRollOverColor: 0x0055cc};
 			//值没有做修改的情况
-			if (data[column.dataField] == data.oldData[column.dataField])
+			if (data &&data[column.dataField] == data.oldData[column.dataField])
 				return {color: 0x000000, textSelectedColor: 0x000000, textRollOverColor: 0x000000};
 			//值有被修改
-			if(column.dataField!='selected'){
+			if(data &&column.dataField!='selected'){
 				data['isModfy']=true;
 			}
 			return {color: 0xFF0000, textSelectedColor: 0xFF0000, textRollOverColor: 0xFF0000};

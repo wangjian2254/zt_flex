@@ -2,6 +2,8 @@
 <mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300"
+		 horizontalAlign="center"
+		 verticalAlign="middle"
 		 implements="mx.controls.listClasses.IDropInListItemRenderer,mx.managers.IFocusManagerComponent"
 		 >
 	<fx:Declarations>
@@ -9,49 +11,36 @@
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
+			import events.GridItemChange;
+			
+			import mx.controls.DateField;
 			import mx.controls.dataGridClasses.DataGridListData;
 			import mx.controls.listClasses.BaseListData;
 			import mx.core.INavigatorContent;
-			import mx.controls.DateField;
-			import util.DateUtil;
 			
+			import util.DateUtil;
 			import util.InfoUtil;
 			private var _listData:DataGridListData;
 			// Define a property for returning the new value to the cell.
 			[Bindable]
 			private var _value:Object;            
 			
-			// Implement the drawFocus() method for the VBox.
-			override public function drawFocus(draw:Boolean):void {
-				//											outerDocument.getMacAll();
-				cbo.setFocus();
-				//													cbo.;
-				
-			}
+
 			
 			override public function get data():Object {
-				if(cbo==null){
+				
 					return super.data;
-				}else{
-					if(cbo.selectedDate!=null ){
-						return DateField.dateToString(cbo.selectedDate,"YYYY/MM/DD");
-					}
-					return super.data;
-				}
+				
 			}            
 			
 			override public function set data(value:Object):void {
-				try{
-					cbo.selectedDate=DateField.stringToDate(value[_listData.dataField],"YYYY/MM/DD");
-				}catch(e:Error){
-					cbo.selectedDate=null;
-				}
+				
 				super.data=value[_listData.dataField];
 				_value=value;
 				
 			} 
 			
-			
+//			[Bindable("dataChange")]
 			public function get listData():BaseListData
 			{
 				return _listData;
@@ -61,12 +50,18 @@
 			{
 				_listData = DataGridListData(value);
 			}
-		
+			private function del():void{
+				_value[_listData.dataField.replace("startdate","enddate")]="";
+				_value[_listData.dataField.replace("startdate","zrwz")]="";
+				_value[_listData.dataField]="";
+				dispatchEvent(new GridItemChange(GridItemChange.GridItemChange,true));
+			}
 			
 		]]>
 	</fx:Script>
-	<mx:DateField id="cbo" dayNames="{DateUtil.dayNames}"
-					monthNames="{DateUtil.monthNames}"  >
-	</mx:DateField>
 	
+	
+	<s:Button label="删除本位置" click="del()">
+		
+	</s:Button>
 </mx:HBox>
