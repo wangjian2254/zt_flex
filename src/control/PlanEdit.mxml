@@ -927,7 +927,7 @@
 					
 					<mx:AdvancedDataGridColumn headerText="订单要求说明"  dataField="planbz" editorDataField="data" itemEditor="uicontrol.GridText"   width="200"   labelFunction="showOldData">
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="要求工艺"  dataField="ordergongyi" editorDataField="data" itemEditor="uicontrol.GridText"    width="200"   labelFunction="showOldData">
+					<mx:AdvancedDataGridColumn headerText="分单要求"  dataField="ordergongyi" editorDataField="data" itemEditor="uicontrol.GridText"    width="200"   labelFunction="showOldData">
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn headerText="紧急程度" itemEditor="uicontrol.GridJJCD" labelFunction="getJJCDStr" editorDataField="data"  dataField="level"   width="80"  >
 					</mx:AdvancedDataGridColumn>
