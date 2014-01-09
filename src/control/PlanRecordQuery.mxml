@@ -56,7 +56,7 @@
 				sitequery.addItemAt(item1,0);
 				siteComb.selectedIndex=0;
 				
-				allquery.filterFunction=refreshData;
+				
 				
 			}
 			
@@ -119,13 +119,11 @@
 				
 				if(e.result.success){
 					
-					planlist.removeAll();
-//					query.removeAll();
 					
-					planlist = new ArrayCollection(e.result.result as Array);
-//					query.filterFunction=closeFilterChanged;
+					allquery = new ArrayCollection(e.result.result as Array);
 					
-//					refreshData();
+					allquery.filterFunction=refreshData;
+					refreshData();
 					
 				}
 			}
@@ -177,9 +175,6 @@
 			public var allquery:ArrayCollection=new ArrayCollection();
 			[Bindable]
 			public var query:ArrayCollection=new ArrayCollection();
-			
-			[Bindable]
-			public var planlist:ArrayCollection=new ArrayCollection();
 			
 			
 			
@@ -260,7 +255,7 @@
 					<mx:AdvancedDataGridColumn headerText="计划达成"  dataField="planfinish"  width="60"    >
 						
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="生产线" dataField="scx"  sortable="false" width="180"  editable="false">
+					<mx:AdvancedDataGridColumn headerText="生产线" dataField="scxstr"  sortable="false" width="180"  editable="false">
 						
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn headerText="作业区"   dataField="startsite"  width="120"   >
@@ -296,9 +291,9 @@
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn headerText="实际完成数量"  dataField="finishendnum"   width="80"  >
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="报废数"  dataField="finishendnum"   width="80"  >
+					<mx:AdvancedDataGridColumn headerText="报废数"  dataField="bfnum"   width="80"  >
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="遗失数"  dataField="finishendnum"   width="80"  >
+					<mx:AdvancedDataGridColumn headerText="遗失数"  dataField="ysnum"   width="80"  >
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn headerText="计划单号"  dataField="planlsh"   width="80"  >
 					</mx:AdvancedDataGridColumn>
@@ -306,7 +301,7 @@
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn headerText="订单要求说明"  dataField="planbz"   width="80"  >
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="订单要求说明"  dataField="updatetime"   width="80"  >
+					<mx:AdvancedDataGridColumn headerText="修改说明"  dataField="updatetime"   width="80"  >
 					</mx:AdvancedDataGridColumn>
 					
 				</uicontrol:groupedColumns>
