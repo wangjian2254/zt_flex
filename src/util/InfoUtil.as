@@ -21,6 +21,7 @@ package util
 			siteRefresh();
 			orderbhRefresh();
 			openOrderRefresh();
+			planListRefresh();
 		}
 		
 		public static var codeObj:Object=new Object();
@@ -33,7 +34,7 @@ package util
 		public static var planjjcd:ArrayCollection=new ArrayCollection([{"id":0,"text":"非常紧急"},{"id":1,"text":"一般紧急"},{"id":2,"text":"标准生产"},{"id":3,"text":"库备"}]);
 		
 		
-		public static function orderlistToOrderbhRefresh(orderlistid:Number,fun:Function=null):void{
+		public static function orderlistToOrderbhRefresh(orderlistid:*,fun:Function=null):void{
 			var operation:AbstractOperation=RemoteUtil.getOperation("getZYDHByOrderList");
 			operation.addEventListener(ResultEvent.RESULT, resultZYDHByOrderlist);
 			
@@ -45,7 +46,7 @@ package util
 			if(result.success==true){
 				
 				for(var k:String in result.result){
-					orderlistToZYBHlistObj[k]=result.result[k];
+					orderlistToZYBHlistObj[k]=new ArrayCollection(result.result[k] as Array);
 				}
 			}
 		}
@@ -70,6 +71,27 @@ package util
 				orderbhList.addAll(new ArrayCollection(result.result as Array));
 			}
 		}
+		
+		[Bindable]
+		public static var planList:ArrayCollection=new ArrayCollection();
+		
+		public static function planListRefresh(fun:Function=null):void{
+			var operation:AbstractOperation=RemoteUtil.getOperation("getAllOrderNo");
+			operation.addEventListener(ResultEvent.RESULT, resultPlanList);
+			if(fun!=null){
+				operation.addEventListener(ResultEvent.RESULT, fun);
+			}
+			RemoteUtil.openLoading();
+			operation.send();
+		}
+		public static function resultPlanList(e:ResultEvent):void{
+			var result:Object=e.result;
+			if(result.success==true){
+				planList.removeAll();
+				planList.addAll(new ArrayCollection(result.result as Array));
+			}
+		}
+		
 		[Bindable]
 		public static var userList:ArrayCollection=new ArrayCollection();
 		

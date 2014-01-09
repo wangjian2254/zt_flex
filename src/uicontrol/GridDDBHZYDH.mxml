@@ -26,30 +26,19 @@
 			// Implement the drawFocus() method for the VBox.
 			override public function drawFocus(draw:Boolean):void {
 				//											outerDocument.getMacAll();
+				refresh();
 				cbo.setFocus();
 				cbo.open();
 				
 			}
 			
 			public function refresh():void{
-				if(_value.hasOwnProperty("code")&&InfoUtil.codeToBHlistObj.hasOwnProperty("code"+_value.code)){
-					list=InfoUtil.codeToBHlistObj["code"+_value.code];
+				if(_value.hasOwnProperty("yddbh")&&InfoUtil.orderlistToZYBHlistObj.hasOwnProperty("orderlist"+_value.yddbh)){
+					list=InfoUtil.orderlistToZYBHlistObj["orderlist"+_value.yddbh];
 					return;
 				}
 				list.removeAll();
-				var ddbh:String=",";
-				for each(var item:Object in InfoUtil.openOrderList){
-					if(!_value.hasOwnProperty("code")||_value.code==""||_value.code==null||_value.code==item.code){
-						if(ddbh.indexOf(","+item.ddbh+",")==-1){
-							list.addItem(item);
-						}
-						
-					}else{
-						continue;
-					}
-					ddbh+=item.ddbh+",";
-				}
-				InfoUtil.codeToBHlistObj["code"+_value.code]=list;
+				
 			}
 			
 			override public function get data():Object {
@@ -59,8 +48,11 @@
 					if(cbo.selectedIndex==-1){
 						for each(var it:Object in cbo.dataProvider){
 							if(it[cbo.labelField]==cbo.data||it[cbo.valueField]==cbo.data){
-								return it[cbo.valueField]
+								return it[cbo.valueField].toUpperCase();
 							}
+						}
+						if(cbo.data!=null){
+							return cbo.data;
 						}
 						return null;
 					}
@@ -69,10 +61,12 @@
 			}            
 			
 			override public function set data(value:Object):void {
-				super.data=value[_listData.dataField];
 				_value=value;
-				changeFilterValue();
-				cbo.setValue(value[_listData.dataField]);
+				if(value.hasOwnProperty(_listData.dataField)){
+					super.data=value[_listData.dataField].toUpperCase();
+					cbo.setValue(value[_listData.dataField].toUpperCase());
+				}
+				
 				
 				//												
 				
@@ -94,26 +88,15 @@
 					return;
 				}
 				//												
-				if(_value['zrddbh']==null||_value['zrddbh']==""){
-					_value["zrddbh"]=cbo.selectedItem.id;
-				}
-				if(_value['zydh']!=null||_value['zydh']!=""){
-					_value["zydh"]="";
-				}
-				InfoUtil.orderlistToOrderbhRefresh(cbo.selectedItem.id);
+				
 				
 			}
 			
-			public function changeFilterValue():void{
-				if(cbo.filtervalue!=_value.code){
-					cbo.filtervalue=_value.code;
-					refresh();
-				}
-			}
+			
 			
 		]]>
 	</fx:Script>
-	<uicontrol:FliterComboBox id="cbo"  dataProvider="{list}"   labelField="ddbhstr" valueField="id" change="changeCode()" height="{this.height}" width="{this.width}" styleName="fliterComboBox" dropdownWidth="200">
+	<uicontrol:FliterComboBox id="cbo"  dataProvider="{list}" labelField="txt" valueField="txt"    change="changeCode()" height="{this.height}" width="{this.width}" styleName="fliterComboBox" dropdownWidth="200">
 		
 	</uicontrol:FliterComboBox>
 </mx:HBox>

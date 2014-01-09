@@ -8,6 +8,7 @@
 	<fx:Script>
 		<![CDATA[
 			import events.CloseEvent;
+			import events.GridItemChange;
 			
 			import httpcontrol.RemoteUtil;
 			
@@ -30,7 +31,6 @@
 			import uicontrol.PlanStartDate;
 			import uicontrol.PlanToSite;
 			import uicontrol.SiteBox;
-			import events.GridItemChange;
 			
 			import util.InfoUtil;
 			[Bindable]
@@ -381,8 +381,13 @@
 					InfoUtil.openOrderRefresh();
 
 				}
-				if(e.label=='同步数据'){
-					orderbbgrid.invalidateList();
+				if(e.label=='刷新主计划数据'){
+//					orderbbgrid.invalidateList();
+					if(this.lsh.text==""){
+						Alert.show("未保存的主计划不能刷新","提示");
+						return;
+					}
+					showPlanDetail(lsh.text);
 					
 				}
 				if(e.label=='审核'){
@@ -600,7 +605,7 @@
 				
 				var zydhList:ArrayCollection=new ArrayCollection();
 				var obj:Object =null;
-				if(currentPlan&&currentPlan.status=="2"){
+				if(!currentPlan&&currentPlan.status!="2"){
 					Alert.show("只有审核过的计划才需要单独使用 作业单号修改，其他情况正常修改即可。","警告");
 					return;
 				}
@@ -656,10 +661,10 @@
 //				Alert.show(codeStr);
 				var item:Object;
 				for each(var code:String in codeStr.split("\n")){
-					code=trimStr(code).toLowerCase();
+					code=trimStr(code).toUpperCase();
 					item=new Object();
 					for each(var obj:Object in InfoUtil.codeList){
-						if(obj.code.toLowerCase()==code){
+						if(obj.code==code){
 							item.code=obj.id;
 							item.codestr=obj.code;
 							item.codename=obj.name;
@@ -746,6 +751,14 @@
 					changeStatus();
 					
 					orderbblist = new ArrayCollection(e.result.result.list as Array);
+					var orderlistArr:Array = new Array();
+					for each(var item:Object in orderbblist){
+						orderlistArr.push(item.yddbh);
+					}
+					if(!orderbblist||orderbblist.length==0){
+						return;
+					}
+					InfoUtil.orderlistToOrderbhRefresh(orderlistArr);
 				}
 			}
 			
@@ -792,7 +805,7 @@
 			public var orderisopenlist:ArrayCollection=new ArrayCollection();
 			
 			[Bindable]
-			private var buttonArr:ArrayCollection=new ArrayCollection([{'label':'新增','ico':addimg},{'label':'保存','ico':saveimg},{'label':'删除','ico':delimg},{'label':'删除恢复','ico':saveimg},{'label':'修改作业单号','ico':saveimg},{'label':'同步数据','ico':refreshimg},{'label':'同步订单编号和物料','ico':refreshimg},{'label':'审核','ico':addimg},{'label':'退审','ico':addimg}]);
+			private var buttonArr:ArrayCollection=new ArrayCollection([{'label':'新增','ico':addimg},{'label':'保存','ico':saveimg},{'label':'删除','ico':delimg},{'label':'删除恢复','ico':saveimg},{'label':'修改作业单号','ico':saveimg},{'label':'刷新主计划数据','ico':refreshimg},{'label':'同步订单编号和物料','ico':refreshimg},{'label':'审核','ico':addimg},{'label':'退审','ico':addimg}]);
 			
 		]]>
 	</fx:Script>
@@ -901,7 +914,7 @@
 					<mx:AdvancedDataGridColumn headerText="生产线"  dataField="scx"  editable="false" labelFunction="getScxStr"  width="90" >
 						
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="作业单号"    dataField="zydh"  editorDataField="data" itemEditor="uicontrol.GridText"    width="100" labelFunction="showOldData" >
+					<mx:AdvancedDataGridColumn headerText="作业单号"    dataField="zydh"  editorDataField="data" itemEditor="uicontrol.GridDDBHZYDH"    width="100" labelFunction="showOldData" >
 						
 					</mx:AdvancedDataGridColumn>
 					

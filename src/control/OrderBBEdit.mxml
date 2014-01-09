@@ -303,7 +303,7 @@
 					}
 					obj.yorder=item.yorder;
 					obj.zrorder=item.zrorder;
-					obj.yzydh=item.yzydh;
+					obj.yzydh=item.yzydh.toUpperCase();
 					if(item.hasOwnProperty("ywz")&&item.ywznum>0){
 						obj.ywz=item.ywz;
 						obj.ywznum=item.ywznum;
@@ -344,10 +344,10 @@
 //				Alert.show(codeStr);
 				var item:Object;
 				for each(var code:String in codeStr.split("\n")){
-					code=trimStr(code).toLowerCase();
+					code=trimStr(code).toUpperCase();
 					item=new Object();
 					for each(var obj:Object in InfoUtil.codeList){
-						if(obj.code.toLowerCase()==code){
+						if(obj.code==code){
 							item.code=obj.id;
 							item.codestr=obj.code;
 							item.codename=obj.name;

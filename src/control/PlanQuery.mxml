@@ -54,7 +54,7 @@
 				
 				if((editstartdate.selectedDate&&editenddate.selectedDate)||(checkstartdate.selectedDate&&checkenddate.selectedDate)){
 				}else{
-					Alert.show("计划编织日期和审核日期，必须选择其一。","提示");
+					Alert.show("计划编制日期和审核日期，必须选择其一。","提示");
 					return;
 				}
 				
