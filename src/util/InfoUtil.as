@@ -76,7 +76,7 @@ package util
 		public static var planList:ArrayCollection=new ArrayCollection();
 		
 		public static function planListRefresh(fun:Function=null):void{
-			var operation:AbstractOperation=RemoteUtil.getOperation("getAllOrderNo");
+			var operation:AbstractOperation=RemoteUtil.getOperation("getAllPlanNo");
 			operation.addEventListener(ResultEvent.RESULT, resultPlanList);
 			if(fun!=null){
 				operation.addEventListener(ResultEvent.RESULT, fun);
