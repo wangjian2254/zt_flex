@@ -11,6 +11,8 @@
 			
 			import httpcontrol.RemoteUtil;
 			
+			import json.JParser;
+			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
@@ -36,6 +38,8 @@
 			
 			[Bindable]
 			private var scxquery:ArrayCollection=null;
+			[Bindable]
+			private var statusquery:ArrayCollection=new ArrayCollection([{"id":0,"name":"全部"},{"id":1,"name":"未投"},{"id":2,"name":"完成"},{"id":3,"name":"在线"}]);;
 			[Bindable]
 			private var sitequery:ArrayCollection=null;
 			
@@ -69,67 +73,82 @@
 			
 			
 			private function queryPlanList():void{
-				if((jhtrstartdate.selectedDate&&jhtrenddate.selectedDate)||(jhwcstartdate.selectedDate&&jhwcenddate.selectedDate)){
-				}else{
-					Alert.show("计划投入日期和计划完成日期，必须选择其一。","提示");
-					return;
-				}
+				
 				var myDateFormatter:DateFormatter=new DateFormatter();
 				myDateFormatter.formatString="YYYYMMDD";
 				var parm:Object=new Object();
-				
-				if(jhtrstartdate.selectedDate!=null){
+				var flag:Boolean=false;
+				if(jhtrstartdate.selectedDate!=null||jhtrenddate.selectedDate!=null){
 					
+					if(jhtrstartdate.selectedDate==null||jhtrenddate.selectedDate==null){
+						Alert.show("计划投入日期 起和止必须都选择。","提示");
+						return;
+					}
 					var trstart:String=myDateFormatter.format(jhtrstartdate.selectedDate);	
 					var trend:String=myDateFormatter.format(jhtrenddate.selectedDate);
 					parm['trstart']=trstart;
 					parm['trend']=trend;
+					flag=true;
 				}
-				if(jhwcstartdate.selectedDate){
+				if(jhwcstartdate.selectedDate!=null||jhwcenddate.selectedDate!=null){
+					if(jhwcstartdate.selectedDate==null||jhwcenddate.selectedDate==null){
+						Alert.show("计划完成日期 起和止必须都选择。","提示");
+						return;
+					}
 					var wcstart:String=myDateFormatter.format(jhwcstartdate.selectedDate);	
 					var wcend:String=myDateFormatter.format(jhwcenddate.selectedDate);
 					parm['wcstart']=wcstart;
 					parm['wcend']=wcend;
+					flag=true;
 				}
 				
 				if(siteComb.selectedIndex==0){
 					parm['site']='';
 				}else{
 					parm['site']=siteComb.selectedItem.id;
+					flag=true;
 				}
 				
 				parm['zydh']=zydhtxt.text.toUpperCase();
+				if(parm['zydh']){
+					flag=true;
+				}
 				
-				if(plannocomb.selectedItem==null){
+				if(plannocomb.selectedItem!=null){
 					parm['planid']=plannocomb.selectedItem.id;
+					flag=true;
 				}
-				if(ddbhGrid.selectedItem==null){
+				if(ddbhGrid.selectedItem!=null){
 					parm['orderbhid']=ddbhGrid.selectedItem.id;
+					flag=true;
 				}
-				if(codecomb.selectedItem==null){
+				if(codecomb.selectedItem!=null){
 					parm['codeid']=codecomb.selectedItem.id;
+					flag=true;
+				}
+				if(!flag){
+					Alert.show("请输入必要的查询条件","警告");
+					return;
 				}
 				
 				var op:AbstractOperation=RemoteUtil.getOperation("queryPlanDetail");
 				op.addEventListener(ResultEvent.RESULT,resultPlanList);
 				RemoteUtil.openLoading();
-				op.send();
+				op.send(parm);
 			}
 			public function resultPlanList(e:ResultEvent):void{
 				
 				if(e.result.success){
 					
-					
 					allquery = new ArrayCollection(e.result.result as Array);
-					
-					allquery.filterFunction=refreshData;
+					allquery.filterFunction=scxFilterChanged;
 					refreshData();
 					
 				}
 			}
 			public function scxFilterChanged(item:Object):Boolean{ 
 				
-				if(scxComb.selectedIndex<=0||scxComb.selectedItem.name==item.scx) 
+				if((scxComb.selectedIndex<=0||scxComb.selectedItem.id==item.scx)&&(statusComb.selectedIndex<=0||statusComb.selectedItem.id==item.planfinish_i)) 
 					return true; 
 				else 
 					return false; 
@@ -171,11 +190,36 @@
 				return str;
 			}
 			
+			
+			public function getExcel():void{
+				
+				var myDateFormatter:DateFormatter=new DateFormatter();
+				myDateFormatter.formatString="YYYYMMDD";
+				
+				var param:Object=new Object();
+				param['index']=new Array();
+				param['head']=new Object();
+				param['data']=query;
+				var c:AdvancedDataGridColumn;
+				for(var i:int=0;i<planlistgrid.groupedColumns.length;i++){
+					c=planlistgrid.groupedColumns[i] as AdvancedDataGridColumn;
+					param['index'].push(c.dataField);
+					param['head'][c.dataField]=c.headerText;
+				}
+				
+				param['excelname']="主计划查询-"+myDateFormatter.format(new Date());
+				param['sheetname']="主计划查询";
+				
+				var request:URLRequest = new URLRequest("/zt/getExcelByData");
+				request.method="post";
+				request.data="data="+JParser.encode(param);
+				navigateToURL(request);
+			}
+			
 			[Bindable]
 			public var allquery:ArrayCollection=new ArrayCollection();
 			[Bindable]
 			public var query:ArrayCollection=new ArrayCollection();
-			
 			
 			
 			
@@ -196,36 +240,120 @@
 					
 				</s:VerticalLayout>
 			</s:layout>
-				<s:BorderContainer left="0" top="0" height="45" width="100%" borderVisible="false" backgroundImage="{CBorderContainer.toolbgimg}">
+			<s:BorderContainer left="0" top="0" height="80" width="100%" borderVisible="false" backgroundImage="{CBorderContainer.toolbgimg}">
+				<s:layout>
+					<s:HorizontalLayout gap="10" verticalAlign="middle" paddingLeft="20">
+						
+					</s:HorizontalLayout>
+				</s:layout>
+			<s:Scroller width="100%" height="80">
+				<s:Group width="100%" height="80" >
+				
+				<s:BorderContainer left="0" top="0" height="65" minWidth="1200" borderVisible="false" backgroundAlpha="0" >
 					<s:layout>
 						<s:HorizontalLayout gap="10" verticalAlign="middle" paddingLeft="20">
 							
 						</s:HorizontalLayout>
 					</s:layout>
-					<s:Label text="生产线:"/>
-					<mx:ComboBox  id="scxComb" dataProvider="{scxquery}" labelField="name" width="100" dropdownWidth="200"  change="refreshData()" >
-						
-					</mx:ComboBox>
 					
-					<s:Label text="作业单号:">
-					</s:Label>
-					<s:TextInput id="zydhtxt" width="100">
-						
-					</s:TextInput>
-					<s:Label text="计划单号:">
-					</s:Label>
-					<uicontrol:FliterComboBox id="plannocomb" dataProvider="{InfoUtil.planList}" labelField="lsh" valueField="id" width="120" styleName="fliterComboBox" dropdownWidth="200">
-					</uicontrol:FliterComboBox>
+					<s:BorderContainer height="100%" width="210" borderVisible="false" backgroundAlpha="0">
+						<s:layout>
+							<s:VerticalLayout gap="3" verticalAlign="middle">
+								
+							</s:VerticalLayout>
+						</s:layout>
+						<s:BorderContainer height="100%" width="180" borderVisible="false" backgroundAlpha="0">
+							<s:layout>
+								<s:HorizontalLayout gap="10" verticalAlign="middle">
+									
+								</s:HorizontalLayout>
+							</s:layout>
+							<s:Label text="生产线:"/>
+							<mx:ComboBox  id="scxComb" dataProvider="{scxquery}" labelField="name" width="100" dropdownWidth="200"  change="refreshData()" >
+								
+							</mx:ComboBox>
+						</s:BorderContainer>
+						<s:BorderContainer height="100%" width="210"  borderVisible="false" backgroundAlpha="0">
+							<s:layout>
+								<s:HorizontalLayout gap="10" verticalAlign="middle">
+									
+								</s:HorizontalLayout>
+							</s:layout>
+							<s:Label text="计划状态:"/>
+							<mx:ComboBox  id="statusComb" dataProvider="{statusquery}" labelField="name" width="100" dropdownWidth="200"  change="refreshData()" >
+								
+							</mx:ComboBox>
+						</s:BorderContainer>
+					</s:BorderContainer>
+					<s:BorderContainer height="100%" width="210" borderVisible="false" backgroundAlpha="0">
+						<s:layout>
+							<s:VerticalLayout gap="3" verticalAlign="middle">
+								
+							</s:VerticalLayout>
+						</s:layout>
+						<s:BorderContainer height="100%" width="180" borderVisible="false" backgroundAlpha="0">
+							<s:layout>
+								<s:HorizontalLayout gap="10" verticalAlign="middle">
+									
+								</s:HorizontalLayout>
+							</s:layout>
+							<s:Label text="作业单号:">
+							</s:Label>
+							<s:TextInput id="zydhtxt" width="100">
+								
+							</s:TextInput>
+						</s:BorderContainer>
+						<s:BorderContainer height="100%" width="210"  borderVisible="false" backgroundAlpha="0">
+							<s:layout>
+								<s:HorizontalLayout gap="10" verticalAlign="middle">
+									
+								</s:HorizontalLayout>
+							</s:layout>
+							<s:Label text="计划单号:">
+							</s:Label>
+							<uicontrol:FliterComboBox id="plannocomb" dataProvider="{InfoUtil.planList}" labelField="lsh" valueField="id" width="150" styleName="fliterComboBox" dropdownWidth="200">
+							</uicontrol:FliterComboBox>
+						</s:BorderContainer>
+					</s:BorderContainer>
+					<s:BorderContainer height="100%" width="180" borderVisible="false" backgroundAlpha="0">
+						<s:layout>
+							<s:VerticalLayout gap="3" verticalAlign="middle">
+								
+							</s:VerticalLayout>
+						</s:layout>
+						<s:BorderContainer height="100%" width="180"  borderVisible="false" backgroundAlpha="0">
+							<s:layout>
+								<s:HorizontalLayout gap="10" verticalAlign="middle">
+									
+								</s:HorizontalLayout>
+							</s:layout>
+							<s:Label text="订单编号:"/>
+							<uicontrol:FliterComboBox id="ddbhGrid" dataProvider="{InfoUtil.orderbhList}" labelField="ddbh" valueField="id" width="100" styleName="fliterComboBox" dropdownWidth="200">
+								
+							</uicontrol:FliterComboBox>
+						</s:BorderContainer>
+						<s:BorderContainer height="100%" width="180" borderVisible="false" backgroundAlpha="0">
+							<s:layout>
+								<s:HorizontalLayout gap="10" verticalAlign="middle">
+									
+								</s:HorizontalLayout>
+							</s:layout>
+							<s:Label text="物料代码:"/>
+							<uicontrol:FliterComboBox id="codecomb" dataProvider="{InfoUtil.codeList}" labelField="code" valueField="id" width="100" styleName="fliterComboBox" dropdownWidth="200">
+								
+							</uicontrol:FliterComboBox>
+						</s:BorderContainer>
+					</s:BorderContainer>
 					
-					<s:Label text="订单编号:"/>
-					<uicontrol:FliterComboBox id="ddbhGrid" dataProvider="{InfoUtil.orderbhList}" labelField="ddbh" valueField="id" width="100" styleName="fliterComboBox" dropdownWidth="200">
-						
-					</uicontrol:FliterComboBox>
+
 					
-					<s:Label text="物料代码:"/>
-					<uicontrol:FliterComboBox id="codecomb" dataProvider="{InfoUtil.codeList}" labelField="code" valueField="id" width="100" styleName="fliterComboBox" dropdownWidth="200">
-						
-					</uicontrol:FliterComboBox>
+					
+					
+					
+					
+					
+					
+					
 					
 					<s:Label text="作业区:"/>
 					<mx:ComboBox  id="siteComb" dataProvider="{sitequery}" labelField="name" width="100" dropdownWidth="200"  >
@@ -234,31 +362,85 @@
 					
 					<s:Label text="计划投入日期:">
 					</s:Label>
-					<mx:DateField id="jhtrstartdate" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" change="queryparamchange(false)" />
-					<s:Label text="~"/>
-					<mx:DateField id="jhtrenddate"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}"  change="queryparamchange(false)"/>
+					<s:BorderContainer height="100%" width="130" borderVisible="false" backgroundAlpha="0">
+						<s:layout>
+							<s:VerticalLayout gap="3" verticalAlign="middle">
+								
+							</s:VerticalLayout>
+						</s:layout>
+						<s:BorderContainer height="100%" width="130"  borderVisible="false" backgroundAlpha="0">
+							<s:layout>
+								<s:HorizontalLayout gap="10" verticalAlign="middle">
+									
+								</s:HorizontalLayout>
+							</s:layout>
+							<s:Label text="起:"/>
+							<mx:DateField id="jhtrstartdate" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" change="queryparamchange(false)" />
+						</s:BorderContainer>
+						<s:BorderContainer height="100%" width="130" borderVisible="false" backgroundAlpha="0">
+							<s:layout>
+								<s:HorizontalLayout gap="10" verticalAlign="middle">
+									
+								</s:HorizontalLayout>
+							</s:layout>
+							<s:Label text="止:"/>
+							<mx:DateField id="jhtrenddate"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}"  change="queryparamchange(false)"/>
+						</s:BorderContainer>
+					</s:BorderContainer>
 					<s:Label text="计划完成日期:">
 					</s:Label>
-					<mx:DateField id="jhwcstartdate" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" change="queryparamchange(true)" />
-					<s:Label text="~"/>
-					<mx:DateField id="jhwcenddate"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}"  change="queryparamchange(true)"/>
-					
+					<s:BorderContainer height="100%" width="130" borderVisible="false" backgroundAlpha="0">
+						<s:layout>
+							<s:VerticalLayout gap="3" verticalAlign="middle">
+								
+							</s:VerticalLayout>
+						</s:layout>
+						<s:BorderContainer height="100%" width="130"  borderVisible="false" backgroundAlpha="0">
+							<s:layout>
+								<s:HorizontalLayout gap="10" verticalAlign="middle">
+									
+								</s:HorizontalLayout>
+							</s:layout>
+							<s:Label text="起:"/>
+							<mx:DateField id="jhwcstartdate" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" change="queryparamchange(true)" />
+						</s:BorderContainer>
+						<s:BorderContainer height="100%" width="130" borderVisible="false" backgroundAlpha="0">
+							<s:layout>
+								<s:HorizontalLayout gap="10" verticalAlign="middle">
+									
+								</s:HorizontalLayout>
+							</s:layout>
+							<s:Label text="止:"/>
+							<mx:DateField id="jhwcenddate"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}"  change="queryparamchange(true)"/>
+						</s:BorderContainer>
+					</s:BorderContainer>
 					
 					<s:Button label="查询" click="queryPlanList()">
 					</s:Button>
+					<s:Button label="导出" click="getExcel()">
+					</s:Button>
 				</s:BorderContainer>
-				
-			
+				</s:Group>
+				</s:Scroller>
+				</s:BorderContainer>
+			<s:Scroller width="100%" height="100%">
+				<s:Group width="100%" height="100%" >
+					<s:BorderContainer height="100%" backgroundAlpha="0" borderVisible="false" >
+						<s:layout>
+							<s:HorizontalLayout gap="10" paddingLeft="5" paddingBottom="5" paddingRight="5" horizontalAlign="left" verticalAlign="top">
+								
+							</s:HorizontalLayout>
+						</s:layout>
 					
-			<uicontrol:MarkAdvancedDataGrid id="planlistgrid" isNewAdd="false" rowHeight="25" dataProvider="{query}" visible="true"  enabled="true" editable="false" height="100%" width="100%">
+			<uicontrol:MarkAdvancedDataGrid id="planlistgrid" isNewAdd="false" rowHeight="25" headerHeight="30" dataProvider="{query}" visible="true"  enabled="true" editable="false" height="100%" width="100%">
 				<uicontrol:groupedColumns>
-					<mx:AdvancedDataGridColumn headerText="计划达成"  dataField="planfinish"  width="60"    >
+					<mx:AdvancedDataGridColumn headerText="计划达成"  dataField="planfinish"  width="80"    >
 						
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="生产线" dataField="scxstr"  sortable="false" width="180"  editable="false">
+					<mx:AdvancedDataGridColumn headerText="生产线" dataField="scxstr"  sortable="false" width="90"  editable="false">
 						
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="作业区"   dataField="startsite"  width="120"   >
+					<mx:AdvancedDataGridColumn headerText="作业区"   dataField="startsite"  width="100"   >
 						
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn headerText="订单号"  dataField="ddbh"  editable="false"  width="100" >
@@ -271,35 +453,35 @@
 					
 					<mx:AdvancedDataGridColumn headerText="规格"  dataField="codegg"   width="120"  >
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="作业单号"  dataField="zydh"   width="120"  >
+					<mx:AdvancedDataGridColumn headerText="作业单号"  dataField="zydh"   width="130"  >
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn headerText="去向位置"  dataField="endsite"   width="120"  >
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="紧急程度" labelFunction="getJJCDStr"  dataField="level"   width="80"  >
+					<mx:AdvancedDataGridColumn headerText="紧急程度"   dataField="level"   width="80"  >
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn headerText="计划数量"  dataField="plannum"   width="80"  >
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="计划投入日期"  dataField="startdate"   width="80"  >
+					<mx:AdvancedDataGridColumn headerText="计划投入日期"  dataField="startdate"   width="120"  >
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="计划完成日期"  dataField="enddate"   width="80"  >
+					<mx:AdvancedDataGridColumn headerText="计划完成日期"  dataField="enddate"   width="120"  >
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="实际转入日期"  dataField="finishstartdate"   width="80"  >
+					<mx:AdvancedDataGridColumn headerText="实际转入日期"  dataField="finishstartdate"   width="120"  >
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="实际转入数量"  dataField="finishstartnum"   width="80"  >
+					<mx:AdvancedDataGridColumn headerText="实际转入数量"  dataField="finishstartnum"   width="120"  >
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="实际完成日期"  dataField="finishenddate"   width="80"  >
+					<mx:AdvancedDataGridColumn headerText="实际完成日期"  dataField="finishenddate"   width="120"  >
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="实际完成数量"  dataField="finishendnum"   width="80"  >
+					<mx:AdvancedDataGridColumn headerText="实际完成数量"  dataField="finishendnum"   width="120"  >
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn headerText="报废数"  dataField="bfnum"   width="80"  >
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn headerText="遗失数"  dataField="ysnum"   width="80"  >
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="计划单号"  dataField="planlsh"   width="80"  >
+					<mx:AdvancedDataGridColumn headerText="计划单号"  dataField="planlsh"   width="130"  >
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="分单要求"  dataField="ordergongyi"   width="80"  >
+					<mx:AdvancedDataGridColumn headerText="分单要求"  dataField="ordergongyi"   width="150"  >
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="订单要求说明"  dataField="planbz"   width="80"  >
+					<mx:AdvancedDataGridColumn headerText="订单要求说明"  dataField="planbz"   width="150"  >
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn headerText="修改说明"  dataField="updatetime"   width="80"  >
 					</mx:AdvancedDataGridColumn>
@@ -307,7 +489,9 @@
 				</uicontrol:groupedColumns>
 				
 			</uicontrol:MarkAdvancedDataGrid>
-				
+					</s:BorderContainer>
+				</s:Group>
+			</s:Scroller>
 		</s:BorderContainer>
 	</s:HGroup>
 </control:CBorderContainer>

@@ -21,33 +21,30 @@
 			private var _value:Object;  
 			
 			[Bindable]
-			private var list:ArrayCollection=new ArrayCollection();
+			private var list:ArrayCollection=InfoUtil.planjjcd;
 			
 			// Implement the drawFocus() method for the VBox.
 			override public function drawFocus(draw:Boolean):void {
 				//											outerDocument.getMacAll();
-				refresh();
 				cbo.setFocus();
 				cbo.open();
 				
 			}
 			
-			public function refresh():void{
-				list = InfoUtil.planjjcd;
-			}
+			
 			
 			override public function get data():Object {
 				if(cbo==null){
 					return super.data;
 				}else{
-//					if(cbo.selectedIndex==-1){
-//						for each(var it:Object in cbo.dataProvider){
-//							if(it[cbo.labelField]==cbo.data||it[cbo.valueField]==cbo.data){
-//								return it[cbo.valueField]
-//							}
-//						}
-//						return null;
-//					}
+					if(cbo.selectedIndex==-1){
+						for each(var it:Object in cbo.dataProvider){
+							if(it[cbo.labelField]==cbo.data||it[cbo.valueField]==cbo.data){
+								return it[cbo.valueField]
+							}
+						}
+						return 0;
+					}
 					return cbo.data;
 				}
 			}            

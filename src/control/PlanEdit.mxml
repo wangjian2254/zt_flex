@@ -12,6 +12,8 @@
 			
 			import httpcontrol.RemoteUtil;
 			
+			import json.JParser;
+			
 			import mx.collections.ArrayCollection;
 			import mx.collections.ArrayList;
 			import mx.controls.Alert;
@@ -20,6 +22,7 @@
 			import mx.controls.dataGridClasses.DataGridColumn;
 			import mx.events.FlexEvent;
 			import mx.events.ItemClickEvent;
+			import mx.formatters.DateFormatter;
 			import mx.rpc.AbstractOperation;
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.ObjectUtil;
@@ -234,7 +237,7 @@
 				
 			}
 			
-			private function getDDBHById(yddbh:Number):String{
+			private function getDDBHById(yddbh:Number,f:Boolean=false):String{
 				if(InfoUtil.orderlistbhObj.hasOwnProperty("orderlist"+yddbh)){
 					return InfoUtil.orderlistbhObj["orderlist"+yddbh];
 				}
@@ -244,7 +247,9 @@
 						return obj.ddbhstr;
 					}
 				}
-				
+				if(f){
+					return "";
+				}
 				return '"空"';
 			}
 			
@@ -263,11 +268,14 @@
 			
 			
 			
-			private function getZRWZAndOldData(siteid:Number):String{
+			private function getZRWZAndOldData(siteid:Number,f:Boolean=false):String{
 				for each(var obj:Object in InfoUtil.siteList){
 					if(obj.id==siteid){
 						return obj.name;
 					}
+				}
+				if(f){
+					return "";
 				}
 				return '"空"';
 			}
@@ -285,13 +293,15 @@
 				
 			}
 			
-			private function getJJCDOldData(level:Number):String{
+			private function getJJCDOldData(level:Number,f:Boolean=false):String{
 				for each(var obj:Object in InfoUtil.planjjcd){
 					if(obj.id==level){
 						return obj.text;
 					}
 				}
-				
+				if(f){
+					return "";
+				}
 				return '"空"';
 			}
 			
@@ -409,6 +419,14 @@
 					op2.addEventListener(ResultEvent.RESULT,checkPlanResult);
 					RemoteUtil.openLoading();
 					op2.send(lsh.text);
+				}
+				
+				if(e.label=='导出'){
+					if(this.orderbblist.length==0){
+						Alert.show("没有数据不能导出","提示");
+						return;
+					}
+					getExcel();
 				}
 			}
 			
@@ -672,6 +690,7 @@
 							item.isModfy=true;
 							item.selected=false;
 							item.yddbh='';
+							item.level=1
 							codeids.push(obj.id);
 							orderbblist.addItem(item);
 							break;
@@ -793,6 +812,102 @@
 					return "";
 			}
 			
+			
+			public function getExcel():void{
+				
+				var myDateFormatter:DateFormatter=new DateFormatter();
+				myDateFormatter.formatString="YYYYMMDD";
+				
+				var param:Object=new Object();
+				param['index']=new Array();
+				param['head']=new Array();
+//				param['data']=orderbblist;
+				var c:AdvancedDataGridColumn;
+				var g:AdvancedDataGridColumnGroup;
+				var pg:AdvancedDataGridColumnGroup;
+				var index:int=0;
+				for(var i:int=0;i<orderbbgrid.groupedColumns.length-3;i++){
+					c=orderbbgrid.groupedColumns[i+2] as AdvancedDataGridColumn;
+					g=orderbbgrid.groupedColumns[i+2] as AdvancedDataGridColumnGroup;
+					if (g==null&&c!=null){
+						param['index'].push(c.dataField);
+						param['head'].push({"text":c.headerText,"top":0,"left":index,"width":0,"height":2});
+						index+=1;
+					}
+					if(g!=null){
+						var num:int=0;
+						var item:Object=new Object();
+						item['text']=g.headerText;
+						item['top']=0;
+						item['left']=index;
+						item['width']=0;
+						item['height']=0;
+						param['head'].push(item);
+						for(var k:int=0;k<g.children.length;k++){
+							c=g.children[k] as AdvancedDataGridColumn;
+							pg=g.children[k] as AdvancedDataGridColumnGroup;
+							if(pg==null&&c!=null){
+								
+								param['index'].push(c.dataField);
+								param['head'].push({"text":c.headerText,"top":1,"left":index,"width":0,"height":0});
+								index+=1;
+							}
+							if(pg!=null){
+								var num1:int=0;
+								var item1:Object=new Object();
+								item1['text']=pg.headerText;
+								item1['top']=1;
+								item1['left']=index;
+								item1['width']=0;
+								item1['height']=0;
+								param['head'].push(item1);
+								for(var j:int=0;j<pg.children.length-1;j++){
+									c=pg.children[j] as AdvancedDataGridColumn;
+									if(c!=null){
+										num1+=1;
+										num+=1;
+										param['index'].push(c.dataField);
+										param['head'].push({"text":c.headerText,"top":2,"left":index,"width":0,"height":0});
+										index+=1;
+									}
+								}
+								item1['width']=num1-1;
+							}
+						}
+						item['width']=num-1;
+						
+					}
+				}
+				
+				var exceldata:ArrayCollection=ObjectUtil.copy(orderbblist) as ArrayCollection;
+				for each(var obj:Object in exceldata){
+					obj['yddbh']=getDDBHById(obj.yddbh,true);
+					obj['scx']=getScxStr(obj,null);
+					for each(var item3:Object in InfoUtil.siteList){
+						if(item3.type=='3'){
+							continue;
+						}
+						if(!obj.hasOwnProperty('zrwz'+item3.id)){
+							continue;
+						}
+						obj['zrwz'+item3.id]=getZRWZAndOldData(obj['zrwz'+item3.id],true);
+					}
+					
+					obj['level']=getJJCDOldData(obj.level,true);
+					
+				}
+				
+				param['data']=exceldata;
+				param['excelname']="主计划-"+myDateFormatter.format(new Date());
+				param['sheetname']="主计划";
+				
+				var request:URLRequest = new URLRequest("/zt/getExcelByGroupData");
+				request.method="post";
+				request.data="data="+JParser.encode(param);
+				navigateToURL(request);
+			}
+			
+			
 			[Bindable]
 			public var plannolist:ArrayCollection=new ArrayCollection();
 			
@@ -805,7 +920,7 @@
 			public var orderisopenlist:ArrayCollection=new ArrayCollection();
 			
 			[Bindable]
-			private var buttonArr:ArrayCollection=new ArrayCollection([{'label':'新增','ico':addimg},{'label':'保存','ico':saveimg},{'label':'删除','ico':delimg},{'label':'删除恢复','ico':saveimg},{'label':'修改作业单号','ico':saveimg},{'label':'刷新主计划数据','ico':refreshimg},{'label':'同步订单编号和物料','ico':refreshimg},{'label':'审核','ico':addimg},{'label':'退审','ico':addimg}]);
+			private var buttonArr:ArrayCollection=new ArrayCollection([{'label':'新增','ico':addimg},{'label':'保存','ico':saveimg},{'label':'删除','ico':delimg},{'label':'删除恢复','ico':saveimg},{'label':'修改作业单号','ico':saveimg},{'label':'刷新主计划数据','ico':refreshimg},{'label':'同步订单编号和物料','ico':refreshimg},{'label':'审核','ico':addimg},{'label':'退审','ico':addimg},{'label':'导出','ico':refreshimg}]);
 			
 		]]>
 	</fx:Script>
@@ -857,8 +972,6 @@
 					<s:Label text="物料代号:"/>
 					<s:TextArea id="codeArea" width="400" height="100%"  >
 						<s:text>
-							
-							A70170817
 						</s:text>
 					</s:TextArea>
 					<s:Button label="提交" click="addItem()"/>
