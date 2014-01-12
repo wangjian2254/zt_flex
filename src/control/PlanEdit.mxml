@@ -24,6 +24,7 @@
 			import mx.events.ItemClickEvent;
 			import mx.formatters.DateFormatter;
 			import mx.rpc.AbstractOperation;
+			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.ObjectUtil;
 			import mx.utils.StringUtil;
@@ -376,6 +377,12 @@
 				if(e.label=="保存"){
 					save();
 				}
+				
+				if(e.label=="新投在线数量"){
+					getZXnumByCodeDDBH();
+				}
+				
+				
 				if(e.label=="修改作业单号"){
 					saveZYDH();
 				}
@@ -619,6 +626,97 @@
 				RemoteUtil.openLoading();
 				op.send(headList,unheadList,orderbblist,lsh.text);
 			}
+			
+			public function getZXnumByCodeDDBH():void{
+				if(orderbblist.length==0){
+					return;
+				}
+				var myDateFormatter:DateFormatter=new DateFormatter();
+				myDateFormatter.formatString="YYYYMMDD";
+				
+				
+				resultAjax=0;
+				queryreset();
+				needAjax=0;
+				for each(var item:Object in orderbblist){
+					if(item.zydh&&!item.yddbh){
+						continue;
+					}
+					needAjax+=1;
+					var op:AbstractOperation=RemoteUtil.getOperationByProgressBar("getOrderGenZongByDate");
+					op.addEventListener(ResultEvent.RESULT,resultJisuanClose);
+					var ddbh:Array=new Array();
+					for each(var item1:Object in InfoUtil.openOrderList){
+						if(item.yddbh==item1.id){
+							ddbh.push(item1.ddbh);
+							break;
+						}
+					}
+					op.send(myDateFormatter.format(new Date()),"open",ddbh,item.code,true);
+				}
+			}
+			
+			
+			
+			public function resultJisuanClose(e:ResultEvent):void{
+				
+				if(e.result.success){
+					var q:ArrayCollection=new ArrayCollection(e.result.result.query as Array);
+					var orderlist_id:Number=0;
+					var code_id:Number=0;
+					var queryitem:Object=null;
+					for each(var item:Object in q){
+						orderlist_id=item.orderlist_id;
+						code_id=item.code_id;
+						
+						for each(var item1:Object in orderbblist){
+							if(item1.yddbh==orderlist_id&&item1.code==code_id){
+								item1.usenum=item['ckddcy']+item['ddmzyf'];
+							}
+						}
+						
+					}
+					
+					
+					orderbbgrid.invalidateList();
+				}
+				post_request();
+			}
+			
+			public function faultZYOrder(e:FaultEvent):void{
+				
+				post_request();
+				faultAjax++;
+			}
+			
+			private var resultAjax:Number=0;
+			private var needAjax:Number=0;
+			private var faultAjax:Number=0;
+			public function post_request():void
+			{
+				resultAjax++;
+				bar.setProgress(resultAjax-1, needAjax);
+				var percent:Number = (resultAjax*100/needAjax);
+				bar.label = percent.toString().split(".")[0] + "%";
+				
+				if(needAjax==(resultAjax-1)&&needAjax>0){
+					bar.visible=false;
+					bar.label="0%";
+					
+				}
+			}
+			
+			
+			public function queryreset():void{
+				if(needAjax==0){
+					needAjax=100;
+				}
+				bar.visible=true;
+				post_request();
+				
+			}
+			
+			
 			public function saveZYDH():void{
 				
 				var zydhList:ArrayCollection=new ArrayCollection();
@@ -908,6 +1006,8 @@
 			}
 			
 			
+			
+			
 			[Bindable]
 			public var plannolist:ArrayCollection=new ArrayCollection();
 			
@@ -920,7 +1020,7 @@
 			public var orderisopenlist:ArrayCollection=new ArrayCollection();
 			
 			[Bindable]
-			private var buttonArr:ArrayCollection=new ArrayCollection([{'label':'新增','ico':addimg},{'label':'保存','ico':saveimg},{'label':'删除','ico':delimg},{'label':'删除恢复','ico':saveimg},{'label':'修改作业单号','ico':saveimg},{'label':'刷新主计划数据','ico':refreshimg},{'label':'同步订单编号和物料','ico':refreshimg},{'label':'审核','ico':addimg},{'label':'退审','ico':addimg},{'label':'导出','ico':refreshimg}]);
+			private var buttonArr:ArrayCollection=new ArrayCollection([{'label':'新增','ico':addimg},{'label':'保存','ico':saveimg},{'label':'新投在线数量','ico':refreshimg},{'label':'删除','ico':delimg},{'label':'删除恢复','ico':saveimg},{'label':'修改作业单号','ico':saveimg},{'label':'刷新主计划数据','ico':refreshimg},{'label':'同步订单编号和物料','ico':refreshimg},{'label':'审核','ico':addimg},{'label':'退审','ico':addimg},{'label':'导出','ico':refreshimg}]);
 			
 		]]>
 	</fx:Script>
@@ -1068,4 +1168,6 @@
 			</s:Scroller>
 		</s:BorderContainer>
 	</mx:HDividedBox>
+	<uicontrol:CProgressBar id="bar" width="100%" height="100%" visible="false">
+	</uicontrol:CProgressBar>
 </control:CBorderContainer>
