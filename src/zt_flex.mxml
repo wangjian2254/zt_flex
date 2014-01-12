@@ -17,6 +17,7 @@
 			import control.OrderMonitor;
 			import control.OrderRuningShow;
 			import control.People;
+			import control.PlanDailyQuery;
 			import control.PlanEdit;
 			import control.PlanQuery;
 			import control.PlanRecordQuery;
@@ -270,6 +271,9 @@
 							break;
 						case 'planshow':
 							c=new PlanRecordQuery();
+							break;
+						case 'plan_daily':
+							c=new PlanDailyQuery();
 							break;
 						default:
 							return;

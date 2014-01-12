@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<control:CBorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						  xmlns:s="library://ns.adobe.com/flex/spark" 
+						  xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:control="control.*" borderVisible="false" backgroundAlpha="0" width="900" height="700" xmlns:uicontrol="uicontrol.*" >
+	<control:layout>
+		<s:BasicLayout/>
+	</control:layout>
+	<fx:Script>
+		<![CDATA[
+			import events.CloseEvent;
+			
+			import httpcontrol.RemoteUtil;
+			
+			import json.JParser;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumnGroup;
+			import mx.events.FlexEvent;
+			import mx.events.ItemClickEvent;
+			import mx.formatters.DateFormatter;
+			import mx.rpc.AbstractOperation;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			import mx.utils.StringUtil;
+			
+			import uicontrol.DDBHFliterComboBox;
+			import uicontrol.PlanEndDate;
+			import uicontrol.PlanStartDate;
+			import uicontrol.PlanToSite;
+			import uicontrol.SiteBox;
+			
+			import util.DateUtil;
+			import util.InfoUtil;
+			[Bindable]
+			public var showLabel:String;
+			
+			
+			
+			override public function init(e:FlexEvent):void{
+				
+				
+				
+				
+			}
+			
+			
+			
+			override public function closeContainer(e:CloseEvent):void{
+				dispatchEvent(e);
+				
+			}
+			
+			
+			private function queryPlanList():void{
+				
+				var myDateFormatter:DateFormatter=new DateFormatter();
+				myDateFormatter.formatString="YYYYMMDD";
+				var parm:Object=new Object();
+				var flag:Boolean=false;
+				
+				if(!flag){
+					Alert.show("请输入必要的查询条件","警告");
+					return;
+				}
+				
+				var op:AbstractOperation=RemoteUtil.getOperation("queryPlanDetail");
+				op.addEventListener(ResultEvent.RESULT,resultPlanList);
+				RemoteUtil.openLoading();
+				op.send(parm);
+			}
+			public function resultPlanList(e:ResultEvent):void{
+				
+				if(e.result.success){
+					
+					allquery = new ArrayCollection(e.result.result as Array);
+					
+					
+				}
+			}
+			
+			
+			public function getExcel():void{
+				
+				var myDateFormatter:DateFormatter=new DateFormatter();
+				myDateFormatter.formatString="YYYYMMDD";
+				
+				var param:Object=new Object();
+				param['index']=new Array();
+				param['head']=new Object();
+				param['data']=allquery;
+				var c:AdvancedDataGridColumn;
+//				for(var i:int=0;i<planlistgrid.groupedColumns.length;i++){
+//					c=planlistgrid.groupedColumns[i] as AdvancedDataGridColumn;
+//					param['index'].push(c.dataField);
+//					param['head'][c.dataField]=c.headerText;
+//				}
+				
+				param['excelname']="主计划查询-"+myDateFormatter.format(new Date());
+				param['sheetname']="主计划查询";
+				
+				var request:URLRequest = new URLRequest("/zt/getExcelByData");
+				request.method="post";
+				request.data="data="+JParser.encode(param);
+				navigateToURL(request);
+			}
+			
+			[Bindable]
+			public var allquery:ArrayCollection=new ArrayCollection();
+			
+			
+			
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<s:RadioButtonGroup id="ddquerytype"  >
+			
+		</s:RadioButtonGroup>
+	</fx:Declarations>
+	<s:HGroup top="8" right="8" bottom="8" left="8" gap="7">
+		
+		<s:BorderContainer width="100%" height="100%"  borderVisible="false" color="0x333333" skinClass="skins.contentBoxSkin">	
+			<s:layout>
+				<s:VerticalLayout gap="5">
+					
+				</s:VerticalLayout>
+			</s:layout>
+			<s:BorderContainer left="0" top="0" height="45" width="100%" borderVisible="false" backgroundImage="{CBorderContainer.toolbgimg}">
+				<s:layout>
+					<s:HorizontalLayout gap="10" verticalAlign="middle" paddingLeft="20">
+						
+					</s:HorizontalLayout>
+				</s:layout>
+			
+				
+				
+					<s:Button label="查询" click="queryPlanList()">
+					</s:Button>
+					<s:Button label="导出" click="getExcel()">
+					</s:Button>
+				
+			</s:BorderContainer>
+			<s:BorderContainer height="100%" width="100%" backgroundColor="#CCCCCC" >
+				<s:layout>
+					<s:HorizontalLayout gap="1" paddingLeft="0" paddingBottom="0" paddingRight="0" horizontalAlign="left" verticalAlign="top">
+						
+					</s:HorizontalLayout>
+				</s:layout>
+				<s:BorderContainer height="100%" width="120" borderVisible="false" backgroundColor="#CCCCCC" >
+					<s:layout>
+						<s:VerticalLayout gap="1" verticalAlign="middle" horizontalAlign="center">
+							
+						</s:VerticalLayout>
+					</s:layout>
+					<s:BorderContainer height="20%" width="120" borderVisible="false" >
+						<s:layout>
+							<s:HorizontalLayout verticalAlign="middle" horizontalAlign="center">
+								
+							</s:HorizontalLayout>
+						</s:layout>
+						<s:BorderContainer height="60%" width="50" borderVisible="false" >
+							<s:layout>
+								<s:HorizontalLayout verticalAlign="bottom" horizontalAlign="center">
+									
+								</s:HorizontalLayout>
+							</s:layout>
+							<s:Label   fontSize="15" text="项目">
+							</s:Label>
+						</s:BorderContainer>
+						<s:BorderContainer height="60%" width="50" borderVisible="false" >
+							<s:layout>
+								<s:HorizontalLayout verticalAlign="top" horizontalAlign="center">
+									
+								</s:HorizontalLayout>
+							</s:layout>
+							<s:Label   fontSize="15" text="数据">
+								
+							</s:Label>
+						</s:BorderContainer>
+					</s:BorderContainer>
+					<s:BorderContainer height="10%" width="120" borderVisible="false" >
+						<s:layout>
+							<s:HorizontalLayout verticalAlign="middle" horizontalAlign="center">
+								
+							</s:HorizontalLayout>
+						</s:layout>
+						<s:Label   fontSize="15" text="本周应达成项数">
+							
+						</s:Label>
+					</s:BorderContainer>
+					<s:BorderContainer height="10%" width="120" borderVisible="false" >
+						<s:layout>
+							<s:HorizontalLayout verticalAlign="middle" horizontalAlign="center">
+								
+							</s:HorizontalLayout>
+						</s:layout>
+						<s:Label   fontSize="15" text="本周应达成件数">
+							
+						</s:Label>
+					</s:BorderContainer>
+					<s:BorderContainer height="10%" width="120" borderVisible="false" >
+						<s:layout>
+							<s:HorizontalLayout verticalAlign="middle" horizontalAlign="center">
+								
+							</s:HorizontalLayout>
+						</s:layout>
+						<s:Label   fontSize="15" text="前期应追项数">
+							
+						</s:Label>
+					</s:BorderContainer>
+					<s:BorderContainer height="10%" width="120" borderVisible="false" >
+						<s:layout>
+							<s:HorizontalLayout verticalAlign="middle" horizontalAlign="center">
+								
+							</s:HorizontalLayout>
+						</s:layout>
+						<s:Label   fontSize="15" text="前期应追件数">
+							
+						</s:Label>
+					</s:BorderContainer>
+					<s:BorderContainer height="10%" width="120" borderVisible="false" >
+						<s:layout>
+							<s:HorizontalLayout verticalAlign="middle" horizontalAlign="center">
+								
+							</s:HorizontalLayout>
+						</s:layout>
+						<s:Label   fontSize="15" text="提前完成项数">
+							
+						</s:Label>
+					</s:BorderContainer>
+					<s:BorderContainer height="10%" width="120" borderVisible="false" >
+						<s:layout>
+							<s:HorizontalLayout verticalAlign="middle" horizontalAlign="center">
+								
+							</s:HorizontalLayout>
+						</s:layout>
+						<s:Label   fontSize="15" text="提前完成件数">
+							
+						</s:Label>
+					</s:BorderContainer>
+					<s:BorderContainer height="10%" width="120" borderVisible="false" >
+						<s:layout>
+							<s:HorizontalLayout verticalAlign="middle" horizontalAlign="center">
+								
+							</s:HorizontalLayout>
+						</s:layout>
+						<s:Label   fontSize="15" text="件数日达成率">
+							
+						</s:Label>
+					</s:BorderContainer>
+					<s:BorderContainer height="10%" width="120" borderVisible="false" >
+						<s:layout>
+							<s:HorizontalLayout verticalAlign="middle" horizontalAlign="center">
+								
+							</s:HorizontalLayout>
+						</s:layout>
+						<s:Label   fontSize="15" text="项数日达成率">
+							
+						</s:Label>
+					</s:BorderContainer>
+					<s:BorderContainer height="14" width="120" borderVisible="false">
+						
+					</s:BorderContainer>
+				</s:BorderContainer>
+				<s:Scroller width="100%" height="100%">
+					<s:Group width="100%" height="100%">
+						<s:BorderContainer height="100%" backgroundColor="#CCCCCC" borderVisible="false">
+							<s:layout>
+								<s:HorizontalLayout gap="1">
+									
+								</s:HorizontalLayout>
+							</s:layout>
+							<uicontrol:PlanDetail>
+								
+							</uicontrol:PlanDetail>
+							<uicontrol:PlanDetail>
+								
+							</uicontrol:PlanDetail>
+							<uicontrol:PlanDetail>
+								
+							</uicontrol:PlanDetail>
+							<uicontrol:PlanDetail>
+								
+							</uicontrol:PlanDetail>
+							<uicontrol:PlanDetail>
+								
+							</uicontrol:PlanDetail>
+							<uicontrol:PlanDetail>
+								
+							</uicontrol:PlanDetail>
+							<uicontrol:PlanDetail>
+								
+							</uicontrol:PlanDetail>
+							<uicontrol:PlanDetail>
+								
+							</uicontrol:PlanDetail>
+							<uicontrol:PlanDetail>
+								
+							</uicontrol:PlanDetail>
+							<uicontrol:PlanDetail>
+								
+							</uicontrol:PlanDetail>
+							<uicontrol:PlanDetail>
+								
+							</uicontrol:PlanDetail>
+						</s:BorderContainer>
+					</s:Group>
+				</s:Scroller>
+			
+		</s:BorderContainer>
+		</s:BorderContainer>
+	</s:HGroup>
+</control:CBorderContainer>
