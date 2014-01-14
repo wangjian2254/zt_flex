@@ -31,7 +31,7 @@
 			public var showLabel:String;
 			
 			override public function init(e:FlexEvent):void{
-				orderGenZongRefresh();
+				orderGenZongCache();
 //				orderbb=ObjectUtil.copy(InfoUtil.orderbhList) as ArrayCollection;
 				
 				//				ddbhGrid.addEventListener(CollectionEvent.COLLECTION_CHANGE,bbchange);
@@ -181,6 +181,23 @@
 //				code.setValue("");
 			}
 			
+			public function orderGenZongCache():void{
+				//				bbchange(null);
+				var myDateFormatter:DateFormatter=new DateFormatter();
+				myDateFormatter.formatString="YYYYMMDD";
+				var op:AbstractOperation=RemoteUtil.getOperation("getOrderGenZongCache");
+				op.addEventListener(ResultEvent.RESULT,resultOrderGenZongCache);
+				RemoteUtil.openLoading();
+				op.send(myDateFormatter.format(new Date()),"open");
+			}
+			
+			public function resultOrderGenZongCache(e:ResultEvent):void{
+				if(!e.result.result){
+					Alert.show(e.result.message,"提示");
+				}else{
+					resultOrderGenZongByDate(e);
+				}
+			}
 			public function orderGenZongRefresh():void{
 				//				bbchange(null);
 				var myDateFormatter:DateFormatter=new DateFormatter();
