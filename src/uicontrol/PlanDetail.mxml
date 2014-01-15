@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
 				   xmlns:s="library://ns.adobe.com/flex/spark" 
-				   xmlns:mx="library://ns.adobe.com/flex/mx" width="200" minHeight="300" borderVisible="false" height="100%" backgroundColor="#CCCCCC" >
+				   xmlns:mx="library://ns.adobe.com/flex/mx" width="200" minHeight="300" borderVisible="false" height="100%" backgroundColor="#CCCCCC" creationComplete="showData()" >
 	<s:layout>
 		<s:VerticalLayout gap="1">
 			
@@ -16,17 +16,17 @@
 				if(item==null){
 					return;
 				}
-				datelbl.text=item["date"];
+				datelbl.text=item["date"].substring(0,4)+"年"+item["date"].substring(4,6)+"月"+item["date"].substring(6,8)+"日";
 				bzxiangjhlbl.text=item["bzxiangjh"];
 				bzxiangsjlbl.text=item["bzxiangsj"];
 				bzjianjhlbl.text=item["bzjianjh"];
 				bzjiansjlbl.text=item["bzjiansj"];
-				qqxiangsjlbl.text=item["qqxingsj"];
+				qqxiangsjlbl.text=item["qqxiangsj"];
 				qqjiansjlbl.text=item["qqjiansj"];
 				tqxiangsjlbl.text=item["tqxiangsj"];
 				tqjiansjlbl.text=item["tqjiansj"];
-				jianrilbl.text=item["jianri"];
-				xiangrilbl.text=item["xiangri"];
+				jianrilbl.text=item["jianri"]+"%";
+				xiangrilbl.text=item["xiangri"]+"%";
 			}
 		]]>
 	</fx:Script>

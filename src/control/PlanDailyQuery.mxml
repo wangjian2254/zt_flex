@@ -22,10 +22,12 @@
 			import mx.formatters.DateFormatter;
 			import mx.rpc.AbstractOperation;
 			import mx.rpc.events.ResultEvent;
+			import mx.utils.Base64Encoder;
 			import mx.utils.ObjectUtil;
 			import mx.utils.StringUtil;
 			
 			import uicontrol.DDBHFliterComboBox;
+			import uicontrol.PlanDetailTotal;
 			import uicontrol.PlanEndDate;
 			import uicontrol.PlanStartDate;
 			import uicontrol.PlanToSite;
@@ -39,8 +41,10 @@
 			
 			
 			override public function init(e:FlexEvent):void{
-				
-				
+				var now:Date=new Date();
+				now.date-=7;
+				startdate.selectedDate=now;
+				enddate.selectedDate=new Date();
 				
 				
 			}
@@ -57,29 +61,45 @@
 				
 				var myDateFormatter:DateFormatter=new DateFormatter();
 				myDateFormatter.formatString="YYYYMMDD";
-				var parm:Object=new Object();
-				var flag:Boolean=false;
-				
-				if(!flag){
-					Alert.show("请输入必要的查询条件","警告");
+				if(startdate.selectedDate==null||enddate.selectedDate==null){
+					Alert.show("请输入查询范围","警告");
 					return;
 				}
 				
-				var op:AbstractOperation=RemoteUtil.getOperation("queryPlanDetail");
+				
+				
+				var op:AbstractOperation=RemoteUtil.getOperation("queryPlanDaily");
 				op.addEventListener(ResultEvent.RESULT,resultPlanList);
 				RemoteUtil.openLoading();
-				op.send(parm);
+				op.send(myDateFormatter.format(startdate.selectedDate),myDateFormatter.format(enddate.selectedDate));
 			}
 			public function resultPlanList(e:ResultEvent):void{
 				
 				if(e.result.success){
 					
 					allquery = new ArrayCollection(e.result.result as Array);
+					plandetailgrid.removeAllElements();
+					var pd:PlanDetail=null;
+					for(var i:Number=0;i<allquery.length;i++){
+						pd=new PlanDetail();
+						pd.item=allquery.getItemAt(i);
+						plandetailgrid.addElement(pd);
+					}
 					
+					var pdt:PlanDetailTotal=new PlanDetailTotal();
+					pdt.list=allquery;
+					plandetailgrid.addElement(pdt);
 					
+					pdt0=pdt;
 				}
 			}
 			
+			public function getExcel2():void{
+				this.png.visible=true;
+				this.pngtu.source=pdt0.getPNGByteArray(true);
+			}
+			
+			private var pdt0:PlanDetailTotal=null;
 			
 			public function getExcel():void{
 				
@@ -97,13 +117,37 @@
 //					param['head'][c.dataField]=c.headerText;
 //				}
 				
-				param['excelname']="主计划查询-"+myDateFormatter.format(new Date());
-				param['sheetname']="主计划查询";
+				param['excelname']="生产情况日报表-"+myDateFormatter.format(startdate.selectedDate)+"-"+myDateFormatter.format(enddate.selectedDate);
+				param['sheetname']="生产情况日报表";
 				
-				var request:URLRequest = new URLRequest("/zt/getExcelByData");
+				var request:URLRequest = new URLRequest("/zt/getDailyExcelByData");
 				request.method="post";
 				request.data="data="+JParser.encode(param);
 				navigateToURL(request);
+			}
+			
+			public var jianName:String=null;
+			public var xiangName:String=null;
+			
+			public function uploadJian():void{
+				
+				var request:URLRequest = new URLRequest("/zt/uploadImage");
+				var base64:Base64Encoder = new Base64Encoder();
+//				base64.insertNewLines =false;
+				var bytes:ByteArray=pdt0.getPNGByteArray(true);
+				base64.encodeBytes(bytes);
+				
+				var base642:Base64Encoder = new Base64Encoder();
+//				base642.insertNewLines =false;
+				var bytes2:ByteArray=pdt0.getPNGByteArray(false);
+				base642.encodeBytes(bytes2);
+				var p:Object=new Object();
+				p["img1"]=base64.toString();
+				p["img2"]=base642.toString();
+				p["list"]=JParser.encode(allquery);
+				request.data="data="+JParser.encode(p);
+				request.method = URLRequestMethod.POST;
+				navigateToURL(request,"_blank");
 			}
 			
 			[Bindable]
@@ -134,12 +178,16 @@
 						
 					</s:HorizontalLayout>
 				</s:layout>
-			
+					<s:Label text="查询日期：">
+						
+					</s:Label>
+				<mx:DateField id="startdate"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}"  />
+				<mx:DateField id="enddate"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}"  />
 				
 				
 					<s:Button label="查询" click="queryPlanList()">
 					</s:Button>
-					<s:Button label="导出" click="getExcel()">
+					<s:Button label="导出" click="uploadJian()">
 					</s:Button>
 				
 			</s:BorderContainer>
@@ -267,7 +315,7 @@
 				</s:BorderContainer>
 				<s:Scroller width="100%" height="100%">
 					<s:Group width="100%" height="100%">
-						<s:BorderContainer height="100%" backgroundColor="#CCCCCC" borderVisible="false">
+						<s:BorderContainer id="plandetailgrid" height="100%" backgroundColor="#CCCCCC" borderVisible="false">
 							<s:layout>
 								<s:HorizontalLayout gap="1">
 									
@@ -276,36 +324,7 @@
 							<uicontrol:PlanDetail>
 								
 							</uicontrol:PlanDetail>
-							<uicontrol:PlanDetail>
-								
-							</uicontrol:PlanDetail>
-							<uicontrol:PlanDetail>
-								
-							</uicontrol:PlanDetail>
-							<uicontrol:PlanDetail>
-								
-							</uicontrol:PlanDetail>
-							<uicontrol:PlanDetail>
-								
-							</uicontrol:PlanDetail>
-							<uicontrol:PlanDetail>
-								
-							</uicontrol:PlanDetail>
-							<uicontrol:PlanDetail>
-								
-							</uicontrol:PlanDetail>
-							<uicontrol:PlanDetail>
-								
-							</uicontrol:PlanDetail>
-							<uicontrol:PlanDetail>
-								
-							</uicontrol:PlanDetail>
-							<uicontrol:PlanDetail>
-								
-							</uicontrol:PlanDetail>
-							<uicontrol:PlanDetail>
-								
-							</uicontrol:PlanDetail>
+							
 						</s:BorderContainer>
 					</s:Group>
 				</s:Scroller>
@@ -313,4 +332,14 @@
 		</s:BorderContainer>
 		</s:BorderContainer>
 	</s:HGroup>
+	<s:BorderContainer id="png" visible="false" width="50%" height="50%" bottom="10">
+		<s:layout>
+			<s:HorizontalLayout verticalAlign="middle" horizontalAlign="center">
+				
+			</s:HorizontalLayout>
+		</s:layout>
+		<s:Image id="pngtu">
+			
+		</s:Image>
+	</s:BorderContainer>
 </control:CBorderContainer>

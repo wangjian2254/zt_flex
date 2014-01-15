@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				   xmlns:s="library://ns.adobe.com/flex/spark" 
+				   xmlns:mx="library://ns.adobe.com/flex/mx" width="400" minHeight="300" borderVisible="false" height="100%" backgroundColor="#CCCCCC" creationComplete="showData()" >
+	<s:layout>
+		<s:VerticalLayout gap="1">
+			
+		</s:VerticalLayout>
+	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.graphics.codec.JPEGEncoder;
+			import mx.graphics.codec.PNGEncoder;
+			
+			[Bindable]
+			public var list:ArrayCollection=new ArrayCollection();
+			[Bindable]
+			public var linelist:ArrayCollection=new ArrayCollection();
+			
+			private var itemTotal:Object=new Object();
+			
+			public function showData():void{
+				itemTotal["bzxiangjh"]=0;
+				itemTotal["bzxiangsj"]=0;
+				itemTotal["bzjianjh"]=0;
+				itemTotal["bzjiansj"]=0;
+				for each(var item:Object in list){
+					itemTotal["bzxiangjh"]+=item["bzxiangjh"];
+					itemTotal["bzxiangsj"]+=item["bzxiangsj"];
+					itemTotal["bzjianjh"]+=item["bzjianjh"];
+					itemTotal["bzjiansj"]+=item["bzjiansj"];
+					
+					item["sjjs"]=item["bzjiansj"]+item["qqjiansj"]+item["tqjiansj"]+Math.round(Math.random() * (25 - 15)) + 15;
+					item["sjxiang"]=item["bzxiangsj"]+item["qqxiangsj"]+item["tqxiangsj"]+Math.round(Math.random() * (25 - 15)) + 1;
+					item["datetime"]=item["date"].substring(4,8);
+					linelist.addItem(item);
+				}
+				
+				totalxianghj.text=itemTotal["bzxiangjh"];
+				totalxiangsj.text=itemTotal["bzxiangsj"];
+				totaljianhj.text=itemTotal["bzjianjh"];
+				totaljiansj.text=itemTotal["bzjiansj"];
+				xiangdc.text="0%";
+				jiandc.text="0%";
+				if(itemTotal["bzxiangjh"]>0){
+					xiangdc.text=(itemTotal["bzxiangsj"]/itemTotal["bzxiangjh"])*100+"%"
+				}
+				if(itemTotal["bzjianjh"]>0){
+					jiandc.text=(itemTotal["bzjiansj"]/itemTotal["bzjianjh"])*100+"%"
+				}
+			}
+			
+			public function getPNGByteArray(f:Boolean):ByteArray{
+				var bitmap:BitmapData = new BitmapData(jianPng.width,jianPng.height);
+				if(f){
+					bitmap.draw(jianPng);
+				}else{
+					bitmap.draw(xiangPng);
+				}
+				var png:PNGEncoder = new PNGEncoder();
+				var pngByteArray:ByteArray = png.encode(bitmap);
+				return pngByteArray;
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<s:BorderContainer height="40%" width="100%" borderVisible="false" backgroundColor="#CCCCCC" >
+		<s:layout>
+			<s:HorizontalLayout gap="1" verticalAlign="middle" horizontalAlign="center">
+				
+			</s:HorizontalLayout>
+		</s:layout>
+		<s:BorderContainer height="100%" width="50%" borderVisible="false" backgroundColor="#CCCCCC" >
+			<s:layout>
+				<s:VerticalLayout gap="1" verticalAlign="middle" horizontalAlign="center">
+					
+				</s:VerticalLayout>
+			</s:layout>
+			<s:BorderContainer height="25%" width="100%" borderVisible="false" >
+				<s:layout>
+					<s:HorizontalLayout verticalAlign="middle" horizontalAlign="center">
+						
+					</s:HorizontalLayout>
+				</s:layout>
+				<s:Label   fontSize="15" text="合计">
+					
+				</s:Label>
+			</s:BorderContainer>
+			<s:BorderContainer height="25%" width="100%"  borderVisible="false" backgroundColor="#CCCCCC" >
+				<s:layout>
+					<s:HorizontalLayout gap="1">
+						
+					</s:HorizontalLayout>
+				</s:layout>
+				<s:BorderContainer width="100%" height="100%"  borderVisible="false">
+					<s:layout>
+						<s:HorizontalLayout verticalAlign="middle" horizontalAlign="center">
+							
+						</s:HorizontalLayout>
+					</s:layout>
+					<s:Label  fontSize="15">计划</s:Label>
+				</s:BorderContainer>
+				<s:BorderContainer width="100%"  height="100%" borderVisible="false">
+					<s:layout>
+						<s:HorizontalLayout verticalAlign="middle" horizontalAlign="center">
+							
+						</s:HorizontalLayout>
+					</s:layout>
+					<s:Label  fontSize="15">实际</s:Label>
+				</s:BorderContainer>
+			</s:BorderContainer>
+			<s:BorderContainer height="25%" width="100%"  borderVisible="false" backgroundColor="#CCCCCC" >
+				<s:layout>
+					<s:HorizontalLayout gap="1">
+						
+					</s:HorizontalLayout>
+				</s:layout>
+				<s:BorderContainer width="100%"  height="100%" borderVisible="false">
+					<s:layout>
+						<s:HorizontalLayout verticalAlign="middle" horizontalAlign="center">
+							
+						</s:HorizontalLayout>
+					</s:layout>
+					<s:Label    fontSize="15" id="totalxianghj" text="项计划合计">
+						
+					</s:Label>
+				</s:BorderContainer>
+				<s:BorderContainer width="100%"  height="100%" borderVisible="false">
+					<s:layout>
+						<s:HorizontalLayout verticalAlign="middle" horizontalAlign="center">
+							
+						</s:HorizontalLayout>
+					</s:layout>
+					<s:Label  fontSize="15" id="totalxiangsj" text="项实际合计">
+						
+					</s:Label>
+				</s:BorderContainer>
+			</s:BorderContainer>
+			<s:BorderContainer height="25%" width="100%"  borderVisible="false" backgroundColor="#CCCCCC" >
+				<s:layout>
+					<s:HorizontalLayout gap="1">
+						
+					</s:HorizontalLayout>
+				</s:layout>
+				<s:BorderContainer width="100%" height="100%"  borderVisible="false">
+					<s:layout>
+						<s:HorizontalLayout verticalAlign="middle" horizontalAlign="center">
+							
+						</s:HorizontalLayout>
+					</s:layout>
+					<s:Label    fontSize="15" id="totaljianhj" text="件计划合计">
+						
+					</s:Label>
+				</s:BorderContainer>
+				<s:BorderContainer width="100%"  height="100%" borderVisible="false">
+					<s:layout>
+						<s:HorizontalLayout verticalAlign="middle" horizontalAlign="center">
+							
+						</s:HorizontalLayout>
+					</s:layout>
+					<s:Label   fontSize="15" id="totaljiansj" text="件实际合计">
+						
+					</s:Label>
+				</s:BorderContainer>
+			</s:BorderContainer>
+			
+		</s:BorderContainer>
+		<s:BorderContainer height="100%" width="50%" borderVisible="false" backgroundColor="#CCCCCC" >
+			<s:layout>
+				<s:VerticalLayout gap="1" verticalAlign="middle" horizontalAlign="center">
+					
+				</s:VerticalLayout>
+			</s:layout>
+			<s:BorderContainer height="50%" width="100%" borderVisible="false" >
+				<s:layout>
+					<s:HorizontalLayout verticalAlign="middle" horizontalAlign="center">
+						
+					</s:HorizontalLayout>
+				</s:layout>
+				<s:Label   fontSize="15" text="累计达成率">
+					
+				</s:Label>
+			</s:BorderContainer>
+			
+			<s:BorderContainer height="25%" width="100%"  borderVisible="false"  >
+				<s:layout>
+					<s:HorizontalLayout  verticalAlign="middle" horizontalAlign="center">
+						
+					</s:HorizontalLayout>
+				</s:layout>
+				
+					<s:Label    fontSize="15" id="xiangdc" text="项达成">
+						
+					</s:Label>
+				
+			</s:BorderContainer>
+			<s:BorderContainer height="25%" width="100%"  borderVisible="false"  >
+				<s:layout>
+					<s:HorizontalLayout  verticalAlign="middle" horizontalAlign="center">
+						
+					</s:HorizontalLayout>
+				</s:layout>
+				
+					<s:Label    fontSize="15" id="jiandc" text="件达成">
+						
+					</s:Label>
+				
+			</s:BorderContainer>
+			
+			
+		</s:BorderContainer>
+	</s:BorderContainer>
+	
+	<s:BorderContainer id="jianPng" height="30%" width="100%" borderVisible="false">
+		<mx:LineChart id="line1" dataProvider="{linelist}" color="0x323232" showDataTips="true" width="95%" height="95%">
+			<mx:horizontalAxis>
+				<mx:CategoryAxis  categoryField="datetime"/>
+			</mx:horizontalAxis>
+			<mx:series>
+				<mx:LineSeries yField="sjjs"   displayName="件数"/>
+			</mx:series>
+		</mx:LineChart>
+		<mx:Legend dataProvider="{line1}" color="0x323232"  right="5"/>
+	</s:BorderContainer>
+	<s:BorderContainer id="xiangPng" height="30%" width="100%" borderVisible="false">
+		<mx:LineChart id="line2" dataProvider="{linelist}" color="0x323232" showDataTips="true" width="95%" height="95%">
+			<mx:horizontalAxis>
+				<mx:CategoryAxis  categoryField="datetime"/>
+			</mx:horizontalAxis>
+			<mx:series>
+				<mx:LineSeries yField="sjxiang" displayName="项数"/>
+			</mx:series>
+		</mx:LineChart>
+		<mx:Legend dataProvider="{line2}" color="0x323232" right="5"/>
+	</s:BorderContainer>
+
+</s:BorderContainer>
