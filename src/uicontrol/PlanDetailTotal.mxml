@@ -31,8 +31,8 @@
 					itemTotal["bzjianjh"]+=item["bzjianjh"];
 					itemTotal["bzjiansj"]+=item["bzjiansj"];
 					
-					item["sjjs"]=item["bzjiansj"]+item["qqjiansj"]+item["tqjiansj"]+Math.round(Math.random() * (25 - 15)) + 15;
-					item["sjxiang"]=item["bzxiangsj"]+item["qqxiangsj"]+item["tqxiangsj"]+Math.round(Math.random() * (25 - 15)) + 1;
+					item["sjjs"]=item["bzjiansj"]+item["qqjiansj"]+item["tqjiansj"];
+					item["sjxiang"]=item["bzxiangsj"]+item["qqxiangsj"]+item["tqxiangsj"];
 					item["datetime"]=item["date"].substring(4,8);
 					linelist.addItem(item);
 				}
@@ -59,8 +59,11 @@
 					bitmap.draw(xiangPng);
 				}
 				var png:PNGEncoder = new PNGEncoder();
-				var pngByteArray:ByteArray = png.encode(bitmap);
-				return pngByteArray;
+//				var bitmaptu:Bitmap = new Bitmap(bitmap);
+				
+				return png.encode(bitmap);
+				
+//				return bytes;
 			}
 			
 		]]>

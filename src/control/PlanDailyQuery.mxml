@@ -22,6 +22,7 @@
 			import mx.formatters.DateFormatter;
 			import mx.rpc.AbstractOperation;
 			import mx.rpc.events.ResultEvent;
+			import mx.utils.Base64Decoder;
 			import mx.utils.Base64Encoder;
 			import mx.utils.ObjectUtil;
 			import mx.utils.StringUtil;
@@ -38,6 +39,10 @@
 			[Bindable]
 			public var showLabel:String;
 			
+			[Bindable]
+			private var scxquery:ArrayCollection=null;
+			[Bindable]
+			private var sitequery:ArrayCollection=null;
 			
 			
 			override public function init(e:FlexEvent):void{
@@ -45,6 +50,19 @@
 				now.date-=7;
 				startdate.selectedDate=now;
 				enddate.selectedDate=new Date();
+				
+				scxquery=ObjectUtil.copy(InfoUtil.scxList) as ArrayCollection;
+				var item:Object=new Object();
+				item["name"]="全部";
+				item["id"]=0;
+				scxquery.addItemAt(item,0);
+				scxComb.selectedIndex=0;
+				sitequery=ObjectUtil.copy(InfoUtil.siteList) as ArrayCollection;
+				var item1:Object=new Object();
+				item1["name"]="全部";
+				item1["id"]=0;
+				sitequery.addItemAt(item1,0);
+				siteComb.selectedIndex=0;
 				
 				
 			}
@@ -71,7 +89,7 @@
 				var op:AbstractOperation=RemoteUtil.getOperation("queryPlanDaily");
 				op.addEventListener(ResultEvent.RESULT,resultPlanList);
 				RemoteUtil.openLoading();
-				op.send(myDateFormatter.format(startdate.selectedDate),myDateFormatter.format(enddate.selectedDate));
+				op.send(myDateFormatter.format(startdate.selectedDate),myDateFormatter.format(enddate.selectedDate),scxComb.selectedItem.id,siteComb.selectedItem.id);
 			}
 			public function resultPlanList(e:ResultEvent):void{
 				
@@ -130,24 +148,34 @@
 			public var xiangName:String=null;
 			
 			public function uploadJian():void{
+				if(allquery==null||allquery.length==0){
+					Alert.show("没有数据，请查询后再导出","警告");
+					return;
+				}
+				var myDateFormatter:DateFormatter=new DateFormatter();
+				myDateFormatter.formatString="YYYYMMDD";
 				
 				var request:URLRequest = new URLRequest("/zt/uploadImage");
 				var base64:Base64Encoder = new Base64Encoder();
-//				base64.insertNewLines =false;
-				var bytes:ByteArray=pdt0.getPNGByteArray(true);
-				base64.encodeBytes(bytes);
 				
+				var bytes:ByteArray=pdt0.getPNGByteArray(true);
+				base64.encodeBytes(bytes,0,bytes.length);
 				var base642:Base64Encoder = new Base64Encoder();
-//				base642.insertNewLines =false;
 				var bytes2:ByteArray=pdt0.getPNGByteArray(false);
-				base642.encodeBytes(bytes2);
+				base642.encodeBytes(bytes2,0,bytes2.length);
 				var p:Object=new Object();
 				p["img1"]=base64.toString();
 				p["img2"]=base642.toString();
-				p["list"]=JParser.encode(allquery);
+				p["data"]=JParser.encode(allquery);
+				p['excelname']="生产情况日报表-"+myDateFormatter.format(startdate.selectedDate)+"-"+myDateFormatter.format(enddate.selectedDate);
+				p['sheetname']="生产情况日报表";
+				p['scx']=scxComb.selectedItem.name;
+				p['site']=siteComb.selectedItem.name;
 				request.data="data="+JParser.encode(p);
 				request.method = URLRequestMethod.POST;
 				navigateToURL(request,"_blank");
+
+				
 			}
 			
 			[Bindable]
@@ -178,6 +206,18 @@
 						
 					</s:HorizontalLayout>
 				</s:layout>
+					<s:Label text="生产线：">
+						
+					</s:Label>
+				<mx:ComboBox  id="scxComb" dataProvider="{scxquery}" labelField="name" width="100" dropdownWidth="200"  >
+					
+				</mx:ComboBox>
+					<s:Label text="作业区：">
+						
+					</s:Label>
+				<mx:ComboBox  id="siteComb" dataProvider="{sitequery}" labelField="name" width="100" dropdownWidth="200"  >
+					
+				</mx:ComboBox>
 					<s:Label text="查询日期：">
 						
 					</s:Label>
@@ -322,7 +362,18 @@
 								</s:HorizontalLayout>
 							</s:layout>
 							<uicontrol:PlanDetail>
-								
+							</uicontrol:PlanDetail>
+							<uicontrol:PlanDetail>
+							</uicontrol:PlanDetail>
+							<uicontrol:PlanDetail>
+							</uicontrol:PlanDetail>
+							<uicontrol:PlanDetail>
+							</uicontrol:PlanDetail>
+							<uicontrol:PlanDetail>
+							</uicontrol:PlanDetail>
+							<uicontrol:PlanDetail>
+							</uicontrol:PlanDetail>
+							<uicontrol:PlanDetail>
 							</uicontrol:PlanDetail>
 							
 						</s:BorderContainer>
@@ -341,5 +392,8 @@
 		<s:Image id="pngtu">
 			
 		</s:Image>
+		<s:TextArea id="txtare">
+			
+		</s:TextArea>
 	</s:BorderContainer>
 </control:CBorderContainer>
