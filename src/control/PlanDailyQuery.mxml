@@ -89,7 +89,7 @@
 				var op:AbstractOperation=RemoteUtil.getOperation("queryPlanDaily");
 				op.addEventListener(ResultEvent.RESULT,resultPlanList);
 				RemoteUtil.openLoading();
-				op.send(myDateFormatter.format(startdate.selectedDate),myDateFormatter.format(enddate.selectedDate),scxComb.selectedItem.id,siteComb.selectedItem.id);
+				op.send(myDateFormatter.format(startdate.selectedDate),myDateFormatter.format(enddate.selectedDate),scxComb.selectedItem.id,siteComb.selectedItem.id,ddquerytype.selectedValue);
 			}
 			public function resultPlanList(e:ResultEvent):void{
 				
@@ -171,6 +171,7 @@
 				p['sheetname']="生产情况日报表";
 				p['scx']=scxComb.selectedItem.name;
 				p['site']=siteComb.selectedItem.name;
+				p['ismain']=ddquerytype.selection.label;
 				request.data="data="+JParser.encode(p);
 				request.method = URLRequestMethod.POST;
 				navigateToURL(request,"_blank");
@@ -218,6 +219,15 @@
 				<mx:ComboBox  id="siteComb" dataProvider="{sitequery}" labelField="name" width="100" dropdownWidth="200"  >
 					
 				</mx:ComboBox>
+				<s:RadioButton groupName="ddquerytype" selected="true" value="0" label="全部">
+					
+				</s:RadioButton>
+				<s:RadioButton groupName="ddquerytype"  value="1" label="主件">
+					
+				</s:RadioButton>
+				<s:RadioButton groupName="ddquerytype"  value="2" label="配件">
+					
+				</s:RadioButton>
 					<s:Label text="查询日期：">
 						
 					</s:Label>

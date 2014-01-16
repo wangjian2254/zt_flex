@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<control:CBorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						  xmlns:s="library://ns.adobe.com/flex/spark" 
+						  xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:control="control.*" borderVisible="false" backgroundAlpha="0" width="900" height="700" xmlns:uicontrol="uicontrol.*" >
+	<control:layout>
+		<s:BasicLayout/>
+	</control:layout>
+	<fx:Script>
+		<![CDATA[
+			import events.ChangeMenuEvent;
+			import events.CloseEvent;
+			
+			import httpcontrol.RemoteUtil;
+			
+			import json.JParser;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumnGroup;
+			import mx.events.FlexEvent;
+			import mx.events.ItemClickEvent;
+			import mx.formatters.DateFormatter;
+			import mx.rpc.AbstractOperation;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			import mx.utils.StringUtil;
+			
+			import uicontrol.DDBHFliterComboBox;
+			import uicontrol.PlanEndDate;
+			import uicontrol.PlanStartDate;
+			import uicontrol.PlanToSite;
+			import uicontrol.SiteBox;
+			
+			import util.DateUtil;
+			import util.InfoUtil;
+			[Bindable]
+			public var showLabel:String;
+			
+			[bindable]
+			private var headsitelist:ArrayCollection=new ArrayCollection();;
+			
+			override public function init(e:FlexEvent):void{
+				
+			}
+			
+			
+			
+			override public function closeContainer(e:CloseEvent):void{
+				dispatchEvent(e);
+				
+			}
+			
+			
+			private function queryPlanList():void{
+				var op:AbstractOperation=RemoteUtil.getOperation("changerecordPlan");
+				op.addEventListener(ResultEvent.RESULT,resultPlanList);
+				RemoteUtil.openLoading();
+				op.send();
+			}
+			public function resultPlanList(e:ResultEvent):void{
+				
+				if(e.result.success){
+					
+					planlist.removeAll();
+					
+					planlist = new ArrayCollection(e.result.result as Array);
+					
+				}
+			}
+			private function clearPlanList():void{
+				var op:AbstractOperation=RemoteUtil.getOperation("changerecordPlanDelete");
+				op.addEventListener(ResultEvent.RESULT,resultClearPlanList);
+				RemoteUtil.openLoading();
+				op.send();
+			}
+			public function resultClearPlanList(e:ResultEvent):void{
+				
+				if(e.result.success){
+					
+					Alert.show(e.result.message,"提示");
+					
+				}
+			}
+			
+			public function getExcel():void{
+				
+				var myDateFormatter:DateFormatter=new DateFormatter();
+				myDateFormatter.formatString="YYYYMMDD";
+				
+				var param:Object=new Object();
+				param['index']=new Array();
+				param['head']=new Object();
+				param['data']=planlist;
+				var c:AdvancedDataGridColumn;
+				for(var i:int=0;i<planlistgrid.groupedColumns.length;i++){
+					c=planlistgrid.groupedColumns[i] as AdvancedDataGridColumn;
+					if(c.dataField=="selected"){
+						continue;
+					}
+					param['index'].push(c.dataField);
+					param['head'][c.dataField]=c.headerText;
+				}
+				
+				param['excelname']="计划编制退审记录-"+myDateFormatter.format(new Date());
+				param['sheetname']="计划编制退审记录";
+				
+				var request:URLRequest = new URLRequest("/zt/getExcelByData");
+				request.method="post";
+				request.data="data="+JParser.encode(param);
+				navigateToURL(request);
+			}
+			
+			
+		
+			[Bindable]
+			public var planlist:ArrayCollection=new ArrayCollection();
+			
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<s:RadioButtonGroup id="ddquerytype"  >
+			
+		</s:RadioButtonGroup>
+	</fx:Declarations>
+	<s:HGroup top="8" right="8" bottom="8" left="8" gap="7">
+		
+		<s:BorderContainer width="100%" height="100%"  borderVisible="false" color="0x333333" skinClass="skins.contentBoxSkin">	
+			<s:layout>
+				<s:VerticalLayout gap="5">
+					
+				</s:VerticalLayout>
+			</s:layout>
+				<s:BorderContainer left="0" top="0" height="45" width="100%" borderVisible="false" backgroundImage="{CBorderContainer.toolbgimg}">
+					<s:layout>
+						<s:HorizontalLayout gap="10" verticalAlign="middle" paddingLeft="20">
+							
+						</s:HorizontalLayout>
+					</s:layout>
+					
+					
+					
+					
+					<s:Button label="查询" click="queryPlanList()">
+					</s:Button>
+					<s:Button label="清空" click="clearPlanList()">
+					</s:Button>
+					<s:Button label="导出" click="getExcel()">
+					</s:Button>
+				</s:BorderContainer>
+				
+			
+					
+			<uicontrol:MarkAdvancedDataGrid id="planlistgrid" isNewAdd="false" rowHeight="25" dataProvider="{planlist}" visible="true" doubleClickEnabled="false"  enabled="true" editable="false" height="100%" width="100%">
+				<uicontrol:groupedColumns>
+					
+					<mx:AdvancedDataGridColumn headerText="日期" dataField="date"  sortable="false" width="180"  editable="false">
+						
+					</mx:AdvancedDataGridColumn>
+					<mx:AdvancedDataGridColumn headerText="编制者"   dataField="user"  width="120"   >
+						
+					</mx:AdvancedDataGridColumn>
+					<mx:AdvancedDataGridColumn headerText="退审次数"  dataField="count"  editable="false"  width="100" >
+						
+					</mx:AdvancedDataGridColumn>
+					
+					
+				</uicontrol:groupedColumns>
+				
+			</uicontrol:MarkAdvancedDataGrid>
+				
+		</s:BorderContainer>
+	</s:HGroup>
+</control:CBorderContainer>

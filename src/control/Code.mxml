@@ -44,6 +44,13 @@
 				}
 				return str;
 			}
+			public function showMain(item:Object, column:AdvancedDataGridColumn):String{
+				if(item.hasOwnProperty(column.dataField)&&item[column.dataField]==false){
+					return "配件";
+				}else{
+					return "主件";
+				}
+			}
 			
 			
 			//新增，保存，删除的处理函数
@@ -79,6 +86,11 @@
 								obj1.scxname=obj.name;
 							}
 						}
+						if(obj1.hasOwnProperty("ismain")&&obj1["ismain"]==false){
+							obj1["ismainstr"]="配件";
+						}else{
+							obj1["ismainstr"]="主件";
+						}
 					}
 					var head:Object=new Object();
 					head["scxname"]="生产线";
@@ -86,8 +98,9 @@
 					head["name"]="名称";
 					head["gg"]="物料规格";
 					head["dj"]="单价";
+					head["ismainstr"]="主配件";
 					
-					head["index"]=["scxname","code","name","gg","dj"];
+					head["index"]=["scxname","code","name","gg","dj","ismainstr"];
 					
 					
 					var nohead:Object =new Object();
@@ -117,6 +130,7 @@
 				this.codename.text="";
 				this.gg.text="";
 				this.dj.text="";
+				this.ismain.selected=true;
 				this.scx.selectedItem=null;
 			}
 			public function del():void{
@@ -150,6 +164,11 @@
 				this.codename.text=obj.name;
 				this.gg.text=obj.gg;
 				this.dj.text=obj.dj;
+				if(obj.hasOwnProperty("ismain")&&obj.ismain==false){
+					this.ismain.selected=false;
+				}else{
+					this.ismain.selected=true;
+				}
 				for each(var item:Object in InfoUtil.scxList){
 					if(item.id==obj.scx){
 						this.scx.selectedItem=item;
@@ -177,6 +196,7 @@
 				obj.name=this.codename.text;
 				obj.gg=this.gg.text;
 				obj.dj=this.dj.text;
+				obj.ismain=this.ismain.selected;
 				obj.scx=this.scx.selectedItem.id;
 				
 				RemoteUtil.openLoading();
@@ -257,6 +277,11 @@
 							
 						</s:DropDownList>
 					</s:FormItem>
+					<s:FormItem label="是否主件:" textAlign="right">
+						<s:CheckBox id="ismain" label="主件">
+							
+						</s:CheckBox>
+					</s:FormItem>
 					
 					<s:FormItem>
 						<s:Button label="保存" click="save()">
@@ -330,6 +355,9 @@
 						
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn headerText="单价"  dataField="dj" >
+						
+					</mx:AdvancedDataGridColumn>
+					<mx:AdvancedDataGridColumn headerText="主配件"  dataField="ismain" labelFunction="showMain" >
 						
 					</mx:AdvancedDataGridColumn>
 				</uicontrol:columns>

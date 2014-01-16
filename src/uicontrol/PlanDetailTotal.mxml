@@ -44,10 +44,10 @@
 				xiangdc.text="0%";
 				jiandc.text="0%";
 				if(itemTotal["bzxiangjh"]>0){
-					xiangdc.text=(itemTotal["bzxiangsj"]/itemTotal["bzxiangjh"])*100+"%"
+					xiangdc.text=((itemTotal["bzxiangsj"]/itemTotal["bzxiangjh"])*100).toFixed(2)+"%"
 				}
 				if(itemTotal["bzjianjh"]>0){
-					jiandc.text=(itemTotal["bzjiansj"]/itemTotal["bzjianjh"])*100+"%"
+					jiandc.text=((itemTotal["bzjiansj"]/itemTotal["bzjianjh"])*100).toFixed(2)+"%"
 				}
 			}
 			

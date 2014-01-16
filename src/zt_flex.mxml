@@ -17,6 +17,7 @@
 			import control.OrderMonitor;
 			import control.OrderRuningShow;
 			import control.People;
+			import control.PlanChangeQuery;
 			import control.PlanDailyQuery;
 			import control.PlanEdit;
 			import control.PlanQuery;
@@ -275,6 +276,9 @@
 						case 'plan_daily':
 							c=new PlanDailyQuery();
 							break;
+						case 'planrecord':
+							c=new PlanChangeQuery();
+							break;
 						default:
 							return;
 							break;
@@ -351,7 +355,7 @@
 				</menuitem>
 				<menuitem label="生产情况日报表" mod='plan_daily'>
 				</menuitem>
-				<menuitem label="主计划修改记录" mod='planrecord'>
+				<menuitem label="主计划退审记录" mod='planrecord'>
 				</menuitem>
 				
 			</root>

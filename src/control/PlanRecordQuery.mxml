@@ -39,7 +39,7 @@
 			[Bindable]
 			private var scxquery:ArrayCollection=null;
 			[Bindable]
-			private var statusquery:ArrayCollection=new ArrayCollection([{"id":0,"name":"全部"},{"id":1,"name":"未投"},{"id":2,"name":"完成"},{"id":3,"name":"在线"}]);;
+			private var statusquery:ArrayCollection=new ArrayCollection([{"id":0,"name":"全部"},{"id":1,"name":"未投"},{"id":2,"name":"完成"},{"id":3,"name":"在线"},{"id":4,"name":"异常（完成比投入多）"},{"id":5,"name":"强制关闭"}]);
 			[Bindable]
 			private var sitequery:ArrayCollection=null;
 			
@@ -69,6 +69,26 @@
 			override public function closeContainer(e:CloseEvent):void{
 				dispatchEvent(e);
 				
+			}
+			
+			private function closePlanDetail():void{
+				var parm:Array=new Array();
+				for each(var item:Object in query){
+					if(item.hasOwnProperty("selected")&&item.selected){
+						parm.push(item.id);
+					}
+				}
+				var op:AbstractOperation=RemoteUtil.getOperation("closePlanDetail");
+				op.addEventListener(ResultEvent.RESULT,resultClosePlanList);
+				RemoteUtil.openLoading();
+				op.send(parm);
+			}
+			
+			private function resultClosePlanList(e:ResultEvent):void{
+				if(e.result.success){
+					
+					Alert.show(e.result.message,"提示");					
+				}
 			}
 			
 			
@@ -136,6 +156,8 @@
 				RemoteUtil.openLoading();
 				op.send(parm);
 			}
+			
+			
 			public function resultPlanList(e:ResultEvent):void{
 				
 				if(e.result.success){
@@ -203,6 +225,9 @@
 				var c:AdvancedDataGridColumn;
 				for(var i:int=0;i<planlistgrid.groupedColumns.length;i++){
 					c=planlistgrid.groupedColumns[i] as AdvancedDataGridColumn;
+					if(c.dataField=="selected"){
+						continue;
+					}
 					param['index'].push(c.dataField);
 					param['head'][c.dataField]=c.headerText;
 				}
@@ -256,13 +281,13 @@
 						</s:HorizontalLayout>
 					</s:layout>
 					
-					<s:BorderContainer height="100%" width="210" borderVisible="false" backgroundAlpha="0">
+					<s:BorderContainer height="100%" width="160" borderVisible="false" backgroundAlpha="0">
 						<s:layout>
 							<s:VerticalLayout gap="3" verticalAlign="middle">
 								
 							</s:VerticalLayout>
 						</s:layout>
-						<s:BorderContainer height="100%" width="180" borderVisible="false" backgroundAlpha="0">
+						<s:BorderContainer height="100%" width="130" borderVisible="false" backgroundAlpha="0">
 							<s:layout>
 								<s:HorizontalLayout gap="10" verticalAlign="middle">
 									
@@ -344,17 +369,6 @@
 							</uicontrol:FliterComboBox>
 						</s:BorderContainer>
 					</s:BorderContainer>
-					
-
-					
-					
-					
-					
-					
-					
-					
-					
-					
 					<s:Label text="作业区:"/>
 					<mx:ComboBox  id="siteComb" dataProvider="{sitequery}" labelField="name" width="100" dropdownWidth="200"  >
 						
@@ -419,6 +433,8 @@
 					</s:Button>
 					<s:Button label="导出" click="getExcel()">
 					</s:Button>
+					<s:Button label="强制关闭" click="closePlanDetail()">
+					</s:Button>
 				</s:BorderContainer>
 				</s:Group>
 				</s:Scroller>
@@ -432,58 +448,61 @@
 							</s:HorizontalLayout>
 						</s:layout>
 					
-			<uicontrol:MarkAdvancedDataGrid id="planlistgrid" isNewAdd="false" rowHeight="25" headerHeight="30" dataProvider="{query}" visible="true"  enabled="true" editable="false" height="100%" width="100%">
+			<uicontrol:MarkAdvancedDataGrid id="planlistgrid" isNewAdd="false" rowHeight="25" headerHeight="30" dataProvider="{query}" visible="true"  enabled="true" editable="true" height="100%" width="100%">
 				<uicontrol:groupedColumns>
-					<mx:AdvancedDataGridColumn headerText="计划达成"  dataField="planfinish"  width="80"    >
+					<mx:AdvancedDataGridColumn headerText="选择" itemRenderer="uicontrol.GridCheckBox" dataField="selected" editable="true"  sortable="false" width="60"  editorDataField="selected" rendererIsEditor="true" >
+						
+					</mx:AdvancedDataGridColumn>
+					<mx:AdvancedDataGridColumn headerText="计划达成"  dataField="planfinish"  width="80" editable="false"    >
 						
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn headerText="生产线" dataField="scxstr"  sortable="false" width="90"  editable="false">
 						
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="作业区"   dataField="startsite"  width="100"   >
+					<mx:AdvancedDataGridColumn headerText="作业区"   dataField="startsite"  width="100"    editable="false">
 						
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="订单号"  dataField="ddbh"  editable="false"  width="100" >
+					<mx:AdvancedDataGridColumn headerText="订单号"  dataField="ddbh"  editable="false"  width="100"  >
 						
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="代码"  dataField="codestr"  editable="false"  width="100" >
+					<mx:AdvancedDataGridColumn headerText="代码"  dataField="codestr"  editable="false"  width="100"  >
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="名称"  dataField="codename"  editable="false"  width="100" >
+					<mx:AdvancedDataGridColumn headerText="名称"  dataField="codename"  editable="false"  width="100"  >
 					</mx:AdvancedDataGridColumn>
 					
-					<mx:AdvancedDataGridColumn headerText="规格"  dataField="codegg"   width="120"  >
+					<mx:AdvancedDataGridColumn headerText="规格"  dataField="codegg"   width="120"   editable="false">
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="作业单号"  dataField="zydh"   width="130"  >
+					<mx:AdvancedDataGridColumn headerText="作业单号"  dataField="zydh"   width="130"   editable="false">
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="去向位置"  dataField="endsite"   width="120"  >
+					<mx:AdvancedDataGridColumn headerText="去向位置"  dataField="endsite"   width="120"   editable="false">
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="紧急程度"   dataField="level"   width="80"  >
+					<mx:AdvancedDataGridColumn headerText="紧急程度"   dataField="level"   width="80"   editable="false">
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="计划数量"  dataField="plannum"   width="80"  >
+					<mx:AdvancedDataGridColumn headerText="计划数量"  dataField="plannum"   width="80"   editable="false">
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="计划投入日期"  dataField="startdate"   width="120"  >
+					<mx:AdvancedDataGridColumn headerText="计划投入日期"  dataField="startdate"   width="120"   editable="false">
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="计划完成日期"  dataField="enddate"   width="120"  >
+					<mx:AdvancedDataGridColumn headerText="计划完成日期"  dataField="enddate"   width="120"   editable="false">
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="实际转入日期"  dataField="finishstartdate"   width="120"  >
+					<mx:AdvancedDataGridColumn headerText="实际转入日期"  dataField="finishstartdate"   width="120"   editable="false">
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="实际转入数量"  dataField="finishstartnum"   width="120"  >
+					<mx:AdvancedDataGridColumn headerText="实际转入数量"  dataField="finishstartnum"   width="120"   editable="false">
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="实际完成日期"  dataField="finishenddate"   width="120"  >
+					<mx:AdvancedDataGridColumn headerText="实际完成日期"  dataField="finishenddate"   width="120"   editable="false">
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="实际完成数量"  dataField="finishendnum"   width="120"  >
+					<mx:AdvancedDataGridColumn headerText="实际完成数量"  dataField="finishendnum"   width="120"   editable="false">
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="报废数"  dataField="bfnum"   width="80"  >
+					<mx:AdvancedDataGridColumn headerText="报废数"  dataField="bfnum"   width="80"   editable="false">
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="遗失数"  dataField="ysnum"   width="80"  >
+					<mx:AdvancedDataGridColumn headerText="遗失数"  dataField="ysnum"   width="80"  editable="false" >
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="计划单号"  dataField="planlsh"   width="130"  >
+					<mx:AdvancedDataGridColumn headerText="计划单号"  dataField="planlsh"   width="130"   editable="false">
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="分单要求"  dataField="ordergongyi"   width="150"  >
+					<mx:AdvancedDataGridColumn headerText="分单要求"  dataField="ordergongyi"   width="150"   editable="false">
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="订单要求说明"  dataField="planbz"   width="150"  >
+					<mx:AdvancedDataGridColumn headerText="订单要求说明"  dataField="planbz"   width="150"   editable="false">
 					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn headerText="修改说明"  dataField="updatetime"   width="80"  >
+					<mx:AdvancedDataGridColumn headerText="修改说明"  dataField="updatetime"   width="80"   editable="false">
 					</mx:AdvancedDataGridColumn>
 					
 				</uicontrol:groupedColumns>
