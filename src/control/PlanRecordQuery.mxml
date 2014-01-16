@@ -74,7 +74,12 @@
 			private function closePlanDetail():void{
 				var parm:Array=new Array();
 				for each(var item:Object in query){
+					
 					if(item.hasOwnProperty("selected")&&item.selected){
+						if(item.planfinish_i==1){
+							Alert.show("未投项不能关闭，请核对","警告");
+							return;
+						}
 						parm.push(item.id);
 					}
 				}
