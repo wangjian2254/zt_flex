@@ -394,7 +394,7 @@
 								</s:HorizontalLayout>
 							</s:layout>
 							<s:Label text="起:"/>
-							<mx:DateField id="jhtrstartdate" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" change="queryparamchange(false)" />
+							<mx:DateField id="jhtrstartdate" formatString="YYYY/MM/DD" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" change="queryparamchange(false)" />
 						</s:BorderContainer>
 						<s:BorderContainer height="100%" width="130" borderVisible="false" backgroundAlpha="0">
 							<s:layout>
@@ -403,7 +403,7 @@
 								</s:HorizontalLayout>
 							</s:layout>
 							<s:Label text="止:"/>
-							<mx:DateField id="jhtrenddate"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}"  change="queryparamchange(false)"/>
+							<mx:DateField id="jhtrenddate"  formatString="YYYY/MM/DD" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}"  change="queryparamchange(false)"/>
 						</s:BorderContainer>
 					</s:BorderContainer>
 					<s:Label text="计划完成日期:">
@@ -421,7 +421,7 @@
 								</s:HorizontalLayout>
 							</s:layout>
 							<s:Label text="起:"/>
-							<mx:DateField id="jhwcstartdate" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" change="queryparamchange(true)" />
+							<mx:DateField id="jhwcstartdate" formatString="YYYY/MM/DD" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" change="queryparamchange(true)" />
 						</s:BorderContainer>
 						<s:BorderContainer height="100%" width="130" borderVisible="false" backgroundAlpha="0">
 							<s:layout>
@@ -430,11 +430,11 @@
 								</s:HorizontalLayout>
 							</s:layout>
 							<s:Label text="止:"/>
-							<mx:DateField id="jhwcenddate"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}"  change="queryparamchange(true)"/>
+							<mx:DateField id="jhwcenddate"  formatString="YYYY/MM/DD" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}"  change="queryparamchange(true)"/>
 						</s:BorderContainer>
 					</s:BorderContainer>
 					
-					<s:Button label="查询" click="queryPlanList()">
+					<s:Button label="查询"  click="queryPlanList()">
 					</s:Button>
 					<s:Button label="导出" click="getExcel()">
 					</s:Button>

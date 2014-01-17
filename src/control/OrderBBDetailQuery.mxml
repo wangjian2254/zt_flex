@@ -22,6 +22,7 @@
 			import mx.utils.ObjectUtil;
 			import mx.utils.StringUtil;
 			
+			import util.DateUtil;
 			import util.InfoUtil;
 			[Bindable]
 			public var showLabel:String;
@@ -255,11 +256,11 @@
 					</s:HorizontalLayout>
 				</s:layout>
 				<s:Label text="开始日期"/>
-				<mx:DateField id="datelr" width="100" >
+				<mx:DateField id="datelr"  formatString="YYYY/MM/DD" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" width="100" >
 					
 				</mx:DateField>
 				<s:Label text="截至日期"/>
-				<mx:DateField id="dateend" width="100" >
+				<mx:DateField id="dateend" formatString="YYYY/MM/DD" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" width="100" >
 					
 				</mx:DateField>
 				<s:Label text="物料代码"/>

@@ -188,16 +188,16 @@
 					</uicontrol:FliterComboBox>
 					<s:Label text="编制日期:">
 					</s:Label>
-					<mx:DateField id="editstartdate" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
+					<mx:DateField id="editstartdate" formatString="YYYY/MM/DD" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
 					<s:Label text="~"/>
-					<mx:DateField id="editenddate"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
+					<mx:DateField id="editenddate"  formatString="YYYY/MM/DD" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
 					
 					
 					<s:Label text="审核日期:">
 					</s:Label>
-					<mx:DateField id="checkstartdate" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
+					<mx:DateField id="checkstartdate" formatString="YYYY/MM/DD" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
 					<s:Label text="~"/>
-					<mx:DateField id="checkenddate"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
+					<mx:DateField id="checkenddate" formatString="YYYY/MM/DD"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" />
 					
 					
 					

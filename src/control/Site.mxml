@@ -216,29 +216,6 @@
 				</s:BorderContainer>
 			<uicontrol:MarkAdvancedDataGrid id="sitegrid" dataProvider="{sitelist}"  isNewAdd="false" enabled="true" editable="true" top="46" bottom="0" right="0" left="0">
 				<uicontrol:columns>
-					<mx:AdvancedDataGridColumn headerText="选择" dataField="selected"  sortable="false" width="60"  editorDataField="selected" rendererIsEditor="true" >
-						<mx:itemRenderer>
-							<fx:Component>
-								<mx:HBox horizontalAlign="center">
-									<fx:Script>
-										<![CDATA[
-											public function get selected():Boolean{
-												return cb.selected;
-											}
-											public function set selected(value:Boolean):void{
-												cb.selected=value;
-											}
-										]]>
-									</fx:Script>
-									
-									<mx:CheckBox id="cb" selected="{data.selected}" >
-										
-									</mx:CheckBox>
-								</mx:HBox>
-							</fx:Component>
-						</mx:itemRenderer>
-					</mx:AdvancedDataGridColumn>
-					
 					<mx:AdvancedDataGridColumn headerText="名称"  dataField="name" editable="false"  >
 						
 					</mx:AdvancedDataGridColumn>

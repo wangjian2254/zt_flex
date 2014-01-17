@@ -22,6 +22,7 @@
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.ObjectUtil;
 			
+			import util.DateUtil;
 			import util.InfoUtil;
 			[Bindable]
 			public var showLabel:String;
@@ -261,7 +262,7 @@
 						
 					</s:VerticalLayout>
 				</s:layout>
-				<mx:DateField id="datelr" width="100%" change="orderBBListRefresh()" enabled="false">
+				<mx:DateField id="datelr" formatString="YYYY/MM/DD" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" width="100%" change="orderBBListRefresh()" enabled="false">
 					
 				</mx:DateField>
 				<s:CheckBox id="userlr" label="只显示我录入的" selected="false"  change="orderBBListRefresh()"/>

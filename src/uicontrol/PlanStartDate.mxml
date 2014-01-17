@@ -65,7 +65,7 @@
 			
 		]]>
 	</fx:Script>
-	<mx:DateField id="cbo" dayNames="{DateUtil.dayNames}"
+	<mx:DateField id="cbo" dayNames="{DateUtil.dayNames}"  formatString="YYYY/MM/DD" 
 					monthNames="{DateUtil.monthNames}"  >
 	</mx:DateField>
 	

@@ -153,12 +153,14 @@
 					InfoUtil.openOrderRefresh();
 
 				}
-				if(e.label=='同步数据'){
+				if(e.label=='重新载入日报表'){
 					if(this.lsh.text!=""){
 						getOrderBBByLSH(this.lsh.text);
+					}else{
+						Alert.show("没有流水号，无法载入","提示");
 					}
 					
-									}
+				}
 			}
 			
 			public function del():void{
@@ -479,7 +481,7 @@
 			public var orderisopenlist:ArrayCollection=new ArrayCollection();
 			
 			[Bindable]
-			private var buttonArr:ArrayCollection=new ArrayCollection([{'label':'新增','ico':addimg},{'label':'保存','ico':saveimg},{'label':'删除','ico':delimg},{'label':'同步数据','ico':refreshimg},{'label':'同步订单编号和物料','ico':refreshimg}]);
+			private var buttonArr:ArrayCollection=new ArrayCollection([{'label':'新增','ico':addimg},{'label':'保存','ico':saveimg},{'label':'删除','ico':delimg},{'label':'重新载入日报表','ico':refreshimg},{'label':'同步订单编号和物料','ico':refreshimg}]);
 			
 //			public var orderAndCodeMap:Object=new Object();
 		]]>

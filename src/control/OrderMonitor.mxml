@@ -444,6 +444,11 @@
 				var ddbh:Array=new Array();
 				if(ddbhGrid.selectedItem!=null){
 					ddbh.push(ddbhGrid.selectedItem.id);
+				}else{
+					ddbhGrid.setValue("");
+				}
+				if(code.selectedItem==null){
+					code.setValue("");
 				}
 //				for each(var item:Object in orderbb){
 //					if(item.selected==true){
@@ -699,7 +704,7 @@
 					</mx:ComboBox>
 					
 					<s:Label text="日期:"/>
-					<mx:DateField id="datelr" width="100"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}"  >
+					<mx:DateField id="datelr"  formatString="YYYY/MM/DD" width="100"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}"  >
 						
 					</mx:DateField>
 					<s:BorderContainer width="90" height="100%" borderVisible="false">
@@ -715,12 +720,37 @@
 							
 						</s:RadioButton>
 					</s:BorderContainer>
+					<s:BorderContainer height="100%" width="170" borderVisible="false" backgroundAlpha="0">
+						<s:layout>
+							<s:VerticalLayout gap="3" verticalAlign="middle">
+								
+							</s:VerticalLayout>
+						</s:layout>
+						<s:BorderContainer height="100%" width="170"  borderVisible="false" backgroundAlpha="0">
+							<s:layout>
+								<s:HorizontalLayout gap="10" verticalAlign="middle">
+									
+								</s:HorizontalLayout>
+							</s:layout>
+							<s:Label text="订单编号:"/>
+							<uicontrol:FliterComboBox id="ddbhGrid" dataProvider="{InfoUtil.orderbhList}" labelField="ddbh" valueField="id" width="100" styleName="fliterComboBox" dropdownWidth="200">
+							</uicontrol:FliterComboBox>
+						</s:BorderContainer>
+						<s:BorderContainer height="100%" width="170" borderVisible="false" backgroundAlpha="0">
+							<s:layout>
+								<s:HorizontalLayout gap="10" verticalAlign="middle">
+									
+								</s:HorizontalLayout>
+							</s:layout>
+							<s:Label text="物料代码:"/>
+							<uicontrol:FliterComboBox id="code" dataProvider="{InfoUtil.codeList}" labelField="code" valueField="id" width="100" styleName="fliterComboBox" dropdownWidth="200">
+								
+							</uicontrol:FliterComboBox>
+						</s:BorderContainer>
+					</s:BorderContainer>
 					
-					
-					<s:Label text="订单编号:"/>
-					<uicontrol:FliterComboBox id="ddbhGrid" dataProvider="{InfoUtil.orderbhList}" labelField="ddbh" valueField="id" width="100" styleName="fliterComboBox" dropdownWidth="200">
 						
-					</uicontrol:FliterComboBox>
+					
 					<!--
 					<mx:DataGrid id="ddbhGrid" dataProvider="{orderbb}" editable="true" height="100%" width="200"  >
 						<mx:columns>
@@ -750,18 +780,37 @@
 						</mx:columns>
 					</mx:DataGrid>-->
 					
-					<s:Label text="物料代码:"/>
-					<uicontrol:FliterComboBox id="code" dataProvider="{InfoUtil.codeList}" labelField="code" valueField="id" width="100" styleName="fliterComboBox" dropdownWidth="200">
-						
-					</uicontrol:FliterComboBox>
+					
 					<s:Button label="查询" click="orderGenZongRefresh()">
 					</s:Button>
 					<s:Button label="导出数据" click="getExcel(true)">
 					</s:Button>
-					<s:CheckBox label="剩余为'0'不导出" id="issy" selected="true" >
-					</s:CheckBox>
-					<s:Button label="导出数据(作业单号)" click="getExcel(false)">
-					</s:Button>
+					<s:BorderContainer height="100%" width="130" borderVisible="false" backgroundAlpha="0">
+						<s:layout>
+							<s:VerticalLayout gap="3" verticalAlign="middle">
+								
+							</s:VerticalLayout>
+						</s:layout>
+						<s:BorderContainer height="100%" width="80"  borderVisible="false" backgroundAlpha="0">
+							<s:layout>
+								<s:HorizontalLayout gap="10" verticalAlign="middle">
+									
+								</s:HorizontalLayout>
+							</s:layout>
+							<s:Button label="导出数据(作业单号)" click="getExcel(false)">
+							</s:Button>
+						</s:BorderContainer>
+						<s:BorderContainer height="100%" width="80" borderVisible="false" backgroundAlpha="0">
+							<s:layout>
+								<s:HorizontalLayout gap="10" verticalAlign="middle">
+									
+								</s:HorizontalLayout>
+							</s:layout>
+								<s:CheckBox label="剩余为'0'不导出" id="issy" selected="true" >
+								</s:CheckBox>
+						</s:BorderContainer>
+					</s:BorderContainer>
+					
 					<s:Button label="重置" click="queryreset()">
 					</s:Button>
 					<s:CheckBox label="不显示禁用的位置" id="isaction" selected="true" >

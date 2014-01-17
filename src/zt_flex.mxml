@@ -301,6 +301,11 @@
 				var request:URLRequest=new URLRequest(url);  
 				navigateToURL(request,"_self");  
 			}
+			public function downloadHelpWord():void{
+				var url:String="/static/zthelp.doc";  
+				var request:URLRequest=new URLRequest(url);  
+				navigateToURL(request,"_self");  
+			}
 			
 			public function repassword():void{
 				var changepassword:ChangePassword=ChangePassword(PopUpManager.createPopUp( 
@@ -308,6 +313,10 @@
 				changepassword.x=(this.width-changepassword.width)/2;
 				changepassword.y=(this.height-changepassword.height)/2;
 			}
+			
+			[Bindable]
+			[Embed("assets/img/help.png")]
+			public static var help:Class;
 			
 		]]>
 	</fx:Script>
@@ -382,9 +391,11 @@
 				<s:Label text="|" styleName="textStyle1"/>
 				<mx:LinkButton x="0" y="2" height="25" label="重新选择帐套" styleName="textStyle1"/>
 				<s:Label text="|" styleName="textStyle1"/>-->
+				<mx:LinkButton x="0" y="2" height="25" label="帮助" icon="{help}"  styleName="textStyle1" click="downloadHelpWord()"/>
+				<s:Label text="|" styleName="textStyle1"/>
 				<mx:LinkButton x="0" y="2" height="25" label="登出"  styleName="textStyle1" click="logout()"/>
 				<s:Label text="|" styleName="textStyle1"/>
-				<mx:LinkButton x="0" y="2" height="25" label="修改密码" styleName="textStyle1" click="repassword()"/>
+				<mx:LinkButton x="0" y="2" height="25"  label="修改密码" styleName="textStyle1" click="repassword()"/>
 			</s:SkinnableContainer>
 					
 		</s:Group>

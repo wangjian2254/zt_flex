@@ -645,14 +645,14 @@
 					needAjax+=1;
 					var op:AbstractOperation=RemoteUtil.getOperationByProgressBar("getOrderGenZongByDate");
 					op.addEventListener(ResultEvent.RESULT,resultJisuanClose);
-					var ddbh:Array=new Array();
-					for each(var item1:Object in InfoUtil.openOrderList){
-						if(item.yddbh==item1.id){
-							ddbh.push(item1.ddbh);
-							break;
-						}
-					}
-					op.send(myDateFormatter.format(new Date()),"open",ddbh,item.code,true);
+//					var ddbh:Array=new Array();
+//					for each(var item1:Object in InfoUtil.openOrderList){
+//						if(item.yddbh==item1.id){
+//							ddbh.push(item1.ddbh);
+//							break;
+//						}
+//					}
+					op.send(myDateFormatter.format(new Date()),"open",null,item.code,true);
 				}
 			}
 			
@@ -665,16 +665,18 @@
 					var orderlist_id:Number=0;
 					var code_id:Number=0;
 					var queryitem:Object=null;
+					var usenum:Number=0;
 					for each(var item:Object in q){
 						orderlist_id=item.orderlist_id;
 						code_id=item.code_id;
+						usenum+=item['ckddcy']+item['ddmzyf'];
 						
-						for each(var item1:Object in orderbblist){
-							if(item1.yddbh==orderlist_id&&item1.code==code_id){
-								item1.usenum=item['ckddcy']+item['ddmzyf'];
-							}
+						
+					}
+					for each(var item1:Object in orderbblist){
+						if(item1.code==code_id){
+							item.usenum=usenum;
 						}
-						
 					}
 					
 					

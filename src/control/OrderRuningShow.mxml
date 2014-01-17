@@ -399,16 +399,16 @@
 				</s:layout>
 				
 				
-				<s:Label text="订单号:">
+				<s:Label text="模糊订单号:">
 				</s:Label>
 				<uicontrol:FliterComboBox id="ddbhGrid" dataProvider="{InfoUtil.orderbhList}" labelField="ddbh" valueField="id" width="100" styleName="fliterComboBox" dropdownWidth="200" change="queryparamchange(false)">
 					
 				</uicontrol:FliterComboBox>
 				<s:Label text="下达日期:">
 				</s:Label>
-				<mx:DateField id="startdate" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" change="queryparamchange(true)" />
+				<mx:DateField id="startdate" formatString="YYYY/MM/DD" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" change="queryparamchange(true)" />
 				<s:Label text="~"/>
-				<mx:DateField id="enddate"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" change="queryparamchange(true)"/>
+				<mx:DateField id="enddate"  formatString="YYYY/MM/DD" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}" change="queryparamchange(true)"/>
 				<s:Button label="一周内" click="setDateRange('oneweek');">
 				</s:Button>
 				<s:Button label="两周内" click="setDateRange('twoweek');">

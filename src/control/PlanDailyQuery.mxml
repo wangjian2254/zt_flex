@@ -231,8 +231,8 @@
 					<s:Label text="查询日期：">
 						
 					</s:Label>
-				<mx:DateField id="startdate"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}"  />
-				<mx:DateField id="enddate"  dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}"  />
+				<mx:DateField id="startdate"  formatString="YYYY/MM/DD" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}"  />
+				<mx:DateField id="enddate"  formatString="YYYY/MM/DD" dayNames="{DateUtil.dayNames}" monthNames="{DateUtil.monthNames}"  />
 				
 				
 					<s:Button label="查询" click="queryPlanList()">
