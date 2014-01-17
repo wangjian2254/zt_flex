@@ -639,9 +639,9 @@
 				queryreset();
 				needAjax=0;
 				for each(var item:Object in orderbblist){
-					if(item.zydh&&!item.yddbh){
-						continue;
-					}
+//					if(item.zydh){
+//						continue;
+//					}
 					needAjax+=1;
 					var op:AbstractOperation=RemoteUtil.getOperationByProgressBar("getOrderGenZongByDate");
 					op.addEventListener(ResultEvent.RESULT,resultJisuanClose);
