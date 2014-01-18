@@ -669,13 +669,13 @@
 					for each(var item:Object in q){
 						orderlist_id=item.orderlist_id;
 						code_id=item.code_id;
-						usenum+=item['ckddcy']+item['ddmzyf'];
+						usenum+=item['ddmzyf'];
 						
 						
 					}
 					for each(var item1:Object in orderbblist){
 						if(item1.code==code_id){
-							item.usenum=usenum;
+							item1.usenum=usenum;
 						}
 					}
 					
