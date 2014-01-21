@@ -242,7 +242,7 @@
 				
 				var request:URLRequest = new URLRequest("/zt/getExcelByData");
 				request.method="post";
-				request.data="data="+JParser.encode(param);
+				request.data=JParser.encode(param);
 				navigateToURL(request);
 			}
 			
@@ -453,7 +453,7 @@
 							</s:HorizontalLayout>
 						</s:layout>
 					
-			<uicontrol:MarkAdvancedDataGrid id="planlistgrid" isNewAdd="false" rowHeight="25" headerHeight="30" dataProvider="{query}" visible="true"  enabled="true" editable="true" height="100%" width="100%">
+			<uicontrol:MarkAdvancedDataGrid id="planlistgrid" isNewAdd="false" sortableColumns="true" rowHeight="25" headerHeight="30" dataProvider="{query}" visible="true"  enabled="true" editable="true" height="100%" width="100%">
 				<uicontrol:groupedColumns>
 					<mx:AdvancedDataGridColumn headerText="选择" itemRenderer="uicontrol.GridCheckBox" dataField="selected" editable="true"  sortable="false" width="60"  editorDataField="selected" rendererIsEditor="true" >
 						

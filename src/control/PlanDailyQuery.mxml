@@ -140,7 +140,7 @@
 				
 				var request:URLRequest = new URLRequest("/zt/getDailyExcelByData");
 				request.method="post";
-				request.data="data="+JParser.encode(param);
+				request.data=JParser.encode(param);
 				navigateToURL(request);
 			}
 			
@@ -172,7 +172,7 @@
 				p['scx']=scxComb.selectedItem.name;
 				p['site']=siteComb.selectedItem.name;
 				p['ismain']=ddquerytype.selection.label;
-				request.data="data="+JParser.encode(p);
+				request.data=JParser.encode(p);
 				request.method = URLRequestMethod.POST;
 				navigateToURL(request,"_blank");
 

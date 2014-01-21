@@ -354,7 +354,7 @@
 				
 				var request:URLRequest = new URLRequest("/zt/getExcelByData");
 				request.method="post";
-				request.data="data="+JParser.encode(param);
+				request.data=JParser.encode(param);
 				navigateToURL(request);
 			}
 			
