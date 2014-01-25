@@ -88,6 +88,23 @@
 				RemoteUtil.openLoading();
 				op.send(parm);
 			}
+			private function onlinePlanDetail():void{
+				var parm:Array=new Array();
+				for each(var item:Object in query){
+					
+					if(item.hasOwnProperty("selected")&&item.selected){
+						if(item.planfinish_i==1){
+							Alert.show("未投项不能重置在线，请核对","警告");
+							return;
+						}
+						parm.push(item.id);
+					}
+				}
+				var op:AbstractOperation=RemoteUtil.getOperation("onlinePlanDetail");
+				op.addEventListener(ResultEvent.RESULT,resultClosePlanList);
+				RemoteUtil.openLoading();
+				op.send(parm);
+			}
 			
 			private function resultClosePlanList(e:ResultEvent):void{
 				if(e.result.success){
@@ -125,6 +142,10 @@
 					parm['wcstart']=wcstart;
 					parm['wcend']=wcend;
 					flag=true;
+				}
+				if(!parm.hasOwnProperty("trstart")&&!parm.hasOwnProperty("wcstart")){
+					Alert.show("请选择 计划投入日期 或 计划完成日期 缩小查询范围","提示");
+					return;
 				}
 				
 				if(siteComb.selectedIndex==0){
@@ -439,6 +460,8 @@
 					<s:Button label="导出" click="getExcel()">
 					</s:Button>
 					<s:Button label="强制关闭" click="closePlanDetail()">
+					</s:Button>
+					<s:Button label="重置在线" click="onlinePlanDetail()">
 					</s:Button>
 				</s:BorderContainer>
 				</s:Group>
