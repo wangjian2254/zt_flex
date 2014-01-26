@@ -8,12 +8,14 @@
 	<fx:Script>
 		<![CDATA[
 			import events.CloseEvent;
+;
 			
 			import httpcontrol.RemoteUtil;
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
+
 			import mx.events.ItemClickEvent;
 			import mx.rpc.AbstractOperation;
 			import mx.rpc.events.ResultEvent;
@@ -142,7 +144,7 @@
 					this.lsh.text="";
 				}
 				if(e.label=="保存"){
-					save();
+					checkPlanNum();
 				}
 				if(e.label=="删除"){
 					del();
@@ -290,7 +292,62 @@
 				return flag;
 			}
 			
+			public function checkPlanNum():void{
+				if(!check()){
+					orderbblist.refresh();
+					return;
+				}
+				var scxArr:ArrayCollection=new ArrayCollection();
+				var obj:Object;
+				for each(var item:Object in orderbblist){
+					obj=new Object();
+					if(item.hasOwnProperty("id")){
+						obj.id=item.id;
+					}
+					obj.yorder=item.yorder;
+					obj.zrorder=item.zrorder;
+					obj.yzydh=item.yzydh.toUpperCase();
+					if(item.hasOwnProperty("ywz")&&item.ywznum>0){
+						obj.ywz=item.ywz;
+						obj.ywznum=item.ywznum;
+					}
+					if(item.hasOwnProperty("zrwz")&&item.zrwz!=""&&item.zrwz!=null&&item.zrwz>0){
+						obj.zrwz=item.zrwz;
+						obj.zrwznum=item.zrwznum;
+					}
+					
+					
+					obj.bfnum=item.bfnum;
+					obj.ysnum=item.ysnum;
+					obj.ywzsynum=item.ywzsynum;
+					obj.bztext=item.bztext;
+					scxArr.addItem(obj);
+				}
+				if(scxArr.length>0){
+					var op:AbstractOperation=RemoteUtil.getSingleOperation("checkOrderbbPlanDetail");
+					op.addEventListener(ResultEvent.RESULT,resultCheckPlanNum);
+					RemoteUtil.openLoading();
+					op.send(scxArr,this.lsh.text);
+				}
+			}
 			
+			public function resultCheckPlanNum(e:ResultEvent):void{
+				
+				var result:Object=e.result;
+				if(result.result==true){
+					save();
+				}else{
+					mx.controls.Alert.yesLabel = "继续保存";
+					mx.controls.Alert.noLabel = "取消";
+					mx.controls.Alert.show(result.message,"警告",3,this,function(e:mx.events.CloseEvent):void{
+						if(e.detail ==mx.controls.Alert.NO){
+							return;
+						}else if(e.detail==mx.controls.Alert.YES){
+							save();
+						}
+					});
+				}
+			}
 			public function save():void{
 				if(!check()){
 					orderbblist.refresh();
@@ -1199,4 +1256,5 @@
 			
 		</s:BorderContainer>
 	</s:HGroup>
+	
 </control:CBorderContainer>
