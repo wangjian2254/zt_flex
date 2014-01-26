@@ -337,12 +337,13 @@
 				if(result.result==true){
 					save();
 				}else{
-					mx.controls.Alert.yesLabel = "继续保存";
-					mx.controls.Alert.noLabel = "取消";
-					mx.controls.Alert.show(result.message,"警告",3,this,function(e:mx.events.CloseEvent):void{
-						if(e.detail ==mx.controls.Alert.NO){
+			
+					Alert.yesLabel = "继续保存";
+					Alert.noLabel = "取消";
+					Alert.show(result.message,"警告",3,this,function(e:mx.events.CloseEvent):void{
+						if(e.detail ==Alert.NO){
 							return;
-						}else if(e.detail==mx.controls.Alert.YES){
+						}else if(e.detail==Alert.YES){
 							save();
 						}
 					});
