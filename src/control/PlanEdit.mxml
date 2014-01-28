@@ -30,6 +30,7 @@
 			import mx.utils.StringUtil;
 			
 			import uicontrol.DDBHFliterComboBox;
+			import uicontrol.GridDDBH;
 			import uicontrol.GridManageSite;
 			import uicontrol.PlanEndDate;
 			import uicontrol.PlanStartDate;
@@ -94,6 +95,15 @@
 					endDateColumn.dataField="enddate"+item.id;
 					endDateColumn.itemEditor=new ClassFactory(PlanEndDate);
 					endDateColumn.labelFunction = showOldDataPSite;
+					
+					toSiteColumn=new AdvancedDataGridColumn();
+					toSiteColumn.headerText="去向订单编号";
+					toSiteColumn.editable=true;
+					toSiteColumn.editorDataField="data";
+					toSiteColumn.width=80;
+					toSiteColumn.dataField="qxddbh"+item.id;
+					toSiteColumn.itemEditor=new ClassFactory(GridDDBH);
+					toSiteColumn.labelFunction=getDDBHStr;
 					
 					toSiteColumn=new AdvancedDataGridColumn();
 					toSiteColumn.headerText="转入位置";
@@ -255,16 +265,35 @@
 			}
 			
 			public function getDDBHStr(item:Object, column:AdvancedDataGridColumn):String{
-				var str:String=getDDBHById(item.yddbh);
-				if(item.hasOwnProperty("isdel")&&item.isdel){
-					str+='\n--"删除"';
-				}
-				if(item.hasOwnProperty("oldDataDict")&&item.oldDataDict.yddbh!=item.yddbh){
-					str+="\n\n"+getDDBHById(item.oldDataDict.yddbh);
-					
+				var str:String=null;
+				if(item[column.dataField]){
+					str = getDDBHById(item[column.dataField]);
+				}else{
+					str='"空"';
 				}
 				
+				if((item.hasOwnProperty("isdel")&&item.isdel)||(item.hasOwnProperty(column.dataField.replace(regsite,"isdel"))&&item[column.dataField.replace(regsite,"isdel")])){
+					str+='\n--"删除"';
+				}
+				if(item.hasOwnProperty("oldDataDict")&&item.oldDataDict[column.dataField]!=item[column.dataField]){
+					if(item.oldDataDict[column.dataField]){
+						str+="\n\n"+getDDBHById(item.oldDataDict[column.dataField]);
+					}else{
+						str+='\n\n"空"';
+					}
+				}
 				return str;
+				
+//				var str:String=getDDBHById(item.yddbh);
+//				if(item.hasOwnProperty("isdel")&&item.isdel){
+//					str+='\n--"删除"';
+//				}
+//				if(item.hasOwnProperty("oldDataDict")&&item.oldDataDict.yddbh!=item.yddbh){
+//					str+="\n\n"+getDDBHById(item.oldDataDict.yddbh);
+//					
+//				}
+//				
+//				return str;
 			}
 			
 			
@@ -1143,6 +1172,9 @@
 							
 						</mx:AdvancedDataGridColumn>
 						<mx:AdvancedDataGridColumn headerText="计划完成日期" itemEditor="uicontrol.PlanEndDate"  dataField="enddate"   editorDataField="data"  width="100"  >
+							
+						</mx:AdvancedDataGridColumn>
+						<mx:AdvancedDataGridColumn headerText="去向订单编号" itemEditor="uicontrol.GridDDBH"  dataField="qxddbh" editorDataField="data" labelFunction="getDDBHStr" width="100"   >
 							
 						</mx:AdvancedDataGridColumn>
 						<mx:AdvancedDataGridColumn headerText="去向位置" itemEditor="uicontrol.PlanToSite"  dataField="zrwz" editorDataField="data"  labelFunction="getZRWZStr" width="100"  >

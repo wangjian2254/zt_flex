@@ -100,7 +100,17 @@
 				if(_value['zydh']!=null||_value['zydh']!=""){
 					_value["zydh"]="";
 				}
-				InfoUtil.orderlistToOrderbhRefresh(cbo.selectedItem.id);
+				if(_listData.dataField =="yddbh"){
+					InfoUtil.orderlistToOrderbhRefresh(cbo.selectedItem.id);
+					for each(var item:Object in InfoUtil.siteList){
+						if(item.type=='3'){
+							continue;
+						}
+						if(!_value.hasOwnProperty("qxddbh"+item.id)||!_value["qxddbh"+item.id]){
+							_value["qxddbh"+item.id]=cbo.selectedItem.id;
+						}
+					}
+				}
 				
 			}
 			
