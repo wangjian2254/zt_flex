@@ -520,6 +520,8 @@
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn headerText="去向位置"  dataField="endsite"   width="120"   editable="false">
 					</mx:AdvancedDataGridColumn>
+					<mx:AdvancedDataGridColumn headerText="去向订单号"  dataField="qxddbh"   width="120"   editable="false">
+					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn headerText="紧急程度"   dataField="level"   width="80"   editable="false">
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn headerText="计划数量"  dataField="plannum"   width="80"   editable="false">
