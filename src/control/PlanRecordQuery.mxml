@@ -554,34 +554,35 @@
 				</uicontrol:groupedColumns>
 				
 			</uicontrol:MarkAdvancedDataGrid>
+			
+			</s:BorderContainer>
+				</s:Group>
+			</s:Scroller>
 			<s:BorderContainer height="30" width="100%"  backgroundAlpha="0" borderVisible="false" >
 				<s:layout>
 					<s:HorizontalLayout gap="10" verticalAlign="middle" horizontalAlign="left" paddingLeft="5"  paddingRight="5" >
 						
 					</s:HorizontalLayout>
 				</s:layout>
-						<s:Label text="总项数：">
-						</s:Label>
-						<s:Label id="xiangnum" text="{query.length}"/>
-						<s:Label text="总计划数：">
-						</s:Label>
-						<s:Label id="jihuanum" text=""/>
-						<s:Label text="总实际转入数：">
-						</s:Label>
-						<s:Label id="zhuanrunum" text=""/>
-						<s:Label text="总实际完成数：">
-						</s:Label>
-						<s:Label id="wanchengnum" text=""/>
-						<s:Label text="总报废数：">
-						</s:Label>
-						<s:Label id="baofeinum" text=""/>
-						<s:Label text="总遗失数：">
-						</s:Label>
-						<s:Label id="yishinum" text=""/>
-					</s:BorderContainer>
+				<s:Label text="总项数：">
+				</s:Label>
+				<s:Label id="xiangnum" text="{query.length}"/>
+				<s:Label text="总计划数：">
+				</s:Label>
+				<s:Label id="jihuanum" text=""/>
+				<s:Label text="总实际转入数：">
+				</s:Label>
+				<s:Label id="zhuanrunum" text=""/>
+				<s:Label text="总实际完成数：">
+				</s:Label>
+				<s:Label id="wanchengnum" text=""/>
+				<s:Label text="总报废数：">
+				</s:Label>
+				<s:Label id="baofeinum" text=""/>
+				<s:Label text="总遗失数：">
+				</s:Label>
+				<s:Label id="yishinum" text=""/>
 			</s:BorderContainer>
-				</s:Group>
-			</s:Scroller>
 		</s:BorderContainer>
 	</s:HGroup>
 </control:CBorderContainer>
