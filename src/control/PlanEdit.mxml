@@ -67,6 +67,7 @@
 				var startDateColumn:AdvancedDataGridColumn=null;
 				var endDateColumn:AdvancedDataGridColumn=null;
 				var toSiteColumn:AdvancedDataGridColumn=null;
+				var toQXDDColumn:AdvancedDataGridColumn=null;
 				var managerColumn:AdvancedDataGridColumn=null;
 				for each(var item:Object in InfoUtil.siteList){
 					if(item.type=='3'){
@@ -96,14 +97,14 @@
 					endDateColumn.itemEditor=new ClassFactory(PlanEndDate);
 					endDateColumn.labelFunction = showOldDataPSite;
 					
-					toSiteColumn=new AdvancedDataGridColumn();
-					toSiteColumn.headerText="去向订单编号";
-					toSiteColumn.editable=true;
-					toSiteColumn.editorDataField="data";
-					toSiteColumn.width=80;
-					toSiteColumn.dataField="qxddbh"+item.id;
-					toSiteColumn.itemEditor=new ClassFactory(GridDDBH);
-					toSiteColumn.labelFunction=getDDBHStr;
+					toQXDDColumn=new AdvancedDataGridColumn();
+					toQXDDColumn.headerText="去向订单编号";
+					toQXDDColumn.editable=true;
+					toQXDDColumn.editorDataField="data";
+					toQXDDColumn.width=120;
+					toQXDDColumn.dataField="qxddbh"+item.id;
+					toQXDDColumn.itemEditor=new ClassFactory(GridDDBH);
+					toQXDDColumn.labelFunction=getDDBHStr;
 					
 					toSiteColumn=new AdvancedDataGridColumn();
 					toSiteColumn.headerText="转入位置";
@@ -124,9 +125,9 @@
 					managerColumn.rendererIsEditor=true;
 //					managerColumn.labelFunction=getZRWZStr;
 					
-					siteGroup.children.push(startDateColumn,endDateColumn,toSiteColumn,managerColumn);
-					siteGroup.width=330;
-					orderbbgrid.minWidth+=330;
+					siteGroup.children.push(startDateColumn,endDateColumn,toQXDDColumn,toSiteColumn,managerColumn);
+					siteGroup.width=530;
+					orderbbgrid.minWidth+=530;
 					zyq.children.push(siteGroup);
 					
 					cbx.gridcolumn=siteGroup;
