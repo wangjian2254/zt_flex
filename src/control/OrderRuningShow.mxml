@@ -341,7 +341,7 @@
 				var param:Object=new Object();
 				param['index']=new Array();
 				param['head']=new Object();
-				param['data']=query;
+				param['data']=queryfilter;
 				var c:AdvancedDataGridColumn;
 				for(var i:int=0;i<grid.groupedColumns.length;i++){
 					c=grid.groupedColumns[i] as AdvancedDataGridColumn;

@@ -97,9 +97,12 @@
 				if(_value['zrddbh']==null||_value['zrddbh']==""){
 					_value["zrddbh"]=cbo.selectedItem.id;
 				}
-				if(_value['zydh']!=null||_value['zydh']!=""){
-					_value["zydh"]="";
+				if(_listData.dataField =="yddbh"){
+					if(_value['zydh']!=null||_value['zydh']!=""){
+						_value["zydh"]="";
+					}
 				}
+				
 				if(_listData.dataField =="yddbh"){
 					InfoUtil.orderlistToOrderbhRefresh(cbo.selectedItem.id);
 					for each(var item:Object in InfoUtil.siteList){
